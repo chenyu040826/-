@@ -18,7 +18,6 @@
   }
   .app{max-width:960px;margin:0 auto;position:relative;}
 
-  /* 顶部提示条 */
   .tip-bar{
     background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;
     border-radius:12px;padding:10px 14px;font-size:12.5px;line-height:1.7;
@@ -27,7 +26,6 @@
   .tip-bar .tip-icon{flex-shrink:0;font-size:14px;line-height:1.7;}
   .tip-bar b{color:#1d4ed8;}
 
-  /* 右上角保存提示 */
   .toast{
     position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);
     background:#10b981;color:#fff;padding:10px 22px;border-radius:999px;
@@ -58,7 +56,6 @@
   .page{display:none;}
   .page.active{display:block;}
 
-  /* 总览 */
   .overview{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;}
   .ov{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center;}
   .ov-label{font-size:11.5px;color:var(--muted);margin-bottom:5px;}
@@ -75,7 +72,6 @@
   .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
   .section-head h2{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:.5px;}
 
-  /* 模块卡片 */
   .modules{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;}
   .module{
     background:var(--card);border:1px solid var(--line);border-radius:16px;
@@ -114,7 +110,6 @@
   .m-diff.ok{color:var(--ok);}
   .m-diff.bad{color:var(--danger);}
 
-  /* 题目/得分行 */
   .m-score-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
   .m-score-item{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--muted);white-space:nowrap;}
   .m-score-item input{
@@ -156,7 +151,6 @@
   .fill-btns .btn{flex:1;}
   .fill-hint{font-size:11px;color:var(--muted);line-height:1.6;}
 
-  /* 按钮 */
   .btn{
     border:1px solid var(--line);background:#fff;color:var(--text);
     border-radius:10px;padding:9px 14px;font-size:13.5px;cursor:pointer;
@@ -180,7 +174,6 @@
   .btn-ghost{padding:6px 14px;font-size:13px;color:var(--muted);border-radius:9px;}
   .btn-ghost:hover{color:var(--danger);border-color:var(--danger);background:#fef2f2;}
 
-  /* 建议 */
   .advice{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-top:22px;}
   .advice-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
   .advice-summary{font-size:14px;line-height:1.75;padding:11px 13px;border-radius:11px;margin-bottom:13px;}
@@ -251,7 +244,7 @@
 (function () {
   'use strict';
 
-  var KEY = 'gongkao-timer-v6';
+  var KEY = 'gongkao-timer-v7';
 
   /* ============ 存储层：三重保险 ============ */
   var storage = (function () {
@@ -300,19 +293,19 @@
   })();
 
   /* ============================================================
-     国考默认数据（按市地级/行政执法卷 130 题设置）
+     国考默认数据（行测总分 100 分）
      用户可自行修改题量和分值
      ============================================================ */
   var DEFAULT_DATA = {
     xingce: {
       label: '行测模块（按国考市地级/行政执法卷 130 题）',
       modules: [
-        { id: 'x1', name: '政治理论',   target: 8,  totalQ: 20, perScore: 0.8 },
-        { id: 'x2', name: '常识判断',   target: 6,  totalQ: 15, perScore: 0.5 },
+        { id: 'x1', name: '政治理论',      target: 8,  totalQ: 20, perScore: 0.7 },
+        { id: 'x2', name: '常识判断',      target: 6,  totalQ: 15, perScore: 0.5 },
         { id: 'x3', name: '言语理解与表达', target: 35, totalQ: 30, perScore: 0.8 },
-        { id: 'x4', name: '数量关系',   target: 10, totalQ: 10, perScore: 1.0 },
-        { id: 'x5', name: '判断推理',   target: 35, totalQ: 35, perScore: 0.7 },
-        { id: 'x6', name: '资料分析',   target: 25, totalQ: 20, perScore: 1.0 }
+        { id: 'x4', name: '数量关系',      target: 10, totalQ: 10, perScore: 1.0 },
+        { id: 'x5', name: '判断推理',      target: 35, totalQ: 35, perScore: 0.7 },
+        { id: 'x6', name: '资料分析',      target: 25, totalQ: 20, perScore: 1.0 }
       ]
     },
     shenlun: {
@@ -396,7 +389,6 @@
     return null;
   }
 
-  /* 计算某模块得分 */
   function calcScore(m) {
     if (m.totalQ > 0 && m.perScore > 0) {
       var c = Math.min(m.correctQ, m.totalQ);
@@ -405,7 +397,6 @@
     return 0;
   }
 
-  /* 计算某模块满分 */
   function calcFullScore(m) {
     return m.totalQ * m.perScore;
   }
@@ -463,7 +454,6 @@
     var pageEl = document.getElementById('page-' + key);
 
     var html = '';
-    /* 总览 4 项 */
     html += '<section class="overview">';
     html +=   '<div class="ov"><div class="ov-label">总目标</div>' +
                 '<div class="ov-value" id="' + key + 'TotalTarget">00:00</div>' +
@@ -505,7 +495,6 @@
         '</div>' +
         '<div class="m-time">00:00</div>' +
         '<div class="m-diff">--</div>' +
-        /* 题目 / 得分行 */
         '<div class="m-score-row">' +
           '<label class="m-score-item">题数' +
             '<input type="number" class="sc-total" min="0" step="1" inputmode="numeric">' +
@@ -562,10 +551,8 @@
       scCorrect.value = m.correctQ;
       scPer.value = m.perScore;
 
-      /* 模块名 */
       nameInput.addEventListener('input', function () { m.name = nameInput.value; save(); });
 
-      /* 目标分钟 */
       targetInput.addEventListener('input', function () {
         var v = parseFloat(targetInput.value);
         m.target = (isNaN(v) || v < 0) ? 0 : v;
@@ -573,7 +560,6 @@
       });
       targetInput.addEventListener('blur', function () { targetInput.value = m.target; save(true); });
 
-      /* 题数 */
       scTotal.addEventListener('input', function () {
         var v = parseInt(scTotal.value, 10);
         m.totalQ = (isNaN(v) || v < 0) ? 0 : v;
@@ -583,7 +569,6 @@
       });
       scTotal.addEventListener('blur', function () { scTotal.value = m.totalQ; save(true); });
 
-      /* 答对题数 */
       scCorrect.addEventListener('input', function () {
         var v = parseInt(scCorrect.value, 10);
         if (isNaN(v) || v < 0) v = 0;
@@ -594,7 +579,6 @@
       });
       scCorrect.addEventListener('blur', function () { scCorrect.value = m.correctQ; save(true); });
 
-      /* 每题分值 */
       scPer.addEventListener('input', function () {
         var v = parseFloat(scPer.value);
         m.perScore = (isNaN(v) || v < 0) ? 0 : v;
@@ -602,11 +586,9 @@
       });
       scPer.addEventListener('blur', function () { scPer.value = m.perScore; save(true); });
 
-      /* 计时 */
       startBtn.addEventListener('click', function () { toggle(key, m.id); });
       resetBtn.addEventListener('click', function () { resetOne(key, m.id); });
 
-      /* 填用时 */
       fillBtn.addEventListener('click', function () {
         if (fillRow.classList.contains('show')) { fillRow.classList.remove('show'); return; }
         var running = timer.key === key && timer.id === m.id;
@@ -735,7 +717,6 @@
         el.fill.style.width = actual > 0 ? '100%' : '0%';
       }
 
-      /* 得分徽章 */
       if (fullScore > 0) {
         var pct = score / fullScore;
         el.badge.textContent = score.toFixed(1) + ' / ' + fullScore.toFixed(1);
@@ -748,7 +729,6 @@
       el.btn.textContent = running ? '暂停' : (actual >= 1000 ? '继续' : '开始');
     });
 
-    /* 总览 */
     var totalTargetEl  = document.getElementById(key + 'TotalTarget');
     var totalTargetSub = document.getElementById(key + 'TotalTargetSub');
     var totalActualEl  = document.getElementById(key + 'TotalActual');
@@ -807,7 +787,6 @@
     if (!modules.length) { container.innerHTML = ''; return; }
 
     var filled = modules.filter(function (m) { return m.actual > 0; }).length;
-    var answered = modules.filter(function (m) { return m.correctQ > 0; }).length;
 
     if (filled < modules.length) {
       var k0 = 'inc:' + filled + '/' + modules.length;
@@ -862,7 +841,6 @@
       list.push({ type: type, text: text });
     }
 
-    /* 总结（含得分） */
     var summary, summaryCls;
     if (allHaveTarget && totalTargetMs > 0) {
       var timePart = totalDiffMs > 0
@@ -878,7 +856,6 @@
       summaryCls = 'neutral';
     }
 
-    /* 超时最多（2 个） */
     var overs = stats.filter(function (s) { return s.hasTarget && s.diffMs > 0; })
                      .sort(function (a, b) { return b.diffMs - a.diffMs; });
     overs.slice(0, 2).forEach(function (s) {
@@ -888,7 +865,6 @@
       add('warn', '「' + s.name + '」超时 <b>' + fmt(s.diffMs) + '</b>，实际用了 ' + fmt(s.actualMs) + '（目标 ' + s.targetMin + ' 分钟，多用约 ' + pct + '%）。' + extra, s.name);
     });
 
-    /* 得分分析：正确率低的模块 */
     var lowAcc = stats.filter(function (s) {
       return s.totalQ > 0 && s.accuracy < 0.5 && !mentioned[s.name];
     }).sort(function (a, b) { return a.accuracy - b.accuracy; });
@@ -896,7 +872,6 @@
       add('warn', '「' + s.name + '」正确率仅 <b>' + (s.accuracy * 100).toFixed(0) + '%</b>（' + s.correctQ + '/' + s.totalQ + '），是得分短板，建议针对性加强。', s.name);
     });
 
-    /* 得分分析：得分率高的模块 */
     var highScore = stats.filter(function (s) {
       return s.fullScore > 0 && s.score / s.fullScore >= 0.8 && !mentioned[s.name];
     }).sort(function (a, b) { return b.score - a.score; });
@@ -904,7 +879,6 @@
       add('ok', '「' + s.name + '」得分率 <b>' + (s.score / s.fullScore * 100).toFixed(0) + '%</b>（' + s.score.toFixed(1) + '/' + s.fullScore.toFixed(1) + '），是优势模块，继续保持。', s.name);
     });
 
-    /* 接近目标 */
     var near = stats.filter(function (s) {
       return s.hasTarget && s.diffMs <= 0 && s.ratio >= 0.9 && !mentioned[s.name];
     }).sort(function (a, b) { return b.ratio - a.ratio; });
@@ -912,7 +886,6 @@
       add('tip', '「' + s.name + '」用时 ' + fmt(s.actualMs) + '，接近目标 ' + s.targetMin + ' 分钟，考场上要预留检查时间。', s.name);
     });
 
-    /* 节省最多 */
     var saves = stats.filter(function (s) { return s.hasTarget && s.diffMs < -60000; })
                      .sort(function (a, b) { return a.diffMs - b.diffMs; });
     if (saves.length) {
@@ -920,7 +893,6 @@
       add('ok', '「' + s0.name + '」比目标节省了 <b>' + fmt(-s0.diffMs) + '</b>，可补给吃紧的模块。', s0.name);
     }
 
-    /* 压缩方案 */
     if (allHaveTarget && totalDiffMs > 0) {
       var totalSaved = stats.reduce(function (a, s) { return a + (s.diffMs < 0 ? -s.diffMs : 0); }, 0);
       if (totalSaved > 0) {
@@ -930,7 +902,6 @@
       }
     }
 
-    /* 与合理区间对比 */
     stats.forEach(function (s) {
       if (mentioned[s.name]) return;
       var st = matchStrategy(s.name);
@@ -944,7 +915,6 @@
 
     if (!list.length) add('ok', '各模块用时和得分都在合理范围内，保持这个节奏。');
 
-    /* 通用提醒 */
     if (list.length < 6) {
       if (key === 'shenlun') {
         list.push({ type: 'tip', text: '申论估分建议：小题按踩点给分，大作文按四类文估算（一类 30+，二类 24–30，三类 16–23，四类 0–15）。' });
