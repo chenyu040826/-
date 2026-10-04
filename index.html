@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>公考模块计时器</title>
+<title>公考模块计时器 · 估分版</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   :root{
@@ -58,13 +58,15 @@
   .page{display:none;}
   .page.active{display:block;}
 
-  .overview{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;}
-  .ov{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 10px;text-align:center;}
-  .ov-label{font-size:12px;color:var(--muted);margin-bottom:6px;}
-  .ov-value{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;transition:color .2s;line-height:1.2;}
+  /* 总览 */
+  .overview{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;}
+  .ov{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center;}
+  .ov-label{font-size:11.5px;color:var(--muted);margin-bottom:5px;}
+  .ov-value{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;transition:color .2s;line-height:1.2;}
   .ov-value.ok{color:var(--ok);}
   .ov-value.bad{color:var(--danger);}
-  .ov-sub{font-size:11.5px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums;}
+  .ov-value.score{color:var(--primary);}
+  .ov-sub{font-size:11px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums;}
 
   .total-bar{height:6px;background:#e6e9f0;border-radius:99px;overflow:hidden;margin-bottom:24px;}
   .total-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#60a5fa,#3b82f6);transition:width .15s linear,background .3s;}
@@ -73,7 +75,8 @@
   .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
   .section-head h2{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:.5px;}
 
-  .modules{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+  /* 模块卡片 */
+  .modules{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;}
   .module{
     background:var(--card);border:1px solid var(--line);border-radius:16px;
     padding:16px;display:flex;flex-direction:column;gap:10px;
@@ -87,15 +90,15 @@
   .m-name-input{
     border:1px solid transparent;background:transparent;font-size:15px;font-weight:600;
     color:var(--text);font-family:inherit;padding:4px 7px;border-radius:8px;
-    width:100%;max-width:150px;min-width:0;transition:.15s;
+    width:100%;max-width:130px;min-width:0;transition:.15s;
   }
   .m-name-input:hover{background:#f3f4f6;}
   .m-name-input:focus{outline:none;border-color:var(--primary);background:#fff;}
 
   .m-target{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);white-space:nowrap;flex-shrink:0;}
   .m-target input{
-    width:52px;padding:4px 6px;border:1px solid var(--line);border-radius:8px;
-    font-size:13px;text-align:center;font-family:inherit;color:var(--text);
+    width:48px;padding:4px 5px;border:1px solid var(--line);border-radius:8px;
+    font-size:12.5px;text-align:center;font-family:inherit;color:var(--text);
     background:#fff;font-variant-numeric:tabular-nums;transition:.15s;
     -moz-appearance:textfield;
   }
@@ -103,13 +106,33 @@
   .m-target input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
   .m-target input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
 
-  .m-time{font-size:36px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:.5px;transition:color .2s;}
+  .m-time{font-size:34px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:.5px;transition:color .2s;}
   .module.active .m-time{color:var(--primary);}
   .module.over .m-time{color:var(--danger);}
 
   .m-diff{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
   .m-diff.ok{color:var(--ok);}
   .m-diff.bad{color:var(--danger);}
+
+  /* 题目/得分行 */
+  .m-score-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .m-score-item{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--muted);white-space:nowrap;}
+  .m-score-item input{
+    width:42px;padding:4px 5px;border:1px solid var(--line);border-radius:7px;
+    font-size:12.5px;text-align:center;font-family:inherit;color:var(--text);
+    background:#fff;font-variant-numeric:tabular-nums;transition:.15s;
+    -moz-appearance:textfield;
+  }
+  .m-score-item input::-webkit-outer-spin-button,
+  .m-score-item input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .m-score-item input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
+  .m-score-badge{
+    margin-left:auto;font-size:13px;font-weight:700;color:var(--primary);
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .m-score-badge.good{color:var(--ok);}
+  .m-score-badge.bad{color:var(--danger);}
+  .m-score-badge small{font-size:10px;font-weight:500;color:var(--muted);}
 
   .bar{height:8px;background:#eef2f7;border-radius:99px;overflow:hidden;}
   .bar-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#60a5fa,#3b82f6);transition:width .15s linear,background .3s;}
@@ -133,6 +156,7 @@
   .fill-btns .btn{flex:1;}
   .fill-hint{font-size:11px;color:var(--muted);line-height:1.6;}
 
+  /* 按钮 */
   .btn{
     border:1px solid var(--line);background:#fff;color:var(--text);
     border-radius:10px;padding:9px 14px;font-size:13.5px;cursor:pointer;
@@ -146,7 +170,7 @@
   .module.active .btn-start{background:var(--warn);border-color:var(--warn);}
   .module.active .btn-start:hover{background:#d97706;border-color:#d97706;}
 
-  .btn-reset{background:#fff;color:var(--muted);padding:9px 12px;}
+  .btn-reset{background:#fff;color:var(--muted);padding:9px 10px;font-size:12.5px;}
   .btn-reset:hover{color:var(--danger);border-color:var(--danger);background:#fef2f2;}
 
   .btn-sm{padding:7px 12px;font-size:13px;border-radius:9px;}
@@ -156,6 +180,7 @@
   .btn-ghost{padding:6px 14px;font-size:13px;color:var(--muted);border-radius:9px;}
   .btn-ghost:hover{color:var(--danger);border-color:var(--danger);background:#fef2f2;}
 
+  /* 建议 */
   .advice{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-top:22px;}
   .advice-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
   .advice-summary{font-size:14px;line-height:1.75;padding:11px 13px;border-radius:11px;margin-bottom:13px;}
@@ -182,11 +207,13 @@
 
   @media (max-width:420px){
     body{padding:18px 12px 50px;}
-    .m-time{font-size:30px;}
-    .ov-value{font-size:17px;}
+    .m-time{font-size:28px;}
+    .ov-value{font-size:16px;}
+    .overview{grid-template-columns:repeat(2,1fr);}
     .modules{grid-template-columns:1fr;}
     .btn{padding:9px 10px;font-size:13px;}
     .fill-num{width:50px;}
+    .m-score-item input{width:38px;}
   }
 </style>
 </head>
@@ -202,14 +229,13 @@
   </div>
 
   <header>
-    <h1>公考模块计时器</h1>
-    <p>数据自动保存 · 下次打开自动恢复 · 模块顺序按国考真题排列</p>
+    <h1>公考模块计时器 · 估分版</h1>
+    <p>计时 + 估分 · 按国考真实分值预设 · 模块顺序按国考真题排列</p>
   </header>
 
-  <!-- 温馨提示条 -->
   <div class="tip-bar">
     <span class="tip-icon">💾</span>
-    <span>你的模块名、目标时间和用时都<b>自动保存在本浏览器</b>，关闭页面再打开会自动恢复。换浏览器、换设备或清理浏览器数据后，记录不会同步。</span>
+    <span>所有数据（模块名、目标、用时、题目数、答对数）都<b>自动保存在本浏览器</b>。换浏览器、换设备或清理浏览器数据后，记录不会同步。</span>
   </div>
 
   <div class="tabs" id="tabs">
@@ -225,24 +251,13 @@
 (function () {
   'use strict';
 
-  var KEY = 'gongkao-timer-v5';
+  var KEY = 'gongkao-timer-v6';
 
   /* ============ 存储层：三重保险 ============ */
   var storage = (function () {
     var available = { local: false, session: false, cookie: false };
-
-    try {
-      localStorage.setItem('__t', '1');
-      localStorage.removeItem('__t');
-      available.local = true;
-    } catch (e) {}
-
-    try {
-      sessionStorage.setItem('__t', '1');
-      sessionStorage.removeItem('__t');
-      available.session = true;
-    } catch (e) {}
-
+    try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); available.local = true; } catch (e) {}
+    try { sessionStorage.setItem('__t', '1'); sessionStorage.removeItem('__t'); available.session = true; } catch (e) {}
     try {
       document.cookie = '__t=1;path=/';
       available.cookie = document.cookie.indexOf('__t=') !== -1;
@@ -252,12 +267,8 @@
     function setItem(key, value) {
       var str = typeof value === 'string' ? value : JSON.stringify(value);
       var ok = false;
-      if (available.local) {
-        try { localStorage.setItem(key, str); ok = true; } catch (e) {}
-      }
-      if (available.session) {
-        try { sessionStorage.setItem(key, str); ok = true; } catch (e) {}
-      }
+      if (available.local) { try { localStorage.setItem(key, str); ok = true; } catch (e) {} }
+      if (available.session) { try { sessionStorage.setItem(key, str); ok = true; } catch (e) {} }
       if (available.cookie && str.length < 3800) {
         try {
           document.cookie = key + '=' + encodeURIComponent(str) + ';max-age=31536000;path=/';
@@ -269,12 +280,8 @@
 
     function getItem(key) {
       var v;
-      if (available.local) {
-        try { v = localStorage.getItem(key); if (v) return v; } catch (e) {}
-      }
-      if (available.session) {
-        try { v = sessionStorage.getItem(key); if (v) return v; } catch (e) {}
-      }
+      if (available.local) { try { v = localStorage.getItem(key); if (v) return v; } catch (e) {} }
+      if (available.session) { try { v = sessionStorage.getItem(key); if (v) return v; } catch (e) {} }
       if (available.cookie) {
         try {
           var m = document.cookie.match(new RegExp('(?:^|; )' + key + '=([^;]*)'));
@@ -292,31 +299,35 @@
     };
   })();
 
-  /* ============ 默认数据 ============ */
+  /* ============================================================
+     国考默认数据（按市地级/行政执法卷 130 题设置）
+     用户可自行修改题量和分值
+     ============================================================ */
   var DEFAULT_DATA = {
     xingce: {
-      label: '行测模块（按国考真题顺序）',
+      label: '行测模块（按国考市地级/行政执法卷 130 题）',
       modules: [
-        { id: 'x1', name: '政治理论', target: 8 },
-        { id: 'x2', name: '常识判断', target: 8 },
-        { id: 'x3', name: '言语理解与表达', target: 35 },
-        { id: 'x4', name: '数量关系', target: 10 },
-        { id: 'x5', name: '判断推理', target: 35 },
-        { id: 'x6', name: '资料分析', target: 25 }
+        { id: 'x1', name: '政治理论',   target: 8,  totalQ: 20, perScore: 0.8 },
+        { id: 'x2', name: '常识判断',   target: 6,  totalQ: 15, perScore: 0.5 },
+        { id: 'x3', name: '言语理解与表达', target: 35, totalQ: 30, perScore: 0.8 },
+        { id: 'x4', name: '数量关系',   target: 10, totalQ: 10, perScore: 1.0 },
+        { id: 'x5', name: '判断推理',   target: 35, totalQ: 35, perScore: 0.7 },
+        { id: 'x6', name: '资料分析',   target: 25, totalQ: 20, perScore: 1.0 }
       ]
     },
     shenlun: {
       label: '申论题目（按国考真题顺序）',
       modules: [
-        { id: 's1', name: '归纳概括', target: 20 },
-        { id: 's2', name: '综合分析', target: 25 },
-        { id: 's3', name: '提出对策', target: 25 },
-        { id: 's4', name: '贯彻执行', target: 30 },
-        { id: 's5', name: '大作文', target: 60 }
+        { id: 's1', name: '归纳概括', target: 20, totalQ: 1, perScore: 10 },
+        { id: 's2', name: '综合分析', target: 25, totalQ: 1, perScore: 15 },
+        { id: 's3', name: '提出对策', target: 25, totalQ: 1, perScore: 20 },
+        { id: 's4', name: '贯彻执行', target: 30, totalQ: 1, perScore: 25 },
+        { id: 's5', name: '大作文',   target: 60, totalQ: 1, perScore: 30 }
       ]
     }
   };
 
+  /* ============ 策略库 ============ */
   var STRATEGIES = [
     { keys: ['常识'], ideal: [6, 12], tip: '常识判断性价比最低，不会的快速蒙一个，不要回看纠结。' },
     { keys: ['政治'], ideal: [6, 12], tip: '政治理论考的是记忆和第一印象，时政题不要反复琢磨，选完就走。' },
@@ -324,9 +335,9 @@
     { keys: ['数量'], ideal: [8, 15], tip: '数量关系先挑简单题做，单题超过 1.5 分钟果断跳过，不要把时间耗在难题上。' },
     { keys: ['判断', '推理'], ideal: [32, 38], tip: '图形推理最容易卡壳，看不出来先标记跳过，定义判断和类比推理要提速。' },
     { keys: ['资料'], ideal: [22, 28], tip: '资料分析是提分重点，优先保证正确率，熟练使用估算和速算技巧。' },
-    { keys: ['归纳', '概括'], ideal: [15, 22], tip: '归纳概括要点的全面性优先，分条作答，关键词前置，不要写成小作文。' },
-    { keys: ['综合分析', '分析'], ideal: [20, 28], tip: '综合分析先亮明观点，再展开分析，最后落到对策或结论，结构要清晰。' },
-    { keys: ['对策', '提出'], ideal: [20, 28], tip: '提出对策要具体、可操作，对策与问题一一对应，避免空话套话。' },
+    { keys: ['归纳', '概括'], ideal: [15, 22], tip: '归纳概括要点的全面性优先，分条作答，关键词前置。' },
+    { keys: ['综合分析', '分析'], ideal: [20, 28], tip: '综合分析先亮明观点，再展开分析，最后落到对策或结论。' },
+    { keys: ['对策', '提出'], ideal: [20, 28], tip: '提出对策要具体、可操作，对策与问题一一对应。' },
     { keys: ['贯彻', '执行', '公文'], ideal: [25, 35], tip: '贯彻执行注意文种格式和身份设定，开头交代背景，正文分层，结尾呼应。' },
     { keys: ['作文', '文章'], ideal: [55, 70], tip: '大作文至少留 60 分钟：5 分钟审题立意，10 分钟列提纲，40 分钟写作，5 分钟检查。' }
   ];
@@ -347,12 +358,14 @@
     data: {
       xingce: {
         modules: DEFAULT_DATA.xingce.modules.map(function (m) {
-          return { id: m.id, name: m.name, target: m.target, actual: 0 };
+          return { id: m.id, name: m.name, target: m.target, actual: 0,
+                   totalQ: m.totalQ, perScore: m.perScore, correctQ: 0 };
         })
       },
       shenlun: {
         modules: DEFAULT_DATA.shenlun.modules.map(function (m) {
-          return { id: m.id, name: m.name, target: m.target, actual: 0 };
+          return { id: m.id, name: m.name, target: m.target, actual: 0,
+                   totalQ: m.totalQ, perScore: m.perScore, correctQ: 0 };
         })
       }
     }
@@ -383,6 +396,20 @@
     return null;
   }
 
+  /* 计算某模块得分 */
+  function calcScore(m) {
+    if (m.totalQ > 0 && m.perScore > 0) {
+      var c = Math.min(m.correctQ, m.totalQ);
+      return c * m.perScore;
+    }
+    return 0;
+  }
+
+  /* 计算某模块满分 */
+  function calcFullScore(m) {
+    return m.totalQ * m.perScore;
+  }
+
   function showToast(msg, warn) {
     var el = document.getElementById('toast');
     el.textContent = msg;
@@ -390,29 +417,17 @@
     void el.offsetWidth;
     el.classList.add('show');
     clearTimeout(el.__tid);
-    el.__tid = setTimeout(function () {
-      el.classList.remove('show');
-    }, 1800);
+    el.__tid = setTimeout(function () { el.classList.remove('show'); }, 1800);
   }
 
-  /* ============ 存储：保存 / 读取 ============ */
+  /* ============ 存储 ============ */
   function save(immediate) {
     if (saveTimer) clearTimeout(saveTimer);
     function doSave() {
-      var ok = storage.setItem(KEY, {
-        active: state.active,
-        data: state.data,
-        savedAt: Date.now()
-      });
-      if (ok && !save.__quiet) {
-        showToast('✓ 已自动保存');
-      }
+      var ok = storage.setItem(KEY, { active: state.active, data: state.data, savedAt: Date.now() });
+      if (ok && !save.__quiet) showToast('✓ 已自动保存');
     }
-    if (immediate) {
-      doSave();
-    } else {
-      saveTimer = setTimeout(doSave, 300);
-    }
+    if (immediate) { doSave(); } else { saveTimer = setTimeout(doSave, 300); }
   }
 
   function load() {
@@ -431,6 +446,9 @@
         if (typeof sm.name === 'string' && sm.name) m.name = sm.name;
         if (typeof sm.target === 'number' && sm.target >= 0) m.target = sm.target;
         if (typeof sm.actual === 'number' && sm.actual >= 0) m.actual = sm.actual;
+        if (typeof sm.totalQ === 'number' && sm.totalQ >= 0) m.totalQ = sm.totalQ;
+        if (typeof sm.perScore === 'number' && sm.perScore >= 0) m.perScore = sm.perScore;
+        if (typeof sm.correctQ === 'number' && sm.correctQ >= 0) m.correctQ = sm.correctQ;
       });
     });
 
@@ -445,6 +463,7 @@
     var pageEl = document.getElementById('page-' + key);
 
     var html = '';
+    /* 总览 4 项 */
     html += '<section class="overview">';
     html +=   '<div class="ov"><div class="ov-label">总目标</div>' +
                 '<div class="ov-value" id="' + key + 'TotalTarget">00:00</div>' +
@@ -452,6 +471,9 @@
     html +=   '<div class="ov"><div class="ov-label">总用时</div>' +
                 '<div class="ov-value" id="' + key + 'TotalActual">00:00</div>' +
                 '<div class="ov-sub" id="' + key + 'TotalActualSub">0 分钟</div></div>';
+    html +=   '<div class="ov"><div class="ov-label">预估得分</div>' +
+                '<div class="ov-value score" id="' + key + 'TotalScore">0</div>' +
+                '<div class="ov-sub" id="' + key + 'TotalScoreSub">满分 0</div></div>';
     html +=   '<div class="ov"><div class="ov-label">差值</div>' +
                 '<div class="ov-value" id="' + key + 'TotalDiff">--</div>' +
                 '<div class="ov-sub" id="' + key + 'TotalDiffSub">&nbsp;</div></div>';
@@ -478,11 +500,24 @@
           '<label class="m-target">' +
             '<span>目标</span>' +
             '<input type="number" min="0" step="1" inputmode="decimal">' +
-            '<span>分钟</span>' +
+            '<span>分</span>' +
           '</label>' +
         '</div>' +
         '<div class="m-time">00:00</div>' +
         '<div class="m-diff">--</div>' +
+        /* 题目 / 得分行 */
+        '<div class="m-score-row">' +
+          '<label class="m-score-item">题数' +
+            '<input type="number" class="sc-total" min="0" step="1" inputmode="numeric">' +
+          '</label>' +
+          '<label class="m-score-item">对' +
+            '<input type="number" class="sc-correct" min="0" step="1" inputmode="numeric">' +
+          '</label>' +
+          '<label class="m-score-item">分/题' +
+            '<input type="number" class="sc-per" min="0" step="0.1" inputmode="decimal">' +
+          '</label>' +
+          '<span class="m-score-badge">0</span>' +
+        '</div>' +
         '<div class="bar"><div class="bar-fill"></div></div>' +
         '<div class="m-actions">' +
           '<button class="btn btn-start" type="button">开始</button>' +
@@ -507,6 +542,10 @@
 
       var nameInput   = root.querySelector('.m-name-input');
       var targetInput = root.querySelector('.m-target input');
+      var scTotal     = root.querySelector('.sc-total');
+      var scCorrect   = root.querySelector('.sc-correct');
+      var scPer       = root.querySelector('.sc-per');
+      var badge       = root.querySelector('.m-score-badge');
       var fillRow     = root.querySelector('.m-fill');
       var fillH       = root.querySelector('.fill-h');
       var fillM       = root.querySelector('.fill-m');
@@ -519,31 +558,57 @@
 
       nameInput.value = m.name;
       targetInput.value = m.target;
+      scTotal.value = m.totalQ;
+      scCorrect.value = m.correctQ;
+      scPer.value = m.perScore;
 
-      nameInput.addEventListener('input', function () {
-        m.name = nameInput.value;
-        save();
-      });
+      /* 模块名 */
+      nameInput.addEventListener('input', function () { m.name = nameInput.value; save(); });
 
+      /* 目标分钟 */
       targetInput.addEventListener('input', function () {
         var v = parseFloat(targetInput.value);
         m.target = (isNaN(v) || v < 0) ? 0 : v;
-        save();
-        update();
+        save(); update();
       });
-      targetInput.addEventListener('blur', function () {
-        targetInput.value = m.target;
-        save(true);
-      });
+      targetInput.addEventListener('blur', function () { targetInput.value = m.target; save(true); });
 
+      /* 题数 */
+      scTotal.addEventListener('input', function () {
+        var v = parseInt(scTotal.value, 10);
+        m.totalQ = (isNaN(v) || v < 0) ? 0 : v;
+        if (m.correctQ > m.totalQ) m.correctQ = m.totalQ;
+        scCorrect.value = m.correctQ;
+        save(); update();
+      });
+      scTotal.addEventListener('blur', function () { scTotal.value = m.totalQ; save(true); });
+
+      /* 答对题数 */
+      scCorrect.addEventListener('input', function () {
+        var v = parseInt(scCorrect.value, 10);
+        if (isNaN(v) || v < 0) v = 0;
+        if (v > m.totalQ) v = m.totalQ;
+        m.correctQ = v;
+        scCorrect.value = v;
+        save(); update();
+      });
+      scCorrect.addEventListener('blur', function () { scCorrect.value = m.correctQ; save(true); });
+
+      /* 每题分值 */
+      scPer.addEventListener('input', function () {
+        var v = parseFloat(scPer.value);
+        m.perScore = (isNaN(v) || v < 0) ? 0 : v;
+        save(); update();
+      });
+      scPer.addEventListener('blur', function () { scPer.value = m.perScore; save(true); });
+
+      /* 计时 */
       startBtn.addEventListener('click', function () { toggle(key, m.id); });
       resetBtn.addEventListener('click', function () { resetOne(key, m.id); });
 
+      /* 填用时 */
       fillBtn.addEventListener('click', function () {
-        if (fillRow.classList.contains('show')) {
-          fillRow.classList.remove('show');
-          return;
-        }
+        if (fillRow.classList.contains('show')) { fillRow.classList.remove('show'); return; }
         var running = timer.key === key && timer.id === m.id;
         var cur = m.actual + (running ? Date.now() - timer.startTs : 0);
         var t = Math.max(0, Math.round(cur / 1000));
@@ -551,43 +616,29 @@
         fillM.value = Math.floor((t % 3600) / 60);
         fillS.value = t % 60;
         fillRow.classList.add('show');
-        fillH.focus();
-        fillH.select();
+        fillH.focus(); fillH.select();
       });
-
-      cancelBtn.addEventListener('click', function () {
-        fillRow.classList.remove('show');
-      });
+      cancelBtn.addEventListener('click', function () { fillRow.classList.remove('show'); });
 
       function autoJump(cur, next) {
-        cur.addEventListener('input', function () {
-          if (cur.value.length >= 2) next.focus();
-        });
+        cur.addEventListener('input', function () { if (cur.value.length >= 2) next.focus(); });
       }
       autoJump(fillH, fillM);
       autoJump(fillM, fillS);
 
       function applyFill() {
-        var h = parseInt(fillH.value, 10);
-        var mi = parseInt(fillM.value, 10);
-        var se = parseInt(fillS.value, 10);
-        h = isNaN(h) ? 0 : h;
-        mi = isNaN(mi) ? 0 : mi;
-        se = isNaN(se) ? 0 : se;
-        if (h < 0 || mi < 0 || se < 0) {
-          alert('时间不能为负数。');
-          return;
-        }
+        var h = parseInt(fillH.value, 10) || 0;
+        var mi = parseInt(fillM.value, 10) || 0;
+        var se = parseInt(fillS.value, 10) || 0;
+        if (h < 0 || mi < 0 || se < 0) { alert('时间不能为负数。'); return; }
         var ms = (h * 3600 + mi * 60 + se) * 1000;
         if (timer.key === key && timer.id === m.id) {
           timer.key = null; timer.id = null; timer.startTs = 0;
         }
         m.actual = ms;
-        save(true);
-        update();
+        save(true); update();
         fillRow.classList.remove('show');
       }
-
       okBtn.addEventListener('click', applyFill);
       [fillH, fillM, fillS].forEach(function (inp) {
         inp.addEventListener('keydown', function (e) {
@@ -597,19 +648,14 @@
       });
 
       els[key][m.id] = {
-        root: root,
-        time: root.querySelector('.m-time'),
-        diff: root.querySelector('.m-diff'),
-        fill: root.querySelector('.bar-fill'),
-        btn: startBtn
+        root: root, time: root.querySelector('.m-time'), diff: root.querySelector('.m-diff'),
+        fill: root.querySelector('.bar-fill'), btn: startBtn, badge: badge
       };
 
       box.appendChild(root);
     });
 
-    pageEl.querySelector('[data-reset-all]').addEventListener('click', function () {
-      resetAll(key);
-    });
+    pageEl.querySelector('[data-reset-all]').addEventListener('click', function () { resetAll(key); });
   }
 
   /* ============ 计时控制 ============ */
@@ -618,59 +664,45 @@
       var m = findModule(timer.key, timer.id);
       if (m) m.actual += Date.now() - timer.startTs;
     }
-    timer.key = null;
-    timer.id = null;
-    timer.startTs = 0;
+    timer.key = null; timer.id = null; timer.startTs = 0;
   }
 
   function toggle(key, id) {
     var now = Date.now();
-    if (timer.key === key && timer.id === id) {
+    if (timer.key === key && timer.id === id) { settle(); }
+    else {
       settle();
-    } else {
-      settle();
-      timer.key = key;
-      timer.id = id;
-      timer.startTs = now;
+      timer.key = key; timer.id = id; timer.startTs = now;
     }
-    save(true);
-    update();
+    save(true); update();
   }
 
   function resetOne(key, id) {
     var m = findModule(key, id);
     if (!m) return;
-    if (timer.key === key && timer.id === id) {
-      timer.key = null; timer.id = null; timer.startTs = 0;
-    }
+    if (timer.key === key && timer.id === id) { timer.key = null; timer.id = null; timer.startTs = 0; }
     m.actual = 0;
-    save(true);
-    update();
+    m.correctQ = 0;
+    save(true); update();
   }
 
   function resetAll(key) {
     var label = key === 'shenlun' ? '申论' : '行测';
-    if (!confirm('确定要清空「' + label + '」所有模块的用时吗？（目标时间会保留）')) return;
-    if (timer.key === key) {
-      timer.key = null; timer.id = null; timer.startTs = 0;
-    }
-    state.data[key].modules.forEach(function (m) { m.actual = 0; });
-    save(true);
-    update();
+    if (!confirm('确定要清空「' + label + '」所有模块的用时和答对数吗？（目标、题量、分值会保留）')) return;
+    if (timer.key === key) { timer.key = null; timer.id = null; timer.startTs = 0; }
+    state.data[key].modules.forEach(function (m) { m.actual = 0; m.correctQ = 0; });
+    save(true); update();
   }
 
   /* ============ 刷新显示 ============ */
   function update() {
     var now = Date.now();
-    ['xingce', 'shenlun'].forEach(function (key) {
-      updatePage(key, now);
-    });
+    ['xingce', 'shenlun'].forEach(function (key) { updatePage(key, now); });
     updateTabs();
   }
 
   function updatePage(key, now) {
-    var tTarget = 0;
-    var tActual = 0;
+    var tTarget = 0, tActual = 0, tScore = 0, tFull = 0;
 
     state.data[key].modules.forEach(function (m) {
       var el = els[key][m.id];
@@ -679,9 +711,13 @@
       var running = (timer.key === key && timer.id === m.id);
       var actual = m.actual + (running ? now - timer.startTs : 0);
       var targetMs = m.target * 60000;
+      var fullScore = calcFullScore(m);
+      var score = calcScore(m);
 
       tTarget += targetMs;
       tActual += actual;
+      tScore += score;
+      tFull += fullScore;
 
       el.time.textContent = fmt(actual);
 
@@ -691,38 +727,46 @@
 
       if (targetMs > 0) {
         var d = targetMs - actual;
-        if (d >= 0) {
-          el.diff.textContent = '剩余 ' + fmt(d);
-          el.diff.className = 'm-diff ok';
-        } else {
-          el.diff.textContent = '超时 ' + fmt(-d);
-          el.diff.className = 'm-diff bad';
-        }
+        if (d >= 0) { el.diff.textContent = '剩余 ' + fmt(d); el.diff.className = 'm-diff ok'; }
+        else { el.diff.textContent = '超时 ' + fmt(-d); el.diff.className = 'm-diff bad'; }
         el.fill.style.width = Math.min(actual / targetMs, 1) * 100 + '%';
       } else {
-        el.diff.textContent = '未设置目标';
-        el.diff.className = 'm-diff';
+        el.diff.textContent = '未设置目标'; el.diff.className = 'm-diff';
         el.fill.style.width = actual > 0 ? '100%' : '0%';
+      }
+
+      /* 得分徽章 */
+      if (fullScore > 0) {
+        var pct = score / fullScore;
+        el.badge.textContent = score.toFixed(1) + ' / ' + fullScore.toFixed(1);
+        el.badge.className = 'm-score-badge' + (pct >= 0.8 ? ' good' : pct < 0.5 ? ' bad' : '');
+      } else {
+        el.badge.textContent = '0';
+        el.badge.className = 'm-score-badge';
       }
 
       el.btn.textContent = running ? '暂停' : (actual >= 1000 ? '继续' : '开始');
     });
 
+    /* 总览 */
     var totalTargetEl  = document.getElementById(key + 'TotalTarget');
     var totalTargetSub = document.getElementById(key + 'TotalTargetSub');
     var totalActualEl  = document.getElementById(key + 'TotalActual');
     var totalActualSub = document.getElementById(key + 'TotalActualSub');
+    var totalScoreEl   = document.getElementById(key + 'TotalScore');
+    var totalScoreSub  = document.getElementById(key + 'TotalScoreSub');
     var totalDiffEl    = document.getElementById(key + 'TotalDiff');
     var totalDiffSub   = document.getElementById(key + 'TotalDiffSub');
     var totalFillEl    = document.getElementById(key + 'TotalFill');
 
     totalTargetEl.textContent = fmt(tTarget);
-    totalTargetSub.textContent = tTarget > 0
-      ? '共 ' + (tTarget / 60000).toFixed(1) + ' 分钟'
-      : '未设置目标';
+    totalTargetSub.textContent = tTarget > 0 ? '共 ' + (tTarget / 60000).toFixed(1) + ' 分钟' : '未设置目标';
 
     totalActualEl.textContent = fmt(tActual);
     totalActualSub.textContent = '共 ' + (tActual / 60000).toFixed(1) + ' 分钟';
+
+    totalScoreEl.textContent = tScore.toFixed(1);
+    totalScoreSub.textContent = '满分 ' + tFull.toFixed(1);
 
     if (tTarget > 0) {
       var diff = tTarget - tActual;
@@ -745,7 +789,7 @@
       totalFillEl.classList.remove('over');
     }
 
-    renderAdvice(key);
+    renderAdvice(key, tScore, tFull);
   }
 
   function updateTabs() {
@@ -756,17 +800,14 @@
     });
   }
 
-  /* ============ 智能建议 ============ */
-  function renderAdvice(key) {
+  /* ============ 智能建议（含得分分析） ============ */
+  function renderAdvice(key, totalScore, totalFull) {
     var container = document.getElementById(key + 'Advice');
     var modules = state.data[key].modules;
-
-    if (!modules.length) {
-      container.innerHTML = '';
-      return;
-    }
+    if (!modules.length) { container.innerHTML = ''; return; }
 
     var filled = modules.filter(function (m) { return m.actual > 0; }).length;
+    var answered = modules.filter(function (m) { return m.correctQ > 0; }).length;
 
     if (filled < modules.length) {
       var k0 = 'inc:' + filled + '/' + modules.length;
@@ -782,13 +823,15 @@
     }
 
     var cacheKey = modules.map(function (m) {
-      return m.id + '|' + m.name + '|' + m.target + '|' + Math.floor(m.actual / 1000);
-    }).join(';');
+      return m.id + '|' + m.name + '|' + m.target + '|' + Math.floor(m.actual / 1000) + '|' + m.correctQ + '|' + m.totalQ;
+    }).join(';') + '|' + totalScore.toFixed(1);
     if (cacheKey === adviceCache[key]) return;
     adviceCache[key] = cacheKey;
 
     var stats = modules.map(function (m) {
       var targetMs = m.target * 60000;
+      var fullScore = calcFullScore(m);
+      var score = calcScore(m);
       return {
         name: m.name || '未命名模块',
         targetMs: targetMs,
@@ -797,7 +840,13 @@
         actualMin: m.actual / 60000,
         hasTarget: m.target > 0,
         diffMs: m.target > 0 ? m.actual - targetMs : 0,
-        ratio: m.target > 0 ? m.actual / targetMs : 0
+        ratio: m.target > 0 ? m.actual / targetMs : 0,
+        totalQ: m.totalQ,
+        correctQ: m.correctQ,
+        perScore: m.perScore,
+        fullScore: fullScore,
+        score: score,
+        accuracy: m.totalQ > 0 ? m.correctQ / m.totalQ : 0
       };
     });
 
@@ -808,117 +857,99 @@
 
     var list = [];
     var mentioned = {};
-
     function add(type, text, k) {
-      if (k) {
-        if (mentioned[k]) return;
-        mentioned[k] = true;
-      }
+      if (k) { if (mentioned[k]) return; mentioned[k] = true; }
       list.push({ type: type, text: text });
     }
 
+    /* 总结（含得分） */
     var summary, summaryCls;
     if (allHaveTarget && totalTargetMs > 0) {
-      if (totalDiffMs > 0) {
-        summary = '总用时 <b>' + fmt(totalActualMs) + '</b>（' + (totalActualMs / 60000).toFixed(1) + ' 分钟），' +
-                  '比总目标多用了 <b>' + fmt(totalDiffMs) + '</b>（目标 ' + fmt(totalTargetMs) + '），整体节奏偏慢，需要压缩。';
-        summaryCls = 'bad';
-      } else {
-        summary = '总用时 <b>' + fmt(totalActualMs) + '</b>（' + (totalActualMs / 60000).toFixed(1) + ' 分钟），' +
-                  '比总目标节省了 <b>' + fmt(-totalDiffMs) + '</b>（目标 ' + fmt(totalTargetMs) + '），节奏控制得不错。';
-        summaryCls = 'ok';
-      }
+      var timePart = totalDiffMs > 0
+        ? '总用时 <b>' + fmt(totalActualMs) + '</b>，比总目标多用了 <b>' + fmt(totalDiffMs) + '</b>，节奏偏慢。'
+        : '总用时 <b>' + fmt(totalActualMs) + '</b>，比总目标节省了 <b>' + fmt(-totalDiffMs) + '</b>，节奏控制得不错。';
+      var scorePart = totalFull > 0
+        ? '预估得分 <b>' + totalScore.toFixed(1) + '</b> / ' + totalFull.toFixed(1) + '（' + (totalScore / totalFull * 100).toFixed(1) + '%）。'
+        : '';
+      summary = timePart + scorePart;
+      summaryCls = totalDiffMs > 0 ? 'bad' : 'ok';
     } else {
-      summary = '总用时 <b>' + fmt(totalActualMs) + '</b>（' + (totalActualMs / 60000).toFixed(1) + ' 分钟）。' +
-                '部分模块没有设置目标时间，以下是基于各模块实际用时的分析。';
+      summary = '总用时 <b>' + fmt(totalActualMs) + '</b>。部分模块没有设置目标时间，以下是分析。';
       summaryCls = 'neutral';
     }
 
+    /* 超时最多（2 个） */
     var overs = stats.filter(function (s) { return s.hasTarget && s.diffMs > 0; })
                      .sort(function (a, b) { return b.diffMs - a.diffMs; });
     overs.slice(0, 2).forEach(function (s) {
       var pct = Math.round((s.ratio - 1) * 100);
       var st = matchStrategy(s.name);
       var extra = st ? ' ' + st.tip : '';
-      add('warn',
-        '「' + s.name + '」超时 <b>' + fmt(s.diffMs) + '</b>，实际用了 ' + fmt(s.actualMs) +
-        '（目标 ' + s.targetMin + ' 分钟，多用约 ' + pct + '%）。' + extra,
-        s.name);
+      add('warn', '「' + s.name + '」超时 <b>' + fmt(s.diffMs) + '</b>，实际用了 ' + fmt(s.actualMs) + '（目标 ' + s.targetMin + ' 分钟，多用约 ' + pct + '%）。' + extra, s.name);
     });
 
+    /* 得分分析：正确率低的模块 */
+    var lowAcc = stats.filter(function (s) {
+      return s.totalQ > 0 && s.accuracy < 0.5 && !mentioned[s.name];
+    }).sort(function (a, b) { return a.accuracy - b.accuracy; });
+    lowAcc.slice(0, 2).forEach(function (s) {
+      add('warn', '「' + s.name + '」正确率仅 <b>' + (s.accuracy * 100).toFixed(0) + '%</b>（' + s.correctQ + '/' + s.totalQ + '），是得分短板，建议针对性加强。', s.name);
+    });
+
+    /* 得分分析：得分率高的模块 */
+    var highScore = stats.filter(function (s) {
+      return s.fullScore > 0 && s.score / s.fullScore >= 0.8 && !mentioned[s.name];
+    }).sort(function (a, b) { return b.score - a.score; });
+    highScore.slice(0, 1).forEach(function (s) {
+      add('ok', '「' + s.name + '」得分率 <b>' + (s.score / s.fullScore * 100).toFixed(0) + '%</b>（' + s.score.toFixed(1) + '/' + s.fullScore.toFixed(1) + '），是优势模块，继续保持。', s.name);
+    });
+
+    /* 接近目标 */
     var near = stats.filter(function (s) {
       return s.hasTarget && s.diffMs <= 0 && s.ratio >= 0.9 && !mentioned[s.name];
     }).sort(function (a, b) { return b.ratio - a.ratio; });
     near.slice(0, 1).forEach(function (s) {
-      add('tip',
-        '「' + s.name + '」用时 ' + fmt(s.actualMs) + '，已经接近目标 ' + s.targetMin + ' 分钟，' +
-        '考场上要预留一点涂卡和检查的时间。',
-        s.name);
+      add('tip', '「' + s.name + '」用时 ' + fmt(s.actualMs) + '，接近目标 ' + s.targetMin + ' 分钟，考场上要预留检查时间。', s.name);
     });
 
+    /* 节省最多 */
     var saves = stats.filter(function (s) { return s.hasTarget && s.diffMs < -60000; })
                      .sort(function (a, b) { return a.diffMs - b.diffMs; });
     if (saves.length) {
       var s0 = saves[0];
-      add('ok',
-        '「' + s0.name + '」比目标节省了 <b>' + fmt(-s0.diffMs) + '</b>，' +
-        '这部分时间可以补给吃紧的模块。',
-        s0.name);
+      add('ok', '「' + s0.name + '」比目标节省了 <b>' + fmt(-s0.diffMs) + '</b>，可补给吃紧的模块。', s0.name);
     }
 
+    /* 压缩方案 */
     if (allHaveTarget && totalDiffMs > 0) {
-      var totalSaved = stats.reduce(function (a, s) {
-        return a + (s.diffMs < 0 ? -s.diffMs : 0);
-      }, 0);
+      var totalSaved = stats.reduce(function (a, s) { return a + (s.diffMs < 0 ? -s.diffMs : 0); }, 0);
       if (totalSaved > 0) {
-        list.push({
-          type: 'tip',
-          text: '各模块节省的时间合计 <b>' + fmt(totalSaved) + '</b>，' +
-                '如果全部补给超时模块，总超时可压缩到 <b>' + fmt(Math.max(0, totalDiffMs - totalSaved)) + '</b>。'
-        });
+        list.push({ type: 'tip', text: '各模块节省的时间合计 <b>' + fmt(totalSaved) + '</b>，全部补给超时模块后，总超时可压缩到 <b>' + fmt(Math.max(0, totalDiffMs - totalSaved)) + '</b>。' });
       } else {
-        list.push({
-          type: 'tip',
-          text: '没有任何模块节省出时间，建议从超时最多的模块下手，' +
-                '先砍掉 10%–15% 的用时，再逐步优化。'
-        });
+        list.push({ type: 'tip', text: '没有任何模块节省出时间，建议从超时最多的模块下手，先砍掉 10%–15% 的用时。' });
       }
     }
 
+    /* 与合理区间对比 */
     stats.forEach(function (s) {
       if (mentioned[s.name]) return;
       var st = matchStrategy(s.name);
       if (!st) return;
       if (s.actualMin > st.ideal[1] + 2) {
-        add('warn',
-          '「' + s.name + '」用了 ' + s.actualMin.toFixed(1) + ' 分钟，超出常见合理区间 ' +
-          st.ideal[0] + '–' + st.ideal[1] + ' 分钟。' + st.tip,
-          s.name);
+        add('warn', '「' + s.name + '」用了 ' + s.actualMin.toFixed(1) + ' 分钟，超出常见区间 ' + st.ideal[0] + '–' + st.ideal[1] + ' 分钟。' + st.tip, s.name);
       } else if (s.actualMin > 0 && s.actualMin < st.ideal[0] - 2) {
-        add('tip',
-          '「' + s.name + '」只用了 ' + s.actualMin.toFixed(1) + ' 分钟，' +
-          '比常见区间 ' + st.ideal[0] + '–' + st.ideal[1] + ' 分钟偏少，注意别为了赶时间牺牲正确率。',
-          s.name);
+        add('tip', '「' + s.name + '」只用了 ' + s.actualMin.toFixed(1) + ' 分钟，比常见区间 ' + st.ideal[0] + '–' + st.ideal[1] + ' 分钟偏少，注意别牺牲正确率。', s.name);
       }
     });
 
-    if (!list.length) {
-      add('ok', '各模块用时都在合理范围内，保持这个节奏，考场上稳住就行。');
-    }
+    if (!list.length) add('ok', '各模块用时和得分都在合理范围内，保持这个节奏。');
 
+    /* 通用提醒 */
     if (list.length < 6) {
       if (key === 'shenlun') {
-        list.push({
-          type: 'tip',
-          text: '申论答题建议：每题先花 1–2 分钟审题列提纲，大作文务必留足 60 分钟；' +
-                '分条作答、关键词前置，字迹工整，采分点优先。'
-        });
+        list.push({ type: 'tip', text: '申论估分建议：小题按踩点给分，大作文按四类文估算（一类 30+，二类 24–30，三类 16–23，四类 0–15）。' });
       } else {
-        list.push({
-          type: 'tip',
-          text: '行测答题建议：按试卷顺序作答，政治理论和常识不要恋战，' +
-                '资料分析留足时间；单题卡壳超过 1.5 分钟就标记跳过，涂卡时间至少留 5 分钟。'
-        });
+        list.push({ type: 'tip', text: '行测估分建议：国考不公布精确分值，以上分值按近年常见标准预设，可根据实际考试微调「分/题」。' });
       }
     }
 
@@ -926,7 +957,7 @@
       '<div class="advice-title">📊 智能分析</div>' +
       '<div class="advice-summary ' + summaryCls + '">' + summary + '</div>' +
       '<ul class="advice-list">' +
-        list.slice(0, 6).map(function (it) {
+        list.slice(0, 7).map(function (it) {
           return '<li class="' + it.type + '">' + it.text + '</li>';
         }).join('') +
       '</ul>' +
@@ -948,8 +979,7 @@
         document.querySelectorAll('.page').forEach(function (p) {
           p.classList.toggle('active', p.id === 'page-' + key);
         });
-        save();
-        update();
+        save(); update();
       });
     });
   }
@@ -970,9 +1000,7 @@
   update();
 
   if (restoredFromSave) {
-    setTimeout(function () {
-      showToast('✓ 已恢复上次数据');
-    }, 300);
+    setTimeout(function () { showToast('✓ 已恢复上次数据'); }, 300);
   }
 
   if (!storage.anyAvailable) {
@@ -983,16 +1011,12 @@
 
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'hidden') {
-      save.__quiet = true;
-      save(true);
-      save.__quiet = false;
+      save.__quiet = true; save(true); save.__quiet = false;
     }
   });
 
   window.addEventListener('beforeunload', function () {
-    settle();
-    save.__quiet = true;
-    save(true);
+    settle(); save.__quiet = true; save(true);
   });
 })();
 </script>
