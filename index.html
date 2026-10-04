@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>公考模块计时器</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --bg:#f4f6fb; --card:#ffffff; --text:#1f2937; --muted:#6b7280;
+    --line:#e6e9f0; --primary:#3b82f6; --ok:#10b981; --warn:#f59e0b; --danger:#ef4444;
+  }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--text);
+    min-height:100vh; padding:26px 16px 64px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:960px;margin:0 auto;}
+
+  header{text-align:center;margin-bottom:20px;}
+  header h1{font-size:22px;font-weight:700;letter-spacing:.5px;}
+  header p{color:var(--muted);font-size:13px;margin-top:6px;}
+
+  .tabs{
+    display:flex;gap:6px;background:#e9edf5;padding:5px;border-radius:13px;
+    margin-bottom:22px;
+  }
+  .tab{
+    flex:1;border:none;background:transparent;padding:11px 16px;
+    font-size:15px;font-weight:600;color:var(--muted);border-radius:9px;
+    cursor:pointer;font-family:inherit;transition:.18s;position:relative;
+  }
+  .tab:hover{color:var(--text);}
+  .tab.active{background:#fff;color:var(--text);box-shadow:0 1px 5px rgba(0,0,0,.08);}
+  .tab .dot{
+    display:none;position:absolute;top:9px;right:14px;width:7px;height:7px;
+    border-radius:50%;background:var(--primary);
+  }
+  .tab.timing .dot{display:block;animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.75);}}
+
+  .page{display:none;}
+  .page.active{display:block;}
+
+  .overview{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;}
+  .ov{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:13px 10px;text-align:center;
+  }
+  .ov-label{font-size:12px;color:var(--muted);margin-bottom:6px;}
+  .ov-value{
+    font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;
+    transition:color .2s;line-height:1.2;
+  }
+  .ov-value.ok{color:var(--ok);}
+  .ov-value.bad{color:var(--danger);}
+  .ov-sub{font-size:11.5px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums;}
+
+  .total-bar{height:6px;background:#e6e9f0;border-radius:99px;overflow:hidden;margin-bottom:24px;}
+  .total-fill{
+    height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,#60a5fa,#3b82f6);
+    transition:width .15s linear,background .3s;
+  }
+  .total-fill.over{background:linear-gradient(90deg,#f87171,#ef4444);}
+
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .section-head h2{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:.5px;}
+
+  .modules{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+  .module{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:16px;display:flex;flex-direction:column;gap:10px;
+    transition:border-color .2s,box-shadow .2s;
+  }
+  .module.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
+  .module.over{border-color:var(--danger);}
+  .module.over.active{box-shadow:0 0 0 3px rgba(239,68,68,.12);}
+
+  .m-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .m-name-input{
+    border:1px solid transparent;background:transparent;font-size:15px;font-weight:600;
+    color:var(--text);font-family:inherit;padding:4px 7px;border-radius:8px;
+    width:100%;max-width:150px;min-width:0;transition:.15s;
+  }
+  .m-name-input:hover{background:#f3f4f6;}
+  .m-name-input:focus{outline:none;border-color:var(--primary);background:#fff;}
+
+  .m-target{
+    display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);
+    white-space:nowrap;flex-shrink:0;
+  }
+  .m-target input{
+    width:52px;padding:4px 6px;border:1px solid var(--line);border-radius:8px;
+    font-size:13px;text-align:center;font-family:inherit;color:var(--text);
+    background:#fff;font-variant-numeric:tabular-nums;transition:.15s;
+    -moz-appearance:textfield;
+  }
+  .m-target input::-webkit-outer-spin-button,
+  .m-target input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .m-target input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
+
+  .m-time{
+    font-size:36px;font-weight:700;line-height:1.1;
+    font-variant-numeric:tabular-nums;letter-spacing:.5px;transition:color .2s;
+  }
+  .module.active .m-time{color:var(--primary);}
+  .module.over .m-time{color:var(--danger);}
+
+  .m-diff{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .m-diff.ok{color:var(--ok);}
+  .m-diff.bad{color:var(--danger);}
+
+  .bar{height:8px;background:#eef2f7;border-radius:99px;overflow:hidden;}
+  .bar-fill{
+    height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,#60a5fa,#3b82f6);
+    transition:width .15s linear,background .3s;
+  }
+  .module.over .bar-fill{background:linear-gradient(90deg,#f87171,#ef4444);}
+
+  .m-actions{display:flex;gap:7px;margin-top:2px;}
+
+  .m-fill{
+    display:none;flex-direction:column;gap:9px;
+    padding-top:11px;margin-top:2px;border-top:1px dashed var(--line);
+  }
+  .m-fill.show{display:flex;}
+  .fill-row{display:flex;align-items:center;gap:6px;}
+  .fill-num{
+    width:56px;padding:8px 6px;border:1px solid var(--line);border-radius:9px;
+    font-size:14px;text-align:center;font-family:inherit;color:var(--text);
+    font-variant-numeric:tabular-nums;transition:.15s;
+    -moz-appearance:textfield;
+  }
+  .fill-num::-webkit-outer-spin-button,
+  .fill-num::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .fill-num:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
+  .fill-unit{font-size:13px;color:var(--muted);}
+  .fill-btns{display:flex;gap:6px;}
+  .fill-btns .btn{flex:1;}
+  .fill-hint{font-size:11px;color:var(--muted);line-height:1.6;}
+
+  .btn{
+    border:1px solid var(--line);background:#fff;color:var(--text);
+    border-radius:10px;padding:9px 14px;font-size:13.5px;cursor:pointer;
+    font-family:inherit;transition:.15s;white-space:nowrap;
+  }
+  .btn:hover{background:#f3f4f6;}
+  .btn:active{transform:scale(.97);}
+
+  .btn-start{flex:1;background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
+  .btn-start:hover{background:#2563eb;border-color:#2563eb;}
+  .module.active .btn-start{background:var(--warn);border-color:var(--warn);}
+  .module.active .btn-start:hover{background:#d97706;border-color:#d97706;}
+
+  .btn-reset{background:#fff;color:var(--muted);padding:9px 12px;}
+  .btn-reset:hover{color:var(--danger);border-color:var(--danger);background:#fef2f2;}
+
+  .btn-sm{padding:7px 12px;font-size:13px;border-radius:9px;}
+  .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
+  .btn-primary:hover{background:#2563eb;border-color:#2563eb;}
+
+  .btn-ghost{padding:6px 14px;font-size:13px;color:var(--muted);border-radius:9px;}
+  .btn-ghost:hover{color:var(--danger);border-color:var(--danger);background:#fef2f2;}
+
+  .advice{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:16px 18px;margin-top:22px;
+  }
+  .advice-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+  .advice-summary{
+    font-size:14px;line-height:1.75;padding:11px 13px;border-radius:11px;margin-bottom:13px;
+  }
+  .advice-summary.ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;}
+  .advice-summary.bad{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
+  .advice-summary.neutral{background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;}
+  .advice-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .advice-list li{font-size:13.5px;line-height:1.7;padding-left:25px;position:relative;color:var(--text);}
+  .advice-list li::before{position:absolute;left:0;top:0;font-size:14px;}
+  .advice-list li.warn::before{content:'⚠️';}
+  .advice-list li.ok::before{content:'✅';}
+  .advice-list li.tip::before{content:'💡';}
+  .advice-list b{color:var(--danger);}
+  .advice-list li.ok b{color:var(--ok);}
+  .advice-empty{font-size:13.5px;color:var(--muted);line-height:1.7;}
+  .advice-empty b{color:var(--primary);}
+
+  @media (max-width:420px){
+    body{padding:18px 12px 50px;}
+    .m-time{font-size:30px;}
+    .ov-value{font-size:17px;}
+    .modules{grid-template-columns:1fr;}
+    .btn{padding:9px 10px;font-size:13px;}
+    .fill-num{width:50px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>公考模块计时器</h1>
+    <p>行测 + 申论独立界面 · 模块顺序按国考真题排列 · 时分秒独立填写</p>
+  </header>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="xingce">行测<span class="dot"></span></button>
+    <button class="tab" data-tab="shenlun">申论<span class="dot"></span></button>
+  </div>
+
+  <div class="page active" id="page-xingce"></div>
+  <div class="page" id="page-shenlun"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var KEY = 'gongkao-timer-v5';
+
+  /* ===== 默认数据（模块顺序按国考真题顺序） ===== */
+  var DEFAULT_DATA = {
+    xingce: {
+      label: '行测模块（按国考真题顺序）',
+      modules: [
+        { id: 'x1', name: '政治理论', target: 8 },
+        { id: 'x2', name: '常识判断', target: 8 },
+        { id: 'x3', name: '言语理解与表达', target: 35 },
+        { id: 'x4', name: '数量关系', target: 10 },
+        { id: 'x5', name: '判断推理', target: 35 },
+        { id: 'x6', name: '资料分析', target: 25 }
+      ]
+    },
+    shenlun: {
+      label: '申论题目（按国考真题顺序）',
+      modules: [
+        { id: 's1', name: '归纳概括', target: 20 },
+        { id: 's2', name: '综合分析', target: 25 },
+        { id: 's3', name: '提出对策', target: 25 },
+        { id: 's4', name: '贯彻执行', target: 30 },
+        { id: 's5', name: '大作文', target: 60 }
+      ]
+    }
+  };
+
+  /* ===== 策略库（用于智能建议） ===== */
+  var STRATEGIES = [
+    { keys: ['常识'], ideal: [6, 12],
+      tip: '常识判断性价比最低，不会的快速蒙一个，不要回看纠结。' },
+    { keys: ['政治'], ideal: [6, 12],
+      tip: '政治理论考的是记忆和第一印象，时政题不要反复琢磨，选完就走。' },
+    { keys: ['言语'], ideal: [30, 38],
+      tip: '言语理解抓关键词和行文脉络，逻辑填空不要反复改，片段阅读先看问题。' },
+    { keys: ['数量'], ideal: [8, 15],
+      tip: '数量关系先挑简单题做，单题超过 1.5 分钟果断跳过，不要把时间耗在难题上。' },
+    { keys: ['判断', '推理'], ideal: [32, 38],
+      tip: '图形推理最容易卡壳，看不出来先标记跳过，定义判断和类比推理要提速。' },
+    { keys: ['资料'], ideal: [22, 28],
+      tip: '资料分析是提分重点，优先保证正确率，熟练使用估算和速算技巧。' },
+    { keys: ['归纳', '概括'], ideal: [15, 22],
+      tip: '归纳概括要点的全面性优先，分条作答，关键词前置，不要写成小作文。' },
+    { keys: ['综合分析', '分析'], ideal: [20, 28],
+      tip: '综合分析先亮明观点，再展开分析，最后落到对策或结论，结构要清晰。' },
+    { keys: ['对策', '提出'], ideal: [20, 28],
+      tip: '提出对策要具体、可操作，对策与问题一一对应，避免空话套话。' },
+    { keys: ['贯彻', '执行', '公文'], ideal: [25, 35],
+      tip: '贯彻执行注意文种格式和身份设定，开头交代背景，正文分层，结尾呼应。' },
+    { keys: ['作文', '文章'], ideal: [55, 70],
+      tip: '大作文至少留 60 分钟：5 分钟审题立意，10 分钟列提纲，40 分钟写作，5 分钟检查。' }
+  ];
+
+  function matchStrategy(name) {
+    for (var i = 0; i < STRATEGIES.length; i++) {
+      var s = STRATEGIES[i];
+      for (var j = 0; j < s.keys.length; j++) {
+        if (name.indexOf(s.keys[j]) !== -1) return s;
+      }
+    }
+    return null;
+  }
+
+  /* ===== 状态 ===== */
+  var state = {
+    active: 'xingce',
+    data: {
+      xingce: {
+        modules: DEFAULT_DATA.xingce.modules.map(function (m) {
+          return { id: m.id, name: m.name, target: m.target, actual: 0 };
+        })
+      },
+      shenlun: {
+        modules: DEFAULT_DATA.shenlun.modules.map(function (m) {
+          return { id: m.id, name: m.name, target: m.target, actual: 0 };
+        })
+      }
+    }
+  };
+
+  var timer = { key: null, id: null, startTs: 0 };
+  var els = { xingce: {}, shenlun: {} };
+  var adviceCache = { xingce: '', shenlun: '' };
+
+  /* ===== 工具函数 ===== */
+  function fmt(ms) {
+    ms = Math.max(0, ms || 0);
+    var t = Math.floor(ms / 1000);
+    var h = Math.floor(t / 3600);
+    var m = Math.floor((t % 3600) / 60);
+    var s = t % 60;
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+    return h > 0 ? h + ':' + pad(m) + ':' + pad(s) : pad(m) + ':' + pad(s);
+  }
+
+  function findModule(key, id) {
+    var arr = state.data[key].modules;
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i].id === id) return arr[i];
+    }
+    return null;
+  }
+
+  /* ===== 存储 ===== */
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({
+        active: state.active,
+        data: state.data
+      }));
+    } catch (e) {}
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      if (!data || !data.data) return;
+      ['xingce', 'shenlun'].forEach(function (key) {
+        var saved = data.data[key];
+        if (!saved || !Array.isArray(saved.modules)) return;
+        saved.modules.forEach(function (sm) {
+          var m = findModule(key, sm.id);
+          if (!m) return;
+          if (typeof sm.name === 'string' && sm.name) m.name = sm.name;
+          if (typeof sm.target === 'number' && sm.target >= 0) m.target = sm.target;
+          if (typeof sm.actual === 'number' && sm.actual >= 0) m.actual = sm.actual;
+        });
+      });
+      if (data.active === 'shenlun') state.active = 'shenlun';
+    } catch (e) {}
+  }
+
+  /* ===== 构建界面 ===== */
+  function buildPage(key) {
+    var cfg = state.data[key];
+    var pageEl = document.getElementById('page-' + key);
+
+    var html = '';
+    html += '<section class="overview">';
+    html +=   '<div class="ov"><div class="ov-label">总目标</div>' +
+                '<div class="ov-value" id="' + key + 'TotalTarget">00:00</div>' +
+                '<div class="ov-sub" id="' + key + 'TotalTargetSub">未设置</div></div>';
+    html +=   '<div class="ov"><div class="ov-label">总用时</div>' +
+                '<div class="ov-value" id="' + key + 'TotalActual">00:00</div>' +
+                '<div class="ov-sub" id="' + key + 'TotalActualSub">0 分钟</div></div>';
+    html +=   '<div class="ov"><div class="ov-label">差值</div>' +
+                '<div class="ov-value" id="' + key + 'TotalDiff">--</div>' +
+                '<div class="ov-sub" id="' + key + 'TotalDiffSub">&nbsp;</div></div>';
+    html += '</section>';
+    html += '<div class="total-bar"><div class="total-fill" id="' + key + 'TotalFill"></div></div>';
+    html += '<div class="section-head">' +
+              '<h2>' + DEFAULT_DATA[key].label + '</h2>' +
+              '<button class="btn btn-ghost" data-reset-all="' + key + '">全部重置</button>' +
+            '</div>';
+    html += '<section class="modules" id="' + key + 'Modules"></section>';
+    html += '<div id="' + key + 'Advice"></div>';
+
+    pageEl.innerHTML = html;
+
+    var box = document.getElementById(key + 'Modules');
+    els[key] = {};
+
+    cfg.modules.forEach(function (m) {
+      var root = document.createElement('div');
+      root.className = 'module';
+      root.innerHTML =
+        '<div class="m-head">' +
+          '<input class="m-name-input" type="text" value="" spellcheck="false">' +
+          '<label class="m-target">' +
+            '<span>目标</span>' +
+            '<input type="number" min="0" step="1" inputmode="decimal">' +
+            '<span>分钟</span>' +
+          '</label>' +
+        '</div>' +
+        '<div class="m-time">00:00</div>' +
+        '<div class="m-diff">--</div>' +
+        '<div class="bar"><div class="bar-fill"></div></div>' +
+        '<div class="m-actions">' +
+          '<button class="btn btn-start" type="button">开始</button>' +
+          '<button class="btn btn-fill" type="button">填用时</button>' +
+          '<button class="btn btn-reset" type="button">重置</button>' +
+        '</div>' +
+        '<div class="m-fill">' +
+          '<div class="fill-row">' +
+            '<input type="number" class="fill-num fill-h" min="0" max="99" placeholder="0">' +
+            '<span class="fill-unit">时</span>' +
+            '<input type="number" class="fill-num fill-m" min="0" max="99" placeholder="0">' +
+            '<span class="fill-unit">分</span>' +
+            '<input type="number" class="fill-num fill-s" min="0" max="99" placeholder="0">' +
+            '<span class="fill-unit">秒</span>' +
+          '</div>' +
+          '<div class="fill-btns">' +
+            '<button class="btn btn-sm btn-primary fill-ok" type="button">确定</button>' +
+            '<button class="btn btn-sm fill-cancel" type="button">取消</button>' +
+          '</div>' +
+          '<div class="fill-hint">分、秒可超过 59，会自动按总秒数计算；留空按 0 处理。</div>' +
+        '</div>';
+
+      var nameInput   = root.querySelector('.m-name-input');
+      var targetInput = root.querySelector('.m-target input');
+      var fillRow     = root.querySelector('.m-fill');
+      var fillH       = root.querySelector('.fill-h');
+      var fillM       = root.querySelector('.fill-m');
+      var fillS       = root.querySelector('.fill-s');
+      var fillBtn     = root.querySelector('.btn-fill');
+      var startBtn    = root.querySelector('.btn-start');
+      var resetBtn    = root.querySelector('.btn-reset');
+      var okBtn       = root.querySelector('.fill-ok');
+      var cancelBtn   = root.querySelector('.fill-cancel');
+
+      nameInput.value = m.name;
+      targetInput.value = m.target;
+
+      nameInput.addEventListener('input', function () {
+        m.name = nameInput.value;
+        save();
+      });
+
+      targetInput.addEventListener('input', function () {
+        var v = parseFloat(targetInput.value);
+        m.target = (isNaN(v) || v < 0) ? 0 : v;
+        save();
+        update();
+      });
+      targetInput.addEventListener('blur', function () {
+        targetInput.value = m.target;
+      });
+
+      startBtn.addEventListener('click', function () { toggle(key, m.id); });
+      resetBtn.addEventListener('click', function () { resetOne(key, m.id); });
+
+      fillBtn.addEventListener('click', function () {
+        if (fillRow.classList.contains('show')) {
+          fillRow.classList.remove('show');
+          return;
+        }
+        var running = timer.key === key && timer.id === m.id;
+        var cur = m.actual + (running ? Date.now() - timer.startTs : 0);
+        var t = Math.max(0, Math.round(cur / 1000));
+        fillH.value = Math.floor(t / 3600);
+        fillM.value = Math.floor((t % 3600) / 60);
+        fillS.value = t % 60;
+        fillRow.classList.add('show');
+        fillH.focus();
+        fillH.select();
+      });
+
+      cancelBtn.addEventListener('click', function () {
+        fillRow.classList.remove('show');
+      });
+
+      function autoJump(cur, next) {
+        cur.addEventListener('input', function () {
+          if (cur.value.length >= 2) next.focus();
+        });
+      }
+      autoJump(fillH, fillM);
+      autoJump(fillM, fillS);
+
+      function applyFill() {
+        var h = parseInt(fillH.value, 10);
+        var mi = parseInt(fillM.value, 10);
+        var se = parseInt(fillS.value, 10);
+        h = isNaN(h) ? 0 : h;
+        mi = isNaN(mi) ? 0 : mi;
+        se = isNaN(se) ? 0 : se;
+        if (h < 0 || mi < 0 || se < 0) {
+          alert('时间不能为负数。');
+          return;
+        }
+        var ms = (h * 3600 + mi * 60 + se) * 1000;
+        if (timer.key === key && timer.id === m.id) {
+          timer.key = null; timer.id = null; timer.startTs = 0;
+        }
+        m.actual = ms;
+        save();
+        update();
+        fillRow.classList.remove('show');
+      }
+
+      okBtn.addEventListener('click', applyFill);
+      [fillH, fillM, fillS].forEach(function (inp) {
+        inp.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') { e.preventDefault(); applyFill(); }
+          if (e.key === 'Escape') { fillRow.classList.remove('show'); }
+        });
+      });
+
+      els[key][m.id] = {
+        root: root,
+        time: root.querySelector('.m-time'),
+        diff: root.querySelector('.m-diff'),
+        fill: root.querySelector('.bar-fill'),
+        btn: startBtn
+      };
+
+      box.appendChild(root);
+    });
+
+    pageEl.querySelector('[data-reset-all]').addEventListener('click', function () {
+      resetAll(key);
+    });
+  }
+
+  /* ===== 计时控制 ===== */
+  function settle() {
+    if (timer.key && timer.id) {
+      var m = findModule(timer.key, timer.id);
+      if (m) m.actual += Date.now() - timer.startTs;
+    }
+    timer.key = null;
+    timer.id = null;
+    timer.startTs = 0;
+  }
+
+  function toggle(key, id) {
+    var now = Date.now();
+    if (timer.key === key && timer.id === id) {
+      settle();
+    } else {
+      settle();
+      timer.key = key;
+      timer.id = id;
+      timer.startTs = now;
+    }
+    save();
+    update();
+  }
+
+  function resetOne(key, id) {
+    var m = findModule(key, id);
+    if (!m) return;
+    if (timer.key === key && timer.id === id) {
+      timer.key = null; timer.id = null; timer.startTs = 0;
+    }
+    m.actual = 0;
+    save();
+    update();
+  }
+
+  function resetAll(key) {
+    var label = key === 'shenlun' ? '申论' : '行测';
+    if (!confirm('确定要清空「' + label + '」所有模块的用时吗？（目标时间会保留）')) return;
+    if (timer.key === key) {
+      timer.key = null; timer.id = null; timer.startTs = 0;
+    }
+    state.data[key].modules.forEach(function (m) { m.actual = 0; });
+    save();
+    update();
+  }
+
+  /* ===== 刷新显示 ===== */
+  function update() {
+    var now = Date.now();
+    ['xingce', 'shenlun'].forEach(function (key) {
+      updatePage(key, now);
+    });
+    updateTabs();
+  }
+
+  function updatePage(key, now) {
+    var tTarget = 0;
+    var tActual = 0;
+
+    state.data[key].modules.forEach(function (m) {
+      var el = els[key][m.id];
+      if (!el) return;
+
+      var running = (timer.key === key && timer.id === m.id);
+      var actual = m.actual + (running ? now - timer.startTs : 0);
+      var targetMs = m.target * 60000;
+
+      tTarget += targetMs;
+      tActual += actual;
+
+      el.time.textContent = fmt(actual);
+
+      var over = targetMs > 0 && actual > targetMs;
+      el.root.classList.toggle('active', running);
+      el.root.classList.toggle('over', over);
+
+      if (targetMs > 0) {
+        var d = targetMs - actual;
+        if (d >= 0) {
+          el.diff.textContent = '剩余 ' + fmt(d);
+          el.diff.className = 'm-diff ok';
+        } else {
+          el.diff.textContent = '超时 ' + fmt(-d);
+          el.diff.className = 'm-diff bad';
+        }
+        el.fill.style.width = Math.min(actual / targetMs, 1) * 100 + '%';
+      } else {
+        el.diff.textContent = '未设置目标';
+        el.diff.className = 'm-diff';
+        el.fill.style.width = actual > 0 ? '100%' : '0%';
+      }
+
+      el.btn.textContent = running ? '暂停' : (actual >= 1000 ? '继续' : '开始');
+    });
+
+    var totalTargetEl  = document.getElementById(key + 'TotalTarget');
+    var totalTargetSub = document.getElementById(key + 'TotalTargetSub');
+    var totalActualEl  = document.getElementById(key + 'TotalActual');
+    var totalActualSub = document.getElementById(key + 'TotalActualSub');
+    var totalDiffEl    = document.getElementById(key + 'TotalDiff');
+    var totalDiffSub   = document.getElementById(key + 'TotalDiffSub');
+    var totalFillEl    = document.getElementById(key + 'TotalFill');
+
+    totalTargetEl.textContent = fmt(tTarget);
+    totalTargetSub.textContent = tTarget > 0
+      ? '共 ' + (tTarget / 60000).toFixed(1) + ' 分钟'
+      : '未设置目标';
+
+    totalActualEl.textContent = fmt(tActual);
+    totalActualSub.textContent = '共 ' + (tActual / 60000).toFixed(1) + ' 分钟';
+
+    if (tTarget > 0) {
+      var diff = tTarget - tActual;
+      if (diff >= 0) {
+        totalDiffEl.textContent = '节省 ' + fmt(diff);
+        totalDiffEl.className = 'ov-value ok';
+        totalDiffSub.textContent = '剩余 ' + (diff / 60000).toFixed(1) + ' 分钟';
+      } else {
+        totalDiffEl.textContent = '超出 ' + fmt(-diff);
+        totalDiffEl.className = 'ov-value bad';
+        totalDiffSub.textContent = '多用了 ' + (-diff / 60000).toFixed(1) + ' 分钟';
+      }
+      totalFillEl.style.width = Math.min(tActual / tTarget, 1) * 100 + '%';
+      totalFillEl.classList.toggle('over', tActual > tTarget);
+    } else {
+      totalDiffEl.textContent = '--';
+      totalDiffEl.className = 'ov-value';
+      totalDiffSub.innerHTML = '&nbsp;';
+      totalFillEl.style.width = '0%';
+      totalFillEl.classList.remove('over');
+    }
+
+    renderAdvice(key);
+  }
+
+  function updateTabs() {
+    document.querySelectorAll('.tab').forEach(function (btn) {
+      var key = btn.getAttribute('data-tab');
+      btn.classList.toggle('active', key === state.active);
+      btn.classList.toggle('timing', timer.key === key);
+    });
+  }
+
+  /* ===== 智能建议 ===== */
+  function renderAdvice(key) {
+    var container = document.getElementById(key + 'Advice');
+    var modules = state.data[key].modules;
+
+    if (!modules.length) {
+      container.innerHTML = '';
+      return;
+    }
+
+    var filled = modules.filter(function (m) { return m.actual > 0; }).length;
+
+    if (filled < modules.length) {
+      var k0 = 'inc:' + filled + '/' + modules.length;
+      if (k0 === adviceCache[key]) return;
+      adviceCache[key] = k0;
+      container.innerHTML =
+        '<div class="advice">' +
+          '<div class="advice-title">📊 智能分析</div>' +
+          '<div class="advice-empty">还有 <b>' + (modules.length - filled) + '</b> 个模块没有填写用时。<br>' +
+          '把全部用时填好后，这里会自动生成针对性的节奏分析建议。</div>' +
+        '</div>';
+      return;
+    }
+
+    var cacheKey = modules.map(function (m) {
+      return m.id + '|' + m.name + '|' + m.target + '|' + Math.floor(m.actual / 1000);
+    }).join(';');
+    if (cacheKey === adviceCache[key]) return;
+    adviceCache[key] = cacheKey;
+
+    var stats = modules.map(function (m) {
+      var targetMs = m.target * 60000;
+      return {
+        name: m.name || '未命名模块',
+        targetMs: targetMs,
+        actualMs: m.actual,
+        targetMin: m.target,
+        actualMin: m.actual / 60000,
+        hasTarget: m.target > 0,
+        diffMs: m.target > 0 ? m.actual - targetMs : 0,
+        ratio: m.target > 0 ? m.actual / targetMs : 0
+      };
+    });
+
+    var totalTargetMs = stats.reduce(function (a, s) { return a + s.targetMs; }, 0);
+    var totalActualMs = stats.reduce(function (a, s) { return a + s.actualMs; }, 0);
+    var allHaveTarget = stats.every(function (s) { return s.hasTarget; });
+    var totalDiffMs = totalActualMs - totalTargetMs;
+
+    var list = [];
+    var mentioned = {};
+
+    function add(type, text, k) {
+      if (k) {
+        if (mentioned[k]) return;
+        mentioned[k] = true;
+      }
+      list.push({ type: type, text: text });
+    }
+
+    var summary, summaryCls;
+    if (allHaveTarget && totalTargetMs > 0) {
+      if (totalDiffMs > 0) {
+        summary = '总用时 <b>' + fmt(totalActualMs) + '</b>（' + (totalActualMs / 60000).toFixed(1) + ' 分钟），' +
+                  '比总目标多用了 <b>' + fmt(totalDiffMs) + '</b>（目标 ' + fmt(totalTargetMs) + '），整体节奏偏慢，需要压缩。';
+        summaryCls = 'bad';
+      } else {
+        summary = '总用时 <b>' + fmt(totalActualMs) + '</b>（' + (totalActualMs / 60000).toFixed(1) + ' 分钟），' +
+                  '比总目标节省了 <b>' + fmt(-totalDiffMs) + '</b>（目标 ' + fmt(totalTargetMs) + '），节奏控制得不错。';
+        summaryCls = 'ok';
+      }
+    } else {
+      summary = '总用时 <b>' + fmt(totalActualMs) + '</b>（' + (totalActualMs / 60000).toFixed(1) + ' 分钟）。' +
+                '部分模块没有设置目标时间，以下是基于各模块实际用时的分析。';
+      summaryCls = 'neutral';
+    }
+
+    var overs = stats.filter(function (s) { return s.hasTarget && s.diffMs > 0; })
+                     .sort(function (a, b) { return b.diffMs - a.diffMs; });
+    overs.slice(0, 2).forEach(function (s) {
+      var pct = Math.round((s.ratio - 1) * 100);
+      var st = matchStrategy(s.name);
+      var extra = st ? ' ' + st.tip : '';
+      add('warn',
+        '「' + s.name + '」超时 <b>' + fmt(s.diffMs) + '</b>，实际用了 ' + fmt(s.actualMs) +
+        '（目标 ' + s.targetMin + ' 分钟，多用约 ' + pct + '%）。' + extra,
+        s.name);
+    });
+
+    var near = stats.filter(function (s) {
+      return s.hasTarget && s.diffMs <= 0 && s.ratio >= 0.9 && !mentioned[s.name];
+    }).sort(function (a, b) { return b.ratio - a.ratio; });
+    near.slice(0, 1).forEach(function (s) {
+      add('tip',
+        '「' + s.name + '」用时 ' + fmt(s.actualMs) + '，已经接近目标 ' + s.targetMin + ' 分钟，' +
+        '考场上要预留一点涂卡和检查的时间。',
+        s.name);
+    });
+
+    var saves = stats.filter(function (s) { return s.hasTarget && s.diffMs < -60000; })
+                     .sort(function (a, b) { return a.diffMs - b.diffMs; });
+    if (saves.length) {
+      var s0 = saves[0];
+      add('ok',
+        '「' + s0.name + '」比目标节省了 <b>' + fmt(-s0.diffMs) + '</b>，' +
+        '这部分时间可以补给吃紧的模块。',
+        s0.name);
+    }
+
+    if (allHaveTarget && totalDiffMs > 0) {
+      var totalSaved = stats.reduce(function (a, s) {
+        return a + (s.diffMs < 0 ? -s.diffMs : 0);
+      }, 0);
+      if (totalSaved > 0) {
+        list.push({
+          type: 'tip',
+          text: '各模块节省的时间合计 <b>' + fmt(totalSaved) + '</b>，' +
+                '如果全部补给超时模块，总超时可压缩到 <b>' + fmt(Math.max(0, totalDiffMs - totalSaved)) + '</b>。'
+        });
+      } else {
+        list.push({
+          type: 'tip',
+          text: '没有任何模块节省出时间，建议从超时最多的模块下手，' +
+                '先砍掉 10%–15% 的用时，再逐步优化。'
+        });
+      }
+    }
+
+    stats.forEach(function (s) {
+      if (mentioned[s.name]) return;
+      var st = matchStrategy(s.name);
+      if (!st) return;
+      if (s.actualMin > st.ideal[1] + 2) {
+        add('warn',
+          '「' + s.name + '」用了 ' + s.actualMin.toFixed(1) + ' 分钟，超出常见合理区间 ' +
+          st.ideal[0] + '–' + st.ideal[1] + ' 分钟。' + st.tip,
+          s.name);
+      } else if (s.actualMin > 0 && s.actualMin < st.ideal[0] - 2) {
+        add('tip',
+          '「' + s.name + '」只用了 ' + s.actualMin.toFixed(1) + ' 分钟，' +
+          '比常见区间 ' + st.ideal[0] + '–' + st.ideal[1] + ' 分钟偏少，注意别为了赶时间牺牲正确率。',
+          s.name);
+      }
+    });
+
+    if (!list.length) {
+      add('ok', '各模块用时都在合理范围内，保持这个节奏，考场上稳住就行。');
+    }
+
+    if (list.length < 6) {
+      if (key === 'shenlun') {
+        list.push({
+          type: 'tip',
+          text: '申论答题建议：每题先花 1–2 分钟审题列提纲，大作文务必留足 60 分钟；' +
+                '分条作答、关键词前置，字迹工整，采分点优先。'
+        });
+      } else {
+        list.push({
+          type: 'tip',
+          text: '行测答题建议：按试卷顺序作答，政治理论和常识不要恋战，' +
+                '资料分析留足时间；单题卡壳超过 1.5 分钟就标记跳过，涂卡时间至少留 5 分钟。'
+        });
+      }
+    }
+
+    var html = '<div class="advice">' +
+      '<div class="advice-title">📊 智能分析</div>' +
+      '<div class="advice-summary ' + summaryCls + '">' + summary + '</div>' +
+      '<ul class="advice-list">' +
+        list.slice(0, 6).map(function (it) {
+          return '<li class="' + it.type + '">' + it.text + '</li>';
+        }).join('') +
+      '</ul>' +
+    '</div>';
+
+    container.innerHTML = html;
+  }
+
+  /* ===== 标签切换 ===== */
+  function bindTabs() {
+    document.querySelectorAll('.tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var key = btn.getAttribute('data-tab');
+        if (state.active === key) return;
+        state.active = key;
+        document.querySelectorAll('.tab').forEach(function (b) {
+          b.classList.toggle('active', b.getAttribute('data-tab') === key);
+        });
+        document.querySelectorAll('.page').forEach(function (p) {
+          p.classList.toggle('active', p.id === 'page-' + key);
+        });
+        save();
+        update();
+      });
+    });
+  }
+
+  /* ===== 启动 ===== */
+  load();
+  buildPage('xingce');
+  buildPage('shenlun');
+
+  document.querySelectorAll('.tab').forEach(function (b) {
+    b.classList.toggle('active', b.getAttribute('data-tab') === state.active);
+  });
+  document.querySelectorAll('.page').forEach(function (p) {
+    p.classList.toggle('active', p.id === 'page-' + state.active);
+  });
+
+  bindTabs();
+  update();
+
+  setInterval(update, 100);
+
+  window.addEventListener('beforeunload', function () {
+    settle();
+    save();
+  });
+})();
+</script>
+</body>
+</html>
