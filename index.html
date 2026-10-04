@@ -16,16 +16,25 @@
     min-height:100vh; padding:26px 16px 64px;
     -webkit-font-smoothing:antialiased;
   }
-  .app{max-width:960px;margin:0 auto;}
+  .app{max-width:960px;margin:0 auto;position:relative;}
+
+  /* 顶部提示 */
+  .toast{
+    position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);
+    background:#10b981;color:#fff;padding:10px 22px;border-radius:999px;
+    font-size:13px;font-weight:600;z-index:999;
+    box-shadow:0 6px 20px rgba(16,185,129,.3);
+    transition:transform .35s cubic-bezier(.18,.89,.32,1.28);
+    pointer-events:none;white-space:nowrap;
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .toast.warn{background:#f59e0b;box-shadow:0 6px 20px rgba(245,158,11,.3);}
 
   header{text-align:center;margin-bottom:20px;}
   header h1{font-size:22px;font-weight:700;letter-spacing:.5px;}
   header p{color:var(--muted);font-size:13px;margin-top:6px;}
 
-  .tabs{
-    display:flex;gap:6px;background:#e9edf5;padding:5px;border-radius:13px;
-    margin-bottom:22px;
-  }
+  .tabs{display:flex;gap:6px;background:#e9edf5;padding:5px;border-radius:13px;margin-bottom:22px;}
   .tab{
     flex:1;border:none;background:transparent;padding:11px 16px;
     font-size:15px;font-weight:600;color:var(--muted);border-radius:9px;
@@ -33,10 +42,7 @@
   }
   .tab:hover{color:var(--text);}
   .tab.active{background:#fff;color:var(--text);box-shadow:0 1px 5px rgba(0,0,0,.08);}
-  .tab .dot{
-    display:none;position:absolute;top:9px;right:14px;width:7px;height:7px;
-    border-radius:50%;background:var(--primary);
-  }
+  .tab .dot{display:none;position:absolute;top:9px;right:14px;width:7px;height:7px;border-radius:50%;background:var(--primary);}
   .tab.timing .dot{display:block;animation:pulse 1.4s infinite;}
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.75);}}
 
@@ -44,25 +50,15 @@
   .page.active{display:block;}
 
   .overview{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;}
-  .ov{
-    background:var(--card);border:1px solid var(--line);border-radius:14px;
-    padding:13px 10px;text-align:center;
-  }
+  .ov{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 10px;text-align:center;}
   .ov-label{font-size:12px;color:var(--muted);margin-bottom:6px;}
-  .ov-value{
-    font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;
-    transition:color .2s;line-height:1.2;
-  }
+  .ov-value{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;transition:color .2s;line-height:1.2;}
   .ov-value.ok{color:var(--ok);}
   .ov-value.bad{color:var(--danger);}
   .ov-sub{font-size:11.5px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums;}
 
   .total-bar{height:6px;background:#e6e9f0;border-radius:99px;overflow:hidden;margin-bottom:24px;}
-  .total-fill{
-    height:100%;width:0;border-radius:99px;
-    background:linear-gradient(90deg,#60a5fa,#3b82f6);
-    transition:width .15s linear,background .3s;
-  }
+  .total-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#60a5fa,#3b82f6);transition:width .15s linear,background .3s;}
   .total-fill.over{background:linear-gradient(90deg,#f87171,#ef4444);}
 
   .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
@@ -87,10 +83,7 @@
   .m-name-input:hover{background:#f3f4f6;}
   .m-name-input:focus{outline:none;border-color:var(--primary);background:#fff;}
 
-  .m-target{
-    display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);
-    white-space:nowrap;flex-shrink:0;
-  }
+  .m-target{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);white-space:nowrap;flex-shrink:0;}
   .m-target input{
     width:52px;padding:4px 6px;border:1px solid var(--line);border-radius:8px;
     font-size:13px;text-align:center;font-family:inherit;color:var(--text);
@@ -101,10 +94,7 @@
   .m-target input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
   .m-target input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
 
-  .m-time{
-    font-size:36px;font-weight:700;line-height:1.1;
-    font-variant-numeric:tabular-nums;letter-spacing:.5px;transition:color .2s;
-  }
+  .m-time{font-size:36px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:.5px;transition:color .2s;}
   .module.active .m-time{color:var(--primary);}
   .module.over .m-time{color:var(--danger);}
 
@@ -113,26 +103,18 @@
   .m-diff.bad{color:var(--danger);}
 
   .bar{height:8px;background:#eef2f7;border-radius:99px;overflow:hidden;}
-  .bar-fill{
-    height:100%;width:0;border-radius:99px;
-    background:linear-gradient(90deg,#60a5fa,#3b82f6);
-    transition:width .15s linear,background .3s;
-  }
+  .bar-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#60a5fa,#3b82f6);transition:width .15s linear,background .3s;}
   .module.over .bar-fill{background:linear-gradient(90deg,#f87171,#ef4444);}
 
   .m-actions{display:flex;gap:7px;margin-top:2px;}
 
-  .m-fill{
-    display:none;flex-direction:column;gap:9px;
-    padding-top:11px;margin-top:2px;border-top:1px dashed var(--line);
-  }
+  .m-fill{display:none;flex-direction:column;gap:9px;padding-top:11px;margin-top:2px;border-top:1px dashed var(--line);}
   .m-fill.show{display:flex;}
   .fill-row{display:flex;align-items:center;gap:6px;}
   .fill-num{
     width:56px;padding:8px 6px;border:1px solid var(--line);border-radius:9px;
     font-size:14px;text-align:center;font-family:inherit;color:var(--text);
-    font-variant-numeric:tabular-nums;transition:.15s;
-    -moz-appearance:textfield;
+    font-variant-numeric:tabular-nums;transition:.15s;-moz-appearance:textfield;
   }
   .fill-num::-webkit-outer-spin-button,
   .fill-num::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
@@ -165,14 +147,9 @@
   .btn-ghost{padding:6px 14px;font-size:13px;color:var(--muted);border-radius:9px;}
   .btn-ghost:hover{color:var(--danger);border-color:var(--danger);background:#fef2f2;}
 
-  .advice{
-    background:var(--card);border:1px solid var(--line);border-radius:16px;
-    padding:16px 18px;margin-top:22px;
-  }
+  .advice{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-top:22px;}
   .advice-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
-  .advice-summary{
-    font-size:14px;line-height:1.75;padding:11px 13px;border-radius:11px;margin-bottom:13px;
-  }
+  .advice-summary{font-size:14px;line-height:1.75;padding:11px 13px;border-radius:11px;margin-bottom:13px;}
   .advice-summary.ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;}
   .advice-summary.bad{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
   .advice-summary.neutral{background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;}
@@ -187,6 +164,13 @@
   .advice-empty{font-size:13.5px;color:var(--muted);line-height:1.7;}
   .advice-empty b{color:var(--primary);}
 
+  .storage-warn{
+    background:#fef3c7;border:1px solid #fcd34d;color:#92400e;
+    border-radius:12px;padding:11px 14px;font-size:12.5px;line-height:1.6;
+    margin-bottom:16px;display:none;
+  }
+  .storage-warn.show{display:block;}
+
   @media (max-width:420px){
     body{padding:18px 12px 50px;}
     .m-time{font-size:30px;}
@@ -199,9 +183,18 @@
 </head>
 <body>
 <div class="app">
+  <div class="toast" id="toast"></div>
+
+  <div class="storage-warn" id="storageWarn">
+    ⚠️ 浏览器禁用了本地存储，数据无法自动保存。请尝试：<br>
+    1. 不要用无痕/隐私模式打开；<br>
+    2. 用 http:// 或 https:// 打开本页面（而不是双击文件）；<br>
+    3. 在浏览器设置中允许本站保存数据。
+  </div>
+
   <header>
     <h1>公考模块计时器</h1>
-    <p>行测 + 申论独立界面 · 模块顺序按国考真题排列 · 时分秒独立填写</p>
+    <p>数据自动保存 · 下次打开自动恢复 · 模块顺序按国考真题排列</p>
   </header>
 
   <div class="tabs" id="tabs">
@@ -217,9 +210,77 @@
 (function () {
   'use strict';
 
-  var KEY = 'gongkao-timer-v5';
+  var KEY = 'gongkao-timer-v5';   /* 保持原 key，旧数据也能读到 */
 
-  /* ===== 默认数据（模块顺序按国考真题顺序） ===== */
+  /* ============ 存储层：三重保险 ============ */
+  var storage = (function () {
+    var available = { local: false, session: false, cookie: false };
+
+    /* 检测 localStorage */
+    try {
+      localStorage.setItem('__t', '1');
+      localStorage.removeItem('__t');
+      available.local = true;
+    } catch (e) {}
+
+    /* 检测 sessionStorage */
+    try {
+      sessionStorage.setItem('__t', '1');
+      sessionStorage.removeItem('__t');
+      available.session = true;
+    } catch (e) {}
+
+    /* 检测 cookie */
+    try {
+      document.cookie = '__t=1;path=/';
+      available.cookie = document.cookie.indexOf('__t=') !== -1;
+      document.cookie = '__t=;max-age=0;path=/';
+    } catch (e) {}
+
+    function setItem(key, value) {
+      var str = typeof value === 'string' ? value : JSON.stringify(value);
+      var ok = false;
+      if (available.local) {
+        try { localStorage.setItem(key, str); ok = true; } catch (e) {}
+      }
+      if (available.session) {
+        try { sessionStorage.setItem(key, str); ok = true; } catch (e) {}
+      }
+      if (available.cookie && str.length < 3800) {
+        try {
+          document.cookie = key + '=' + encodeURIComponent(str) + ';max-age=31536000;path=/';
+          ok = true;
+        } catch (e) {}
+      }
+      return ok;
+    }
+
+    function getItem(key) {
+      var v;
+      if (available.local) {
+        try { v = localStorage.getItem(key); if (v) return v; } catch (e) {}
+      }
+      if (available.session) {
+        try { v = sessionStorage.getItem(key); if (v) return v; } catch (e) {}
+      }
+      if (available.cookie) {
+        try {
+          var m = document.cookie.match(new RegExp('(?:^|; )' + key + '=([^;]*)'));
+          if (m) return decodeURIComponent(m[1]);
+        } catch (e) {}
+      }
+      return null;
+    }
+
+    return {
+      available: available,
+      setItem: setItem,
+      getItem: getItem,
+      anyAvailable: available.local || available.session || available.cookie
+    };
+  })();
+
+  /* ============ 默认数据 ============ */
   var DEFAULT_DATA = {
     xingce: {
       label: '行测模块（按国考真题顺序）',
@@ -244,30 +305,18 @@
     }
   };
 
-  /* ===== 策略库（用于智能建议） ===== */
   var STRATEGIES = [
-    { keys: ['常识'], ideal: [6, 12],
-      tip: '常识判断性价比最低，不会的快速蒙一个，不要回看纠结。' },
-    { keys: ['政治'], ideal: [6, 12],
-      tip: '政治理论考的是记忆和第一印象，时政题不要反复琢磨，选完就走。' },
-    { keys: ['言语'], ideal: [30, 38],
-      tip: '言语理解抓关键词和行文脉络，逻辑填空不要反复改，片段阅读先看问题。' },
-    { keys: ['数量'], ideal: [8, 15],
-      tip: '数量关系先挑简单题做，单题超过 1.5 分钟果断跳过，不要把时间耗在难题上。' },
-    { keys: ['判断', '推理'], ideal: [32, 38],
-      tip: '图形推理最容易卡壳，看不出来先标记跳过，定义判断和类比推理要提速。' },
-    { keys: ['资料'], ideal: [22, 28],
-      tip: '资料分析是提分重点，优先保证正确率，熟练使用估算和速算技巧。' },
-    { keys: ['归纳', '概括'], ideal: [15, 22],
-      tip: '归纳概括要点的全面性优先，分条作答，关键词前置，不要写成小作文。' },
-    { keys: ['综合分析', '分析'], ideal: [20, 28],
-      tip: '综合分析先亮明观点，再展开分析，最后落到对策或结论，结构要清晰。' },
-    { keys: ['对策', '提出'], ideal: [20, 28],
-      tip: '提出对策要具体、可操作，对策与问题一一对应，避免空话套话。' },
-    { keys: ['贯彻', '执行', '公文'], ideal: [25, 35],
-      tip: '贯彻执行注意文种格式和身份设定，开头交代背景，正文分层，结尾呼应。' },
-    { keys: ['作文', '文章'], ideal: [55, 70],
-      tip: '大作文至少留 60 分钟：5 分钟审题立意，10 分钟列提纲，40 分钟写作，5 分钟检查。' }
+    { keys: ['常识'], ideal: [6, 12], tip: '常识判断性价比最低，不会的快速蒙一个，不要回看纠结。' },
+    { keys: ['政治'], ideal: [6, 12], tip: '政治理论考的是记忆和第一印象，时政题不要反复琢磨，选完就走。' },
+    { keys: ['言语'], ideal: [30, 38], tip: '言语理解抓关键词和行文脉络，逻辑填空不要反复改，片段阅读先看问题。' },
+    { keys: ['数量'], ideal: [8, 15], tip: '数量关系先挑简单题做，单题超过 1.5 分钟果断跳过，不要把时间耗在难题上。' },
+    { keys: ['判断', '推理'], ideal: [32, 38], tip: '图形推理最容易卡壳，看不出来先标记跳过，定义判断和类比推理要提速。' },
+    { keys: ['资料'], ideal: [22, 28], tip: '资料分析是提分重点，优先保证正确率，熟练使用估算和速算技巧。' },
+    { keys: ['归纳', '概括'], ideal: [15, 22], tip: '归纳概括要点的全面性优先，分条作答，关键词前置，不要写成小作文。' },
+    { keys: ['综合分析', '分析'], ideal: [20, 28], tip: '综合分析先亮明观点，再展开分析，最后落到对策或结论，结构要清晰。' },
+    { keys: ['对策', '提出'], ideal: [20, 28], tip: '提出对策要具体、可操作，对策与问题一一对应，避免空话套话。' },
+    { keys: ['贯彻', '执行', '公文'], ideal: [25, 35], tip: '贯彻执行注意文种格式和身份设定，开头交代背景，正文分层，结尾呼应。' },
+    { keys: ['作文', '文章'], ideal: [55, 70], tip: '大作文至少留 60 分钟：5 分钟审题立意，10 分钟列提纲，40 分钟写作，5 分钟检查。' }
   ];
 
   function matchStrategy(name) {
@@ -280,7 +329,7 @@
     return null;
   }
 
-  /* ===== 状态 ===== */
+  /* ============ 状态 ============ */
   var state = {
     active: 'xingce',
     data: {
@@ -300,8 +349,10 @@
   var timer = { key: null, id: null, startTs: 0 };
   var els = { xingce: {}, shenlun: {} };
   var adviceCache = { xingce: '', shenlun: '' };
+  var saveTimer = null;
+  var restoredFromSave = false;
 
-  /* ===== 工具函数 ===== */
+  /* ============ 工具 ============ */
   function fmt(ms) {
     ms = Math.max(0, ms || 0);
     var t = Math.floor(ms / 1000);
@@ -320,38 +371,65 @@
     return null;
   }
 
-  /* ===== 存储 ===== */
-  function save() {
-    try {
-      localStorage.setItem(KEY, JSON.stringify({
+  function showToast(msg, warn) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast' + (warn ? ' warn' : '');
+    /* 强制重排，保证动画每次都能触发 */
+    void el.offsetWidth;
+    el.classList.add('show');
+    clearTimeout(el.__tid);
+    el.__tid = setTimeout(function () {
+      el.classList.remove('show');
+    }, 1800);
+  }
+
+  /* ============ 存储：保存 / 读取 ============ */
+  function save(immediate) {
+    /* 短时间内的多次保存合并成一次，减少 IO */
+    if (saveTimer) clearTimeout(saveTimer);
+    function doSave() {
+      var ok = storage.setItem(KEY, {
         active: state.active,
-        data: state.data
-      }));
-    } catch (e) {}
+        data: state.data,
+        savedAt: Date.now()
+      });
+      if (ok && !save.__quiet) {
+        showToast('✓ 已自动保存');
+      }
+    }
+    if (immediate) {
+      doSave();
+    } else {
+      saveTimer = setTimeout(doSave, 300);
+    }
   }
 
   function load() {
-    try {
-      var raw = localStorage.getItem(KEY);
-      if (!raw) return;
-      var data = JSON.parse(raw);
-      if (!data || !data.data) return;
-      ['xingce', 'shenlun'].forEach(function (key) {
-        var saved = data.data[key];
-        if (!saved || !Array.isArray(saved.modules)) return;
-        saved.modules.forEach(function (sm) {
-          var m = findModule(key, sm.id);
-          if (!m) return;
-          if (typeof sm.name === 'string' && sm.name) m.name = sm.name;
-          if (typeof sm.target === 'number' && sm.target >= 0) m.target = sm.target;
-          if (typeof sm.actual === 'number' && sm.actual >= 0) m.actual = sm.actual;
-        });
+    var raw = storage.getItem(KEY);
+    if (!raw) return false;
+    var data;
+    try { data = JSON.parse(raw); } catch (e) { return false; }
+    if (!data || !data.data) return false;
+
+    ['xingce', 'shenlun'].forEach(function (key) {
+      var saved = data.data[key];
+      if (!saved || !Array.isArray(saved.modules)) return;
+      saved.modules.forEach(function (sm) {
+        var m = findModule(key, sm.id);
+        if (!m) return;
+        if (typeof sm.name === 'string' && sm.name) m.name = sm.name;
+        if (typeof sm.target === 'number' && sm.target >= 0) m.target = sm.target;
+        if (typeof sm.actual === 'number' && sm.actual >= 0) m.actual = sm.actual;
       });
-      if (data.active === 'shenlun') state.active = 'shenlun';
-    } catch (e) {}
+    });
+
+    if (data.active === 'shenlun') state.active = 'shenlun';
+    restoredFromSave = true;
+    return true;
   }
 
-  /* ===== 构建界面 ===== */
+  /* ============ 构建界面 ============ */
   function buildPage(key) {
     var cfg = state.data[key];
     var pageEl = document.getElementById('page-' + key);
@@ -445,6 +523,7 @@
       });
       targetInput.addEventListener('blur', function () {
         targetInput.value = m.target;
+        save(true);
       });
 
       startBtn.addEventListener('click', function () { toggle(key, m.id); });
@@ -494,7 +573,7 @@
           timer.key = null; timer.id = null; timer.startTs = 0;
         }
         m.actual = ms;
-        save();
+        save(true);
         update();
         fillRow.classList.remove('show');
       }
@@ -523,7 +602,7 @@
     });
   }
 
-  /* ===== 计时控制 ===== */
+  /* ============ 计时控制 ============ */
   function settle() {
     if (timer.key && timer.id) {
       var m = findModule(timer.key, timer.id);
@@ -544,7 +623,7 @@
       timer.id = id;
       timer.startTs = now;
     }
-    save();
+    save(true);
     update();
   }
 
@@ -555,7 +634,7 @@
       timer.key = null; timer.id = null; timer.startTs = 0;
     }
     m.actual = 0;
-    save();
+    save(true);
     update();
   }
 
@@ -566,11 +645,11 @@
       timer.key = null; timer.id = null; timer.startTs = 0;
     }
     state.data[key].modules.forEach(function (m) { m.actual = 0; });
-    save();
+    save(true);
     update();
   }
 
-  /* ===== 刷新显示 ===== */
+  /* ============ 刷新显示 ============ */
   function update() {
     var now = Date.now();
     ['xingce', 'shenlun'].forEach(function (key) {
@@ -667,7 +746,7 @@
     });
   }
 
-  /* ===== 智能建议 ===== */
+  /* ============ 智能建议 ============ */
   function renderAdvice(key) {
     var container = document.getElementById(key + 'Advice');
     var modules = state.data[key].modules;
@@ -846,7 +925,7 @@
     container.innerHTML = html;
   }
 
-  /* ===== 标签切换 ===== */
+  /* ============ 标签切换 ============ */
   function bindTabs() {
     document.querySelectorAll('.tab').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -865,7 +944,7 @@
     });
   }
 
-  /* ===== 启动 ===== */
+  /* ============ 启动 ============ */
   load();
   buildPage('xingce');
   buildPage('shenlun');
@@ -880,11 +959,33 @@
   bindTabs();
   update();
 
+  /* 如果是恢复数据，给个提示 */
+  if (restoredFromSave) {
+    setTimeout(function () {
+      showToast('✓ 已恢复上次数据');
+    }, 300);
+  }
+
+  /* 存储不可用的话，给出警告 */
+  if (!storage.anyAvailable) {
+    document.getElementById('storageWarn').classList.add('show');
+  }
+
   setInterval(update, 100);
+
+  /* 切到后台时也保存一次 */
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') {
+      save.__quiet = true;
+      save(true);
+      save.__quiet = false;
+    }
+  });
 
   window.addEventListener('beforeunload', function () {
     settle();
-    save();
+    save.__quiet = true;
+    save(true);
   });
 })();
 </script>
