@@ -18,7 +18,16 @@
   }
   .app{max-width:960px;margin:0 auto;position:relative;}
 
-  /* 顶部提示 */
+  /* 顶部提示条 */
+  .tip-bar{
+    background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;
+    border-radius:12px;padding:10px 14px;font-size:12.5px;line-height:1.7;
+    margin-bottom:18px;display:flex;align-items:flex-start;gap:8px;
+  }
+  .tip-bar .tip-icon{flex-shrink:0;font-size:14px;line-height:1.7;}
+  .tip-bar b{color:#1d4ed8;}
+
+  /* 右上角保存提示 */
   .toast{
     position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);
     background:#10b981;color:#fff;padding:10px 22px;border-radius:999px;
@@ -197,6 +206,12 @@
     <p>数据自动保存 · 下次打开自动恢复 · 模块顺序按国考真题排列</p>
   </header>
 
+  <!-- 温馨提示条 -->
+  <div class="tip-bar">
+    <span class="tip-icon">💾</span>
+    <span>你的模块名、目标时间和用时都<b>自动保存在本浏览器</b>，关闭页面再打开会自动恢复。换浏览器、换设备或清理浏览器数据后，记录不会同步。</span>
+  </div>
+
   <div class="tabs" id="tabs">
     <button class="tab active" data-tab="xingce">行测<span class="dot"></span></button>
     <button class="tab" data-tab="shenlun">申论<span class="dot"></span></button>
@@ -210,27 +225,24 @@
 (function () {
   'use strict';
 
-  var KEY = 'gongkao-timer-v5';   /* 保持原 key，旧数据也能读到 */
+  var KEY = 'gongkao-timer-v5';
 
   /* ============ 存储层：三重保险 ============ */
   var storage = (function () {
     var available = { local: false, session: false, cookie: false };
 
-    /* 检测 localStorage */
     try {
       localStorage.setItem('__t', '1');
       localStorage.removeItem('__t');
       available.local = true;
     } catch (e) {}
 
-    /* 检测 sessionStorage */
     try {
       sessionStorage.setItem('__t', '1');
       sessionStorage.removeItem('__t');
       available.session = true;
     } catch (e) {}
 
-    /* 检测 cookie */
     try {
       document.cookie = '__t=1;path=/';
       available.cookie = document.cookie.indexOf('__t=') !== -1;
@@ -375,7 +387,6 @@
     var el = document.getElementById('toast');
     el.textContent = msg;
     el.className = 'toast' + (warn ? ' warn' : '');
-    /* 强制重排，保证动画每次都能触发 */
     void el.offsetWidth;
     el.classList.add('show');
     clearTimeout(el.__tid);
@@ -386,7 +397,6 @@
 
   /* ============ 存储：保存 / 读取 ============ */
   function save(immediate) {
-    /* 短时间内的多次保存合并成一次，减少 IO */
     if (saveTimer) clearTimeout(saveTimer);
     function doSave() {
       var ok = storage.setItem(KEY, {
@@ -959,21 +969,18 @@
   bindTabs();
   update();
 
-  /* 如果是恢复数据，给个提示 */
   if (restoredFromSave) {
     setTimeout(function () {
       showToast('✓ 已恢复上次数据');
     }, 300);
   }
 
-  /* 存储不可用的话，给出警告 */
   if (!storage.anyAvailable) {
     document.getElementById('storageWarn').classList.add('show');
   }
 
   setInterval(update, 100);
 
-  /* 切到后台时也保存一次 */
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'hidden') {
       save.__quiet = true;
