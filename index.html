@@ -513,17 +513,19 @@ const storage = (() => {
 
 /* ============================================================
    默认数据
+   行测单题分值：政治0.8 常识0.6 言语0.8 数量0.7 判断0.8 资料0.8
+   满分：16 + 9 + 24 + 7 + 28 + 16 = 100
    ============================================================ */
 const DEFAULT_DATA = {
   xingce: {
     label: '行测模块（按国考市地级/行政执法卷 130 题）',
     modules: [
-      { id: 'x1', name: '政治理论',      target: 12, totalQ: 20, perScore: 0.7 },
-      { id: 'x2', name: '常识判断',      target: 5,  totalQ: 15, perScore: 0.5 },
+      { id: 'x1', name: '政治理论',      target: 12, totalQ: 20, perScore: 0.8 },
+      { id: 'x2', name: '常识判断',      target: 5,  totalQ: 15, perScore: 0.6 },
       { id: 'x3', name: '言语理解与表达', target: 28, totalQ: 30, perScore: 0.8 },
-      { id: 'x4', name: '数量关系',      target: 10, totalQ: 10, perScore: 1.0 },
-      { id: 'x5', name: '判断推理',      target: 30, totalQ: 35, perScore: 0.7 },
-      { id: 'x6', name: '资料分析',      target: 27, totalQ: 20, perScore: 1.0 }
+      { id: 'x4', name: '数量关系',      target: 10, totalQ: 10, perScore: 0.7 },
+      { id: 'x5', name: '判断推理',      target: 30, totalQ: 35, perScore: 0.8 },
+      { id: 'x6', name: '资料分析',      target: 27, totalQ: 20, perScore: 0.8 }
     ]
   },
   shenlun: {
