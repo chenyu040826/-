@@ -3,28 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>公考模块计时器 · 估分版</title>
+<title>公考模块计时器 · 云端版</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   :root{
-    --bg:#f4f6fb; --card:#ffffff; --text:#1f2937; --muted:#6b7280;
-    --line:#e6e9f0; --primary:#3b82f6; --ok:#10b981; --warn:#f59e0b; --danger:#ef4444;
+    --bg:#f4f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;
+    --line:#e6e9f0;--primary:#3b82f6;--ok:#10b981;--warn:#f59e0b;--danger:#ef4444;
   }
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-    background:var(--bg); color:var(--text);
-    min-height:100vh; padding:26px 16px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;padding:26px 16px 64px;
     -webkit-font-smoothing:antialiased;
   }
   .app{max-width:960px;margin:0 auto;position:relative;}
-
-  .tip-bar{
-    background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;
-    border-radius:12px;padding:10px 14px;font-size:12.5px;line-height:1.7;
-    margin-bottom:18px;display:flex;align-items:flex-start;gap:8px;
-  }
-  .tip-bar .tip-icon{flex-shrink:0;font-size:14px;line-height:1.7;}
-  .tip-bar b{color:#1d4ed8;}
 
   .toast{
     position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);
@@ -37,24 +28,122 @@
   .toast.show{transform:translateX(-50%) translateY(0);}
   .toast.warn{background:#f59e0b;box-shadow:0 6px 20px rgba(245,158,11,.3);}
 
-  header{text-align:center;margin-bottom:20px;}
+  header{text-align:center;margin-bottom:16px;}
   header h1{font-size:22px;font-weight:700;letter-spacing:.5px;}
   header p{color:var(--muted);font-size:13px;margin-top:6px;}
 
+  .auth-bar{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    border-radius:12px;padding:11px 14px;margin-bottom:12px;
+    font-size:13px;line-height:1.6;transition:.2s;
+  }
+  .auth-bar.guest{background:#fef3c7;border:1px solid #fcd34d;color:#92400e;}
+  .auth-bar.logged{background:#dbeafe;border:1px solid #93c5fd;color:#1e40af;}
+  .auth-bar .auth-text{font-weight:600;}
+  .auth-bar .auth-text .name{color:#1d4ed8;font-weight:700;}
+  .auth-bar .auth-btn{
+    background:#fff;border:1px solid currentColor;color:inherit;
+    padding:6px 14px;border-radius:9px;font-size:12.5px;cursor:pointer;
+    font-family:inherit;font-weight:600;transition:.15s;white-space:nowrap;
+  }
+  .auth-bar .auth-btn:hover{opacity:.8;}
+  .auth-bar .auth-btn:active{transform:scale(.97);}
+
+  .quick-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .quick-bar .btn{flex:1;min-width:120px;}
+
+  .tip-bar{
+    background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;
+    border-radius:12px;padding:10px 14px;font-size:12.5px;line-height:1.7;
+    margin-bottom:18px;display:flex;align-items:flex-start;gap:8px;
+  }
+  .tip-bar b{color:#1d4ed8;}
+
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(15,23,42,.55);
+    display:none;align-items:center;justify-content:center;z-index:1000;
+    padding:16px;backdrop-filter:blur(2px);
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{
+    background:#fff;border-radius:18px;padding:24px;
+    width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.25);
+  }
+  .modal-title{font-size:19px;font-weight:700;margin-bottom:6px;}
+  .modal-desc{font-size:12.5px;color:var(--muted);margin-bottom:18px;line-height:1.6;}
+  .modal-field{display:block;margin-bottom:14px;}
+  .modal-field span{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:600;}
+  .modal-field input{
+    width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;
+    font-size:14px;font-family:inherit;color:var(--text);background:#fff;
+    transition:.15s;
+  }
+  .modal-field input:focus{
+    outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);
+  }
+  .modal-error{
+    color:var(--danger);font-size:12.5px;margin-bottom:12px;
+    min-height:18px;line-height:1.5;
+  }
+  .modal-actions{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+  .modal-actions .btn{flex:1;min-width:90px;}
+  .modal-hint{
+    font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.6;
+    padding-top:12px;border-top:1px dashed var(--line);
+  }
+
   .tabs{display:flex;gap:6px;background:#e9edf5;padding:5px;border-radius:13px;margin-bottom:22px;}
   .tab{
-    flex:1;border:none;background:transparent;padding:11px 16px;
-    font-size:15px;font-weight:600;color:var(--muted);border-radius:9px;
+    flex:1;border:none;background:transparent;padding:11px 12px;
+    font-size:14px;font-weight:600;color:var(--muted);border-radius:9px;
     cursor:pointer;font-family:inherit;transition:.18s;position:relative;
   }
   .tab:hover{color:var(--text);}
   .tab.active{background:#fff;color:var(--text);box-shadow:0 1px 5px rgba(0,0,0,.08);}
-  .tab .dot{display:none;position:absolute;top:9px;right:14px;width:7px;height:7px;border-radius:50%;background:var(--primary);}
+  .tab .dot{display:none;position:absolute;top:9px;right:10px;width:7px;height:7px;border-radius:50%;background:var(--primary);}
   .tab.timing .dot{display:block;animation:pulse 1.4s infinite;}
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.75);}}
 
   .page{display:none;}
   .page.active{display:block;}
+
+  .exam-bar{
+    display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:12px 14px;margin-bottom:12px;
+  }
+  .exam-bar-item{display:flex;flex-direction:column;gap:4px;}
+  .exam-bar-item .label{font-size:11px;color:var(--muted);font-weight:600;}
+  .exam-bar-item .row{display:flex;align-items:baseline;gap:5px;}
+  .exam-bar-item input{
+    width:64px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;
+    font-size:15px;text-align:center;font-family:inherit;color:var(--text);
+    background:#fff;font-variant-numeric:tabular-nums;font-weight:700;
+    transition:.15s;-moz-appearance:textfield;
+  }
+  .exam-bar-item input::-webkit-outer-spin-button,
+  .exam-bar-item input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .exam-bar-item input:focus{
+    outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);
+  }
+  .exam-bar-item .unit{font-size:12px;color:var(--muted);font-weight:600;}
+  .exam-bar-item .val{
+    font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;
+    transition:color .2s;line-height:1.2;
+  }
+  .exam-bar-item .val.ok{color:var(--ok);}
+  .exam-bar-item .val.warn{color:var(--warn);}
+  .exam-bar-item .val.bad{color:var(--danger);}
+  .exam-bar-item .sub{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;}
+
+  .overtime-banner{
+    background:#fef2f2;border:1px solid #fecaca;color:#991b1b;
+    border-radius:12px;padding:10px 14px;font-size:13.5px;font-weight:600;
+    margin-bottom:12px;text-align:center;line-height:1.5;
+    display:none;
+  }
+  .overtime-banner.show{display:block;animation:pulse 2s infinite;}
+  .overtime-banner b{font-size:15px;}
 
   .overview{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;}
   .ov{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center;}
@@ -69,8 +158,10 @@
   .total-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#60a5fa,#3b82f6);transition:width .15s linear,background .3s;}
   .total-fill.over{background:linear-gradient(90deg,#f87171,#ef4444);}
 
-  .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-  .section-head h2{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:.5px;}
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:wrap;}
+  .section-head h2{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:.5px;flex:1;min-width:0;}
+  .head-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  .head-actions .btn{font-size:12.5px;padding:7px 12px;}
 
   .modules{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;}
   .module{
@@ -80,7 +171,6 @@
   }
   .module.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
   .module.over{border-color:var(--danger);}
-  .module.over.active{box-shadow:0 0 0 3px rgba(239,68,68,.12);}
 
   .m-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .m-name-input{
@@ -95,8 +185,7 @@
   .m-target input{
     width:48px;padding:4px 5px;border:1px solid var(--line);border-radius:8px;
     font-size:12.5px;text-align:center;font-family:inherit;color:var(--text);
-    background:#fff;font-variant-numeric:tabular-nums;transition:.15s;
-    -moz-appearance:textfield;
+    background:#fff;font-variant-numeric:tabular-nums;transition:.15s;-moz-appearance:textfield;
   }
   .m-target input::-webkit-outer-spin-button,
   .m-target input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
@@ -105,7 +194,6 @@
   .m-time{font-size:34px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:.5px;transition:color .2s;}
   .module.active .m-time{color:var(--primary);}
   .module.over .m-time{color:var(--danger);}
-
   .m-diff{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
   .m-diff.ok{color:var(--ok);}
   .m-diff.bad{color:var(--danger);}
@@ -115,19 +203,14 @@
   .m-score-item input{
     width:42px;padding:4px 5px;border:1px solid var(--line);border-radius:7px;
     font-size:12.5px;text-align:center;font-family:inherit;color:var(--text);
-    background:#fff;font-variant-numeric:tabular-nums;transition:.15s;
-    -moz-appearance:textfield;
+    background:#fff;font-variant-numeric:tabular-nums;transition:.15s;-moz-appearance:textfield;
   }
   .m-score-item input::-webkit-outer-spin-button,
   .m-score-item input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
   .m-score-item input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
-  .m-score-badge{
-    margin-left:auto;font-size:13px;font-weight:700;color:var(--primary);
-    font-variant-numeric:tabular-nums;white-space:nowrap;
-  }
+  .m-score-badge{margin-left:auto;font-size:13px;font-weight:700;color:var(--primary);font-variant-numeric:tabular-nums;white-space:nowrap;}
   .m-score-badge.good{color:var(--ok);}
   .m-score-badge.bad{color:var(--danger);}
-  .m-score-badge small{font-size:10px;font-weight:500;color:var(--muted);}
 
   .bar{height:8px;background:#eef2f7;border-radius:99px;overflow:hidden;}
   .bar-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#60a5fa,#3b82f6);transition:width .15s linear,background .3s;}
@@ -158,19 +241,17 @@
   }
   .btn:hover{background:#f3f4f6;}
   .btn:active{transform:scale(.97);}
-
   .btn-start{flex:1;background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
   .btn-start:hover{background:#2563eb;border-color:#2563eb;}
   .module.active .btn-start{background:var(--warn);border-color:var(--warn);}
   .module.active .btn-start:hover{background:#d97706;border-color:#d97706;}
-
   .btn-reset{background:#fff;color:var(--muted);padding:9px 10px;font-size:12.5px;}
   .btn-reset:hover{color:var(--danger);border-color:var(--danger);background:#fef2f2;}
-
   .btn-sm{padding:7px 12px;font-size:13px;border-radius:9px;}
   .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
   .btn-primary:hover{background:#2563eb;border-color:#2563eb;}
-
+  .btn-danger{background:var(--danger);border-color:var(--danger);color:#fff;font-weight:600;}
+  .btn-danger:hover{background:#dc2626;border-color:#dc2626;}
   .btn-ghost{padding:6px 14px;font-size:13px;color:var(--muted);border-radius:9px;}
   .btn-ghost:hover{color:var(--danger);border-color:var(--danger);background:#fef2f2;}
 
@@ -191,12 +272,79 @@
   .advice-empty{font-size:13.5px;color:var(--muted);line-height:1.7;}
   .advice-empty b{color:var(--primary);}
 
-  .storage-warn{
-    background:#fef3c7;border:1px solid #fcd34d;color:#92400e;
-    border-radius:12px;padding:11px 14px;font-size:12.5px;line-height:1.6;
-    margin-bottom:16px;display:none;
+  .practice-card{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:20px;display:flex;flex-direction:column;gap:14px;
   }
-  .storage-warn.show{display:block;}
+  .practice-select-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .practice-select-row label{font-size:13px;font-weight:600;color:var(--muted);}
+  .practice-select-row select{
+    flex:1;min-width:160px;padding:10px 12px;border:1px solid var(--line);
+    border-radius:10px;font-size:14px;font-family:inherit;color:var(--text);
+    background:#fff;cursor:pointer;transition:.15s;
+  }
+  .practice-select-row select:focus{
+    outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);
+  }
+  .practice-timer{
+    font-size:56px;font-weight:700;line-height:1.1;text-align:center;
+    font-variant-numeric:tabular-nums;letter-spacing:1px;
+    padding:14px 0;color:var(--text);transition:color .2s;
+  }
+  .practice-timer.running{color:var(--primary);}
+  .practice-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+  .practice-form label{
+    display:flex;flex-direction:column;gap:5px;
+    font-size:12px;color:var(--muted);font-weight:600;
+  }
+  .practice-form input{
+    padding:9px 11px;border:1px solid var(--line);border-radius:9px;
+    font-size:14px;font-family:inherit;color:var(--text);background:#fff;
+    font-variant-numeric:tabular-nums;transition:.15s;
+  }
+  .practice-form input:focus{
+    outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);
+  }
+  .practice-form label.full-width{grid-column:1 / -1;}
+
+  .history-item{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:13px 15px;margin-bottom:10px;
+  }
+  .history-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+  .history-name{font-size:14px;font-weight:700;color:var(--text);}
+  .history-date{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .history-detail{font-size:12.5px;color:var(--muted);line-height:1.6;font-variant-numeric:tabular-nums;}
+  .history-source{
+    font-size:12.5px;color:#1e40af;background:#eff6ff;
+    padding:6px 10px;border-radius:8px;margin-top:8px;line-height:1.5;
+    word-break:break-all;
+  }
+  .history-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+  .history-actions .btn{font-size:12.5px;padding:6px 12px;}
+
+  .history-table{
+    width:100%;margin-top:10px;border-collapse:collapse;
+    font-size:12.5px;font-variant-numeric:tabular-nums;
+  }
+  .history-table th{
+    text-align:left;color:var(--muted);font-weight:600;
+    padding:7px 8px;border-bottom:1px solid var(--line);font-size:11.5px;
+    background:#f8fafc;
+  }
+  .history-table th:first-child{border-radius:8px 0 0 0;}
+  .history-table th:last-child{border-radius:0 8px 0 0;}
+  .history-table td{
+    padding:7px 8px;border-bottom:1px solid var(--line);color:var(--text);
+  }
+  .history-table tr:last-child td{border-bottom:none;}
+  .history-table td:nth-child(2),
+  .history-table td:nth-child(3),
+  .history-table td:nth-child(4){text-align:right;}
+  .history-table th:nth-child(2),
+  .history-table th:nth-child(3),
+  .history-table th:nth-child(4){text-align:right;}
+  .history-table tbody tr:hover{background:#fafbfc;}
 
   @media (max-width:420px){
     body{padding:18px 12px 50px;}
@@ -207,6 +355,15 @@
     .btn{padding:9px 10px;font-size:13px;}
     .fill-num{width:50px;}
     .m-score-item input{width:38px;}
+    .auth-bar{flex-direction:column;align-items:stretch;text-align:center;}
+    .practice-timer{font-size:44px;}
+    .tab{font-size:12px;padding:10px 4px;}
+    .history-table{font-size:11.5px;}
+    .history-table th,
+    .history-table td{padding:5px 4px;}
+    .exam-bar{grid-template-columns:1fr 1fr;gap:8px;}
+    .exam-bar-item .val{font-size:15px;}
+    .exam-bar-item input{width:56px;font-size:14px;}
   }
 </style>
 </head>
@@ -214,781 +371,1864 @@
 <div class="app">
   <div class="toast" id="toast"></div>
 
-  <div class="storage-warn" id="storageWarn">
-    ⚠️ 浏览器禁用了本地存储，数据无法自动保存。请尝试：<br>
-    1. 不要用无痕/隐私模式打开；<br>
-    2. 用 http:// 或 https:// 打开本页面（而不是双击文件）；<br>
-    3. 在浏览器设置中允许本站保存数据。
+  <!-- 登录/注册模态框 -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-box">
+      <div class="modal-title">登录 / 注册</div>
+      <div class="modal-desc">输入一个用户名和密码。第一次用这个用户名会自动注册，之后输入相同用户名和密码即可登录。</div>
+      <label class="modal-field">
+        <span>用户名</span>
+        <input id="loginUsername" type="text" placeholder="字母或数字，最多 20 位" maxlength="20" spellcheck="false" autocomplete="username">
+      </label>
+      <label class="modal-field">
+        <span>密码</span>
+        <input id="loginPassword" type="password" placeholder="至少 4 位" maxlength="50" autocomplete="current-password">
+      </label>
+      <div class="modal-error" id="loginError"></div>
+      <div class="modal-actions">
+        <button class="btn" id="loginCancelBtn" type="button">取消</button>
+        <button class="btn btn-primary" id="loginSubmitBtn" type="button">登录 / 注册</button>
+      </div>
+      <div class="modal-hint">密码经 SHA-256 哈希后保存，数据库里不会存明文。请记住你的密码，忘记后无法找回。</div>
+    </div>
+  </div>
+
+  <!-- 保存并重置模态框 -->
+  <div class="modal-overlay" id="saveResetModal">
+    <div class="modal-box">
+      <div class="modal-title" id="saveResetModalTitle">保存并重置</div>
+      <div class="modal-desc">把当前数据保存到历史记录，然后清空。</div>
+      <label class="modal-field">
+        <span>题目出处（可选）</span>
+        <input id="saveResetSourceInput" type="text" placeholder="如：2024 国考地市级第 1 套" spellcheck="false" maxlength="100">
+      </label>
+      <div class="modal-actions" style="margin-top:10px;">
+        <button class="btn" id="saveResetCancelBtn" type="button">取消</button>
+        <button class="btn btn-primary" id="saveResetConfirmBtn" type="button">保存并重置</button>
+      </div>
+    </div>
   </div>
 
   <header>
-    <h1>公考模块计时器 · 估分版</h1>
-    <p>计时 + 估分 · 按国考真实分值预设 · 模块顺序按国考真题排列</p>
+    <h1>公考模块计时器 · 云端版</h1>
+    <p>离线可用 · 登录后数据自动同步到云端</p>
   </header>
 
+  <div class="auth-bar guest" id="authBar">
+    <span class="auth-text" id="authText">🔓 离线模式（数据只保存在本机）</span>
+    <button class="auth-btn" id="authActionBtn" type="button">登录 / 注册</button>
+  </div>
+
+  <div class="quick-bar">
+    <button class="btn btn-sm" id="manualLoadBtn" type="button">🔄 手动读取上次数据</button>
+    <button class="btn btn-sm" id="exportBtn" type="button">📥 导出备份</button>
+    <button class="btn btn-sm" id="importBtn" type="button">📤 导入备份</button>
+  </div>
+
   <div class="tip-bar">
-    <span class="tip-icon">💾</span>
-    <span>所有数据（模块名、目标、用时、题目数、答对数）都<b>自动保存在本浏览器</b>。换浏览器、换设备或清理浏览器数据后，记录不会同步。</span>
+    <span>💾</span>
+    <span><b>未登录</b>：数据只保存在本浏览器，换设备会丢。<b>登录后</b>：自动同步到云端，换设备登录同一账号即可恢复。</span>
   </div>
 
   <div class="tabs" id="tabs">
     <button class="tab active" data-tab="xingce">行测<span class="dot"></span></button>
     <button class="tab" data-tab="shenlun">申论<span class="dot"></span></button>
+    <button class="tab" data-tab="practice">单模块<span class="dot"></span></button>
   </div>
 
   <div class="page active" id="page-xingce"></div>
   <div class="page" id="page-shenlun"></div>
+  <div class="page" id="page-practice"></div>
 </div>
 
-<script>
-(function () {
-  'use strict';
+<input type="file" id="importFileInput" accept="application/json" style="display:none">
 
-  var KEY = 'gongkao-timer-v7';
+<script type="module">
+import { neon } from 'https://esm.sh/@neondatabase/serverless@1.0.0';
 
-  /* ============ 存储层：三重保险 ============ */
-  var storage = (function () {
-    var available = { local: false, session: false, cookie: false };
-    try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); available.local = true; } catch (e) {}
-    try { sessionStorage.setItem('__t', '1'); sessionStorage.removeItem('__t'); available.session = true; } catch (e) {}
-    try {
-      document.cookie = '__t=1;path=/';
-      available.cookie = document.cookie.indexOf('__t=') !== -1;
-      document.cookie = '__t=;max-age=0;path=/';
-    } catch (e) {}
+const DATABASE_URL = 'postgresql://neondb_owner:npg_zf6Tb4pyMxUN@ep-wild-shape-b515iy4n-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require';
+const sql = neon(DATABASE_URL);
 
-    function setItem(key, value) {
-      var str = typeof value === 'string' ? value : JSON.stringify(value);
-      var ok = false;
-      if (available.local) { try { localStorage.setItem(key, str); ok = true; } catch (e) {} }
-      if (available.session) { try { sessionStorage.setItem(key, str); ok = true; } catch (e) {} }
-      if (available.cookie && str.length < 3800) {
-        try {
-          document.cookie = key + '=' + encodeURIComponent(str) + ';max-age=31536000;path=/';
-          ok = true;
-        } catch (e) {}
-      }
-      return ok;
+let neonReady = false;
+
+/* ============================================================
+   登录状态
+   ============================================================ */
+let authUser = null;
+let authPwdHash = null;
+
+try {
+  const saved = localStorage.getItem('gongkao-auth');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    if (parsed && parsed.user && parsed.hash) {
+      authUser = parsed.user;
+      authPwdHash = parsed.hash;
     }
+  }
+} catch (e) {}
 
-    function getItem(key) {
-      var v;
-      if (available.local) { try { v = localStorage.getItem(key); if (v) return v; } catch (e) {} }
-      if (available.session) { try { v = sessionStorage.getItem(key); if (v) return v; } catch (e) {} }
-      if (available.cookie) {
-        try {
-          var m = document.cookie.match(new RegExp('(?:^|; )' + key + '=([^;]*)'));
-          if (m) return decodeURIComponent(m[1]);
-        } catch (e) {}
-      }
-      return null;
+const GUEST_KEY = 'gongkao-timer-guest';
+function getLocalKey() {
+  return authUser ? ('gongkao-timer-user:' + authUser) : GUEST_KEY;
+}
+
+/* ============================================================
+   存储兜底
+   ============================================================ */
+const storage = (() => {
+  const available = { local: false, session: false, cookie: false };
+  try { localStorage.setItem('__t','1'); localStorage.removeItem('__t'); available.local = true; } catch(e){}
+  try { sessionStorage.setItem('__t','1'); sessionStorage.removeItem('__t'); available.session = true; } catch(e){}
+  try {
+    document.cookie = '__t=1;path=/';
+    available.cookie = document.cookie.indexOf('__t=') !== -1;
+    document.cookie = '__t=;max-age=0;path=/';
+  } catch(e){}
+
+  function setItem(key, value) {
+    const str = typeof value === 'string' ? value : JSON.stringify(value);
+    let ok = false;
+    if (available.local) { try { localStorage.setItem(key, str); ok = true; } catch(e){} }
+    if (available.session) { try { sessionStorage.setItem(key, str); ok = true; } catch(e){} }
+    if (available.cookie && str.length < 3800) {
+      try { document.cookie = key + '=' + encodeURIComponent(str) + ';max-age=31536000;path=/'; ok = true; } catch(e){}
     }
-
-    return {
-      available: available,
-      setItem: setItem,
-      getItem: getItem,
-      anyAvailable: available.local || available.session || available.cookie
-    };
-  })();
-
-  /* ============================================================
-     国考默认数据（行测总分 100 分）
-     用户可自行修改题量和分值
-     ============================================================ */
-  var DEFAULT_DATA = {
-    xingce: {
-      label: '行测模块（按国考市地级/行政执法卷 130 题）',
-      modules: [
-        { id: 'x1', name: '政治理论',      target: 8,  totalQ: 20, perScore: 0.7 },
-        { id: 'x2', name: '常识判断',      target: 6,  totalQ: 15, perScore: 0.5 },
-        { id: 'x3', name: '言语理解与表达', target: 35, totalQ: 30, perScore: 0.8 },
-        { id: 'x4', name: '数量关系',      target: 10, totalQ: 10, perScore: 1.0 },
-        { id: 'x5', name: '判断推理',      target: 35, totalQ: 35, perScore: 0.7 },
-        { id: 'x6', name: '资料分析',      target: 25, totalQ: 20, perScore: 1.0 }
-      ]
-    },
-    shenlun: {
-      label: '申论题目（按国考真题顺序）',
-      modules: [
-        { id: 's1', name: '归纳概括', target: 20, totalQ: 1, perScore: 10 },
-        { id: 's2', name: '综合分析', target: 25, totalQ: 1, perScore: 15 },
-        { id: 's3', name: '提出对策', target: 25, totalQ: 1, perScore: 20 },
-        { id: 's4', name: '贯彻执行', target: 30, totalQ: 1, perScore: 25 },
-        { id: 's5', name: '大作文',   target: 60, totalQ: 1, perScore: 30 }
-      ]
-    }
-  };
-
-  /* ============ 策略库 ============ */
-  var STRATEGIES = [
-    { keys: ['常识'], ideal: [6, 12], tip: '常识判断性价比最低，不会的快速蒙一个，不要回看纠结。' },
-    { keys: ['政治'], ideal: [6, 12], tip: '政治理论考的是记忆和第一印象，时政题不要反复琢磨，选完就走。' },
-    { keys: ['言语'], ideal: [30, 38], tip: '言语理解抓关键词和行文脉络，逻辑填空不要反复改，片段阅读先看问题。' },
-    { keys: ['数量'], ideal: [8, 15], tip: '数量关系先挑简单题做，单题超过 1.5 分钟果断跳过，不要把时间耗在难题上。' },
-    { keys: ['判断', '推理'], ideal: [32, 38], tip: '图形推理最容易卡壳，看不出来先标记跳过，定义判断和类比推理要提速。' },
-    { keys: ['资料'], ideal: [22, 28], tip: '资料分析是提分重点，优先保证正确率，熟练使用估算和速算技巧。' },
-    { keys: ['归纳', '概括'], ideal: [15, 22], tip: '归纳概括要点的全面性优先，分条作答，关键词前置。' },
-    { keys: ['综合分析', '分析'], ideal: [20, 28], tip: '综合分析先亮明观点，再展开分析，最后落到对策或结论。' },
-    { keys: ['对策', '提出'], ideal: [20, 28], tip: '提出对策要具体、可操作，对策与问题一一对应。' },
-    { keys: ['贯彻', '执行', '公文'], ideal: [25, 35], tip: '贯彻执行注意文种格式和身份设定，开头交代背景，正文分层，结尾呼应。' },
-    { keys: ['作文', '文章'], ideal: [55, 70], tip: '大作文至少留 60 分钟：5 分钟审题立意，10 分钟列提纲，40 分钟写作，5 分钟检查。' }
-  ];
-
-  function matchStrategy(name) {
-    for (var i = 0; i < STRATEGIES.length; i++) {
-      var s = STRATEGIES[i];
-      for (var j = 0; j < s.keys.length; j++) {
-        if (name.indexOf(s.keys[j]) !== -1) return s;
-      }
+    return ok;
+  }
+  function getItem(key) {
+    let v;
+    if (available.local) { try { v = localStorage.getItem(key); if (v) return v; } catch(e){} }
+    if (available.session) { try { v = sessionStorage.getItem(key); if (v) return v; } catch(e){} }
+    if (available.cookie) {
+      try {
+        const m = document.cookie.match(new RegExp('(?:^|; )' + key + '=([^;]*)'));
+        if (m) return decodeURIComponent(m[1]);
+      } catch(e){}
     }
     return null;
   }
+  return { available, setItem, getItem, anyAvailable: available.local || available.session || available.cookie };
+})();
 
-  /* ============ 状态 ============ */
-  var state = {
+/* ============================================================
+   默认数据
+   ============================================================ */
+const DEFAULT_DATA = {
+  xingce: {
+    label: '行测模块（按国考市地级/行政执法卷 130 题）',
+    modules: [
+      { id: 'x1', name: '政治理论',      target: 12, totalQ: 20, perScore: 0.7 },
+      { id: 'x2', name: '常识判断',      target: 5,  totalQ: 15, perScore: 0.5 },
+      { id: 'x3', name: '言语理解与表达', target: 28, totalQ: 30, perScore: 0.8 },
+      { id: 'x4', name: '数量关系',      target: 10, totalQ: 10, perScore: 1.0 },
+      { id: 'x5', name: '判断推理',      target: 30, totalQ: 35, perScore: 0.7 },
+      { id: 'x6', name: '资料分析',      target: 27, totalQ: 20, perScore: 1.0 }
+    ]
+  },
+  shenlun: {
+    label: '申论题目（按国考真题顺序）',
+    modules: [
+      { id: 's1', name: '归纳概括', target: 20, totalQ: 1, perScore: 10 },
+      { id: 's2', name: '综合分析', target: 25, totalQ: 1, perScore: 15 },
+      { id: 's3', name: '提出对策', target: 25, totalQ: 1, perScore: 20 },
+      { id: 's4', name: '贯彻执行', target: 30, totalQ: 1, perScore: 25 },
+      { id: 's5', name: '大作文',   target: 60, totalQ: 1, perScore: 30 }
+    ]
+  }
+};
+
+const STRATEGIES = [
+  { keys: ['常识'], ideal: [6,12], tip: '常识判断性价比最低，不会的快速蒙一个，不要回看纠结。' },
+  { keys: ['政治'], ideal: [6,12], tip: '政治理论考的是记忆和第一印象，时政题不要反复琢磨，选完就走。' },
+  { keys: ['言语'], ideal: [30,38], tip: '言语理解抓关键词和行文脉络，逻辑填空不要反复改，片段阅读先看问题。' },
+  { keys: ['数量'], ideal: [8,15], tip: '数量关系先挑简单题做，单题超过 1.5 分钟果断跳过。' },
+  { keys: ['判断','推理'], ideal: [32,38], tip: '图形推理最容易卡壳，看不出来先标记跳过，定义判断和类比推理要提速。' },
+  { keys: ['资料'], ideal: [22,28], tip: '资料分析是提分重点，优先保证正确率，熟练使用估算和速算技巧。' },
+  { keys: ['归纳','概括'], ideal: [15,22], tip: '归纳概括要点全面优先，分条作答，关键词前置。' },
+  { keys: ['综合分析','分析'], ideal: [20,28], tip: '综合分析先亮明观点，再展开分析，最后落到对策或结论。' },
+  { keys: ['对策','提出'], ideal: [20,28], tip: '提出对策要具体、可操作，对策与问题一一对应。' },
+  { keys: ['贯彻','执行','公文'], ideal: [25,35], tip: '贯彻执行注意文种格式和身份设定，开头交代背景，正文分层，结尾呼应。' },
+  { keys: ['作文','文章'], ideal: [55,70], tip: '大作文至少留 60 分钟：5 分钟审题立意，10 分钟列提纲，40 分钟写作，5 分钟检查。' }
+];
+function matchStrategy(name) {
+  for (const s of STRATEGIES) for (const k of s.keys) if (name.indexOf(k) !== -1) return s;
+  return null;
+}
+
+/* ============================================================
+   状态
+   ============================================================ */
+function buildDefaultPractice() {
+  const first = DEFAULT_DATA.xingce.modules[0];
+  return {
+    currentId: first.id,
+    actual: 0,
+    totalQ: 0,
+    correctQ: 0,
+    perScore: first.perScore,
+    source: ''
+  };
+}
+
+let state = {
+  active: 'xingce',
+  data: {
+    xingce: {
+      modules: DEFAULT_DATA.xingce.modules.map(m => ({
+        id: m.id, name: m.name, target: m.target, actual: 0,
+        totalQ: m.totalQ, perScore: m.perScore, correctQ: 0
+      }))
+    },
+    shenlun: {
+      modules: DEFAULT_DATA.shenlun.modules.map(m => ({
+        id: m.id, name: m.name, target: m.target, actual: 0,
+        totalQ: m.totalQ, perScore: m.perScore, correctQ: 0
+      }))
+    }
+  },
+  examTotal: { xingce: 120, shenlun: 180 },
+  examHistory: [],
+  practiceHistory: [],
+  practice: buildDefaultPractice()
+};
+
+const timer = { key: null, id: null, startTs: 0 };
+const practiceTimer = { running: false, startTs: 0 };
+const els = { xingce: {}, shenlun: {} };
+const adviceCache = { xingce: '', shenlun: '' };
+let saveTimer = null;
+let saveResetPending = null;
+
+/* ============================================================
+   工具
+   ============================================================ */
+function fmt(ms) {
+  ms = Math.max(0, ms || 0);
+  const t = Math.floor(ms / 1000);
+  const h = Math.floor(t / 3600);
+  const m = Math.floor((t % 3600) / 60);
+  const s = t % 60;
+  const pad = n => (n < 10 ? '0' + n : '' + n);
+  return h > 0 ? h + ':' + pad(m) + ':' + pad(s) : pad(m) + ':' + pad(s);
+}
+function formatDate(ts) {
+  const d = new Date(ts);
+  const pad = n => (n < 10 ? '0' + n : '' + n);
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+function findModule(key, id) { return state.data[key].modules.find(m => m.id === id); }
+function calcScore(m) {
+  if (m.totalQ > 0 && m.perScore > 0) return Math.min(m.correctQ, m.totalQ) * m.perScore;
+  return 0;
+}
+function calcFullScore(m) { return m.totalQ * m.perScore; }
+
+function showToast(msg, warn) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (warn === 'warn' ? ' warn' : '');
+  void el.offsetWidth;
+  el.classList.add('show');
+  clearTimeout(el.__tid);
+  el.__tid = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+async function hashPassword(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+/* ============================================================
+   登录状态栏
+   ============================================================ */
+function updateAuthBar() {
+  const bar = document.getElementById('authBar');
+  const text = document.getElementById('authText');
+  const btn = document.getElementById('authActionBtn');
+
+  if (authUser) {
+    bar.className = 'auth-bar logged';
+    text.innerHTML = '☁️ 已登录：<span class="name">' + escapeHtml(authUser) + '</span>（数据同步到云端）';
+    btn.textContent = '退出登录';
+  } else {
+    bar.className = 'auth-bar guest';
+    text.textContent = '🔓 离线模式（数据只保存在本机）';
+    btn.textContent = '登录 / 注册';
+  }
+}
+
+/* ============================================================
+   保存 / 加载
+   ============================================================ */
+function save(immediate) {
+  if (saveTimer) clearTimeout(saveTimer);
+
+  async function doSave() {
+    const payload = {
+      v: 3,
+      active: state.active,
+      data: state.data,
+      examTotal: state.examTotal,
+      examHistory: state.examHistory,
+      practiceHistory: state.practiceHistory,
+      practice: state.practice,
+      savedAt: Date.now()
+    };
+    const ok = storage.setItem(getLocalKey(), payload);
+
+    if (authUser && authPwdHash && neonReady) {
+      try {
+        const json = JSON.stringify({
+          data: state.data,
+          examTotal: state.examTotal,
+          examHistory: state.examHistory,
+          practiceHistory: state.practiceHistory,
+          practice: state.practice
+        });
+        const now = Date.now();
+        await sql`
+          UPDATE user_data_v2
+          SET data = ${json}, updated_at = ${now}
+          WHERE user_id = ${authUser} AND password_hash = ${authPwdHash}
+        `;
+      } catch (err) {
+        console.warn('云端保存失败', err);
+      }
+    }
+
+    if (ok && !save.__quiet) showToast('✓ 已保存');
+  }
+
+  if (immediate) doSave();
+  else saveTimer = setTimeout(doSave, 300);
+}
+
+function applyData(data) {
+  ['xingce','shenlun'].forEach(key => {
+    if (!data[key] || !Array.isArray(data[key].modules)) return;
+    data[key].modules.forEach(sm => {
+      const m = findModule(key, sm.id);
+      if (!m) return;
+      if (typeof sm.name === 'string' && sm.name) m.name = sm.name;
+      if (typeof sm.target === 'number' && sm.target >= 0) m.target = sm.target;
+      if (typeof sm.actual === 'number' && sm.actual >= 0) m.actual = sm.actual;
+      if (typeof sm.totalQ === 'number' && sm.totalQ >= 0) m.totalQ = sm.totalQ;
+      if (typeof sm.perScore === 'number' && sm.perScore >= 0) m.perScore = sm.perScore;
+      if (typeof sm.correctQ === 'number' && sm.correctQ >= 0) m.correctQ = sm.correctQ;
+    });
+  });
+}
+
+function applyPayload(d) {
+  if (!d) return false;
+  if (d.v === 3 || d.v === 2) {
+    if (d.data) applyData(d.data);
+    if (d.examTotal && typeof d.examTotal === 'object') {
+      if (typeof d.examTotal.xingce === 'number') state.examTotal.xingce = d.examTotal.xingce;
+      if (typeof d.examTotal.shenlun === 'number') state.examTotal.shenlun = d.examTotal.shenlun;
+    }
+    state.examHistory = Array.isArray(d.examHistory) ? d.examHistory : [];
+    state.practiceHistory = Array.isArray(d.practiceHistory) ? d.practiceHistory : [];
+    state.practice = d.practice || buildDefaultPractice();
+    if (d.active) state.active = d.active;
+    return true;
+  }
+  if (d.data && d.data.xingce) {
+    applyData(d.data);
+    if (d.active) state.active = d.active;
+    return true;
+  }
+  if (d.xingce && d.shenlun) {
+    applyData(d);
+    return true;
+  }
+  return false;
+}
+
+function loadFromLocal() {
+  const raw = storage.getItem(getLocalKey());
+  if (!raw) return false;
+  try {
+    return applyPayload(JSON.parse(raw));
+  } catch (e) {}
+  return false;
+}
+
+async function loadFromCloud() {
+  if (!authUser || !authPwdHash || !neonReady) return false;
+  try {
+    const rows = await sql`
+      SELECT data FROM user_data_v2
+      WHERE user_id = ${authUser} AND password_hash = ${authPwdHash}
+    `;
+    if (rows && rows.length > 0 && rows[0].data) {
+      return applyPayload(JSON.parse(rows[0].data));
+    }
+  } catch (err) {
+    console.warn('云端读取失败', err);
+  }
+  return false;
+}
+
+/* ============================================================
+   登录 / 注册 / 退出
+   ============================================================ */
+async function doLogin(username, password) {
+  if (!neonReady) return { ok: false, error: '云端未连接，请稍后再试' };
+  if (!username || username.length < 1) return { ok: false, error: '请输入用户名' };
+  if (!password || password.length < 4) return { ok: false, error: '密码至少 4 位' };
+
+  const pwdHash = await hashPassword(username + ':' + password);
+
+  try {
+    const rows = await sql`
+      SELECT password_hash FROM user_data_v2
+      WHERE user_id = ${username}
+    `;
+
+    if (rows.length === 0) {
+      const initial = JSON.stringify({
+        data: state.data,
+        examTotal: state.examTotal,
+        examHistory: state.examHistory,
+        practiceHistory: state.practiceHistory,
+        practice: state.practice
+      });
+      const now = Date.now();
+      await sql`
+        INSERT INTO user_data_v2 (user_id, password_hash, data, updated_at)
+        VALUES (${username}, ${pwdHash}, ${initial}, ${now})
+      `;
+      return { ok: true, isNew: true, pwdHash: pwdHash };
+    }
+
+    if (rows[0].password_hash !== pwdHash) {
+      return { ok: false, error: '密码错误' };
+    }
+    return { ok: true, isNew: false, pwdHash: pwdHash };
+  } catch (err) {
+    console.error('登录失败', err);
+    return { ok: false, error: '网络错误：' + (err.message || '未知错误') };
+  }
+}
+
+async function onLoginSuccess(username, pwdHash, isNew) {
+  authUser = username;
+  authPwdHash = pwdHash;
+  localStorage.setItem('gongkao-auth', JSON.stringify({ user: username, hash: pwdHash }));
+
+  if (isNew) {
+    showToast('✓ 注册成功，已开启云同步');
+  } else {
+    const got = await loadFromCloud();
+    if (got) showToast('✓ 已从云端恢复数据');
+    else showToast('✓ 登录成功');
+  }
+
+  save.__quiet = true;
+  save(true);
+  save.__quiet = false;
+  rebuildAllPages();
+  updateAuthBar();
+}
+
+async function onLogout() {
+  if (!confirm('确定退出登录？\n退出后回到离线模式，云端数据不会丢失。')) return;
+  authUser = null;
+  authPwdHash = null;
+  localStorage.removeItem('gongkao-auth');
+
+  state = {
     active: 'xingce',
     data: {
       xingce: {
-        modules: DEFAULT_DATA.xingce.modules.map(function (m) {
-          return { id: m.id, name: m.name, target: m.target, actual: 0,
-                   totalQ: m.totalQ, perScore: m.perScore, correctQ: 0 };
-        })
+        modules: DEFAULT_DATA.xingce.modules.map(m => ({
+          id: m.id, name: m.name, target: m.target, actual: 0,
+          totalQ: m.totalQ, perScore: m.perScore, correctQ: 0
+        }))
       },
       shenlun: {
-        modules: DEFAULT_DATA.shenlun.modules.map(function (m) {
-          return { id: m.id, name: m.name, target: m.target, actual: 0,
-                   totalQ: m.totalQ, perScore: m.perScore, correctQ: 0 };
-        })
+        modules: DEFAULT_DATA.shenlun.modules.map(m => ({
+          id: m.id, name: m.name, target: m.target, actual: 0,
+          totalQ: m.totalQ, perScore: m.perScore, correctQ: 0
+        }))
       }
-    }
+    },
+    examTotal: { xingce: 120, shenlun: 180 },
+    examHistory: [],
+    practiceHistory: [],
+    practice: buildDefaultPractice()
   };
+  adviceCache.xingce = '';
+  adviceCache.shenlun = '';
+  loadFromLocal();
+  rebuildAllPages();
+  updateAuthBar();
+  showToast('已退出登录');
+}
 
-  var timer = { key: null, id: null, startTs: 0 };
-  var els = { xingce: {}, shenlun: {} };
-  var adviceCache = { xingce: '', shenlun: '' };
-  var saveTimer = null;
-  var restoredFromSave = false;
+/* ============================================================
+   登录模态框
+   ============================================================ */
+function openLoginModal() {
+  document.getElementById('loginModal').classList.add('show');
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').textContent = '';
+  setTimeout(() => document.getElementById('loginUsername').focus(), 100);
+}
+function closeLoginModal() {
+  document.getElementById('loginModal').classList.remove('show');
+}
 
-  /* ============ 工具 ============ */
-  function fmt(ms) {
-    ms = Math.max(0, ms || 0);
-    var t = Math.floor(ms / 1000);
-    var h = Math.floor(t / 3600);
-    var m = Math.floor((t % 3600) / 60);
-    var s = t % 60;
-    function pad(n) { return n < 10 ? '0' + n : '' + n; }
-    return h > 0 ? h + ':' + pad(m) + ':' + pad(s) : pad(m) + ':' + pad(s);
+document.getElementById('authActionBtn').addEventListener('click', () => {
+  if (authUser) onLogout();
+  else openLoginModal();
+});
+
+document.getElementById('loginCancelBtn').addEventListener('click', closeLoginModal);
+document.getElementById('loginModal').addEventListener('click', (e) => {
+  if (e.target.id === 'loginModal') closeLoginModal();
+});
+
+document.getElementById('loginSubmitBtn').addEventListener('click', async () => {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginSubmitBtn');
+
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.textContent = '处理中…';
+
+  const result = await doLogin(username, password);
+
+  btn.disabled = false;
+  btn.textContent = '登录 / 注册';
+
+  if (!result.ok) {
+    errEl.textContent = result.error;
+    return;
+  }
+  closeLoginModal();
+  await onLoginSuccess(username, result.pwdHash, result.isNew);
+});
+
+document.getElementById('loginUsername').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('loginPassword').focus();
+});
+document.getElementById('loginPassword').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('loginSubmitBtn').click();
+});
+
+/* ============================================================
+   保存并重置模态框
+   ============================================================ */
+document.getElementById('saveResetCancelBtn').addEventListener('click', () => {
+  document.getElementById('saveResetModal').classList.remove('show');
+  saveResetPending = null;
+});
+
+document.getElementById('saveResetConfirmBtn').addEventListener('click', () => {
+  if (!saveResetPending) return;
+  const key = saveResetPending;
+  const source = document.getElementById('saveResetSourceInput').value.trim();
+  saveExamSnapshot(key, source);
+  document.getElementById('saveResetModal').classList.remove('show');
+  saveResetPending = null;
+  doResetNow(key);
+  showToast('✓ 已保存到历史并重置');
+});
+
+document.getElementById('saveResetSourceInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('saveResetConfirmBtn').click();
+});
+
+/* ============================================================
+   手动读取 / 导出 / 导入
+   ============================================================ */
+document.getElementById('manualLoadBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('manualLoadBtn');
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '读取中…';
+
+  const localOk = loadFromLocal();
+  let cloudOk = false;
+  if (authUser && authPwdHash && neonReady) {
+    cloudOk = await loadFromCloud();
   }
 
-  function findModule(key, id) {
-    var arr = state.data[key].modules;
-    for (var i = 0; i < arr.length; i++) {
-      if (arr[i].id === id) return arr[i];
+  btn.disabled = false;
+  btn.textContent = oldText;
+
+  rebuildAllPages();
+  if (localOk || cloudOk) {
+    showToast('✓ 已读取上次保存的数据');
+  } else {
+    showToast('⚠️ 没有找到可读取的数据', 'warn');
+  }
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const payload = {
+    v: 3,
+    active: state.active,
+    data: state.data,
+    examTotal: state.examTotal,
+    examHistory: state.examHistory,
+    practiceHistory: state.practiceHistory,
+    practice: state.practice,
+    savedAt: Date.now(),
+    exportedAt: Date.now()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const now = new Date();
+  const pad = n => (n < 10 ? '0' + n : '' + n);
+  a.download = 'gongkao-backup-' + now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) + '-' + pad(now.getHours()) + pad(now.getMinutes()) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ 已导出备份文件');
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFileInput').click();
+});
+
+document.getElementById('importFileInput').addEventListener('change', (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if (!confirm('确定用这个备份覆盖当前所有数据吗？')) return;
+      applyPayload(d);
+      save(true);
+      rebuildAllPages();
+      showToast('✓ 备份已导入');
+    } catch (err) {
+      alert('导入失败：文件格式不正确\n' + err.message);
     }
-    return null;
-  }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
 
-  function calcScore(m) {
-    if (m.totalQ > 0 && m.perScore > 0) {
-      var c = Math.min(m.correctQ, m.totalQ);
-      return c * m.perScore;
-    }
-    return 0;
-  }
+/* ============================================================
+   套卷页面构建
+   ============================================================ */
+function buildPage(key) {
+  const cfg = state.data[key];
+  const pageEl = document.getElementById('page-' + key);
 
-  function calcFullScore(m) {
-    return m.totalQ * m.perScore;
-  }
+  let html = '';
 
-  function showToast(msg, warn) {
-    var el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = 'toast' + (warn ? ' warn' : '');
-    void el.offsetWidth;
-    el.classList.add('show');
-    clearTimeout(el.__tid);
-    el.__tid = setTimeout(function () { el.classList.remove('show'); }, 1800);
-  }
+  /* 考试时间栏 */
+  html += '<section class="exam-bar">' +
+    '<div class="exam-bar-item">' +
+      '<span class="label">考试总时间</span>' +
+      '<div class="row">' +
+        '<input type="number" id="' + key + 'ExamTotal" min="0" step="1" value="' + (state.examTotal[key] || 0) + '" inputmode="numeric">' +
+        '<span class="unit">分钟</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="exam-bar-item">' +
+      '<span class="label">模块目标合计</span>' +
+      '<span class="val" id="' + key + 'TotalTargetMinutes">0 分钟</span>' +
+      '<span class="sub" id="' + key + 'TotalTargetMinutesSub">待计算</span>' +
+    '</div>' +
+    '<div class="exam-bar-item">' +
+      '<span class="label">涂卡时间</span>' +
+      '<span class="val ok" id="' + key + 'BufferTime">--:--</span>' +
+      '<span class="sub" id="' + key + 'BufferTimeSub">可用</span>' +
+    '</div>' +
+  '</section>';
 
-  /* ============ 存储 ============ */
-  function save(immediate) {
-    if (saveTimer) clearTimeout(saveTimer);
-    function doSave() {
-      var ok = storage.setItem(KEY, { active: state.active, data: state.data, savedAt: Date.now() });
-      if (ok && !save.__quiet) showToast('✓ 已自动保存');
-    }
-    if (immediate) { doSave(); } else { saveTimer = setTimeout(doSave, 300); }
-  }
+  /* 超时横幅 */
+  html += '<div class="overtime-banner" id="' + key + 'OvertimeBanner">' +
+    '⏰ 已超时 <b id="' + key + 'OvertimeAmount">--:--</b>，请立即停止作答！' +
+  '</div>';
 
-  function load() {
-    var raw = storage.getItem(KEY);
-    if (!raw) return false;
-    var data;
-    try { data = JSON.parse(raw); } catch (e) { return false; }
-    if (!data || !data.data) return false;
+  /* 总览 */
+  html += '<section class="overview">';
+  html +=   '<div class="ov"><div class="ov-label">总目标</div>' +
+              '<div class="ov-value" id="' + key + 'TotalTarget">00:00</div>' +
+              '<div class="ov-sub" id="' + key + 'TotalTargetSub">未设置</div></div>';
+  html +=   '<div class="ov"><div class="ov-label">总用时</div>' +
+              '<div class="ov-value" id="' + key + 'TotalActual">00:00</div>' +
+              '<div class="ov-sub" id="' + key + 'TotalActualSub">0 分钟</div></div>';
+  html +=   '<div class="ov"><div class="ov-label">预估得分</div>' +
+              '<div class="ov-value score" id="' + key + 'TotalScore">0</div>' +
+              '<div class="ov-sub" id="' + key + 'TotalScoreSub">满分 0</div></div>';
+  html +=   '<div class="ov"><div class="ov-label">目标差值</div>' +
+              '<div class="ov-value" id="' + key + 'TotalDiff">--</div>' +
+              '<div class="ov-sub" id="' + key + 'TotalDiffSub">&nbsp;</div></div>';
+  html += '</section>';
+  html += '<div class="total-bar"><div class="total-fill" id="' + key + 'TotalFill"></div></div>';
 
-    ['xingce', 'shenlun'].forEach(function (key) {
-      var saved = data.data[key];
-      if (!saved || !Array.isArray(saved.modules)) return;
-      saved.modules.forEach(function (sm) {
-        var m = findModule(key, sm.id);
-        if (!m) return;
-        if (typeof sm.name === 'string' && sm.name) m.name = sm.name;
-        if (typeof sm.target === 'number' && sm.target >= 0) m.target = sm.target;
-        if (typeof sm.actual === 'number' && sm.actual >= 0) m.actual = sm.actual;
-        if (typeof sm.totalQ === 'number' && sm.totalQ >= 0) m.totalQ = sm.totalQ;
-        if (typeof sm.perScore === 'number' && sm.perScore >= 0) m.perScore = sm.perScore;
-        if (typeof sm.correctQ === 'number' && sm.correctQ >= 0) m.correctQ = sm.correctQ;
-      });
+  /* 模块区标题 + 按钮 */
+  html += '<div class="section-head">' +
+            '<h2>' + DEFAULT_DATA[key].label + '</h2>' +
+            '<div class="head-actions">' +
+              '<button class="btn" data-reset-targets="' + key + '">恢复默认时间</button>' +
+              '<button class="btn" data-reset-skip="' + key + '">不保存重置</button>' +
+              '<button class="btn btn-primary" data-reset-save="' + key + '">保存并重置</button>' +
+            '</div>' +
+          '</div>';
+  html += '<section class="modules" id="' + key + 'Modules"></section>';
+  html += '<div id="' + key + 'Advice"></div>';
+
+  /* 历史记录 */
+  html += '<div class="section-head" style="margin-top:28px;">' +
+            '<h2>' + (key === 'shenlun' ? '申论' : '行测') + '历史记录</h2>' +
+            '<button class="btn btn-ghost" data-clear-history="' + key + '">清空历史</button>' +
+          '</div>';
+  html += '<div id="' + key + 'HistoryList"></div>';
+
+  pageEl.innerHTML = html;
+
+  /* 考试总时间输入 */
+  const examTotalInput = document.getElementById(key + 'ExamTotal');
+  examTotalInput.addEventListener('input', () => {
+    const v = parseInt(examTotalInput.value, 10);
+    state.examTotal[key] = (isNaN(v) || v < 0) ? 0 : v;
+    save(); update();
+  });
+  examTotalInput.addEventListener('blur', () => {
+    examTotalInput.value = state.examTotal[key] || 0;
+    save(true);
+  });
+
+  /* 模块卡片 */
+  const box = document.getElementById(key + 'Modules');
+  els[key] = {};
+
+  cfg.modules.forEach(m => {
+    const root = document.createElement('div');
+    root.className = 'module';
+    root.innerHTML =
+      '<div class="m-head">' +
+        '<input class="m-name-input" type="text" value="" spellcheck="false">' +
+        '<label class="m-target">' +
+          '<span>目标</span>' +
+          '<input type="number" min="0" step="1" inputmode="decimal">' +
+          '<span>分钟</span>' +
+        '</label>' +
+      '</div>' +
+      '<div class="m-time">00:00</div>' +
+      '<div class="m-diff">--</div>' +
+      '<div class="m-score-row">' +
+        '<label class="m-score-item">题数' +
+          '<input type="number" class="sc-total" min="0" step="1" inputmode="numeric">' +
+        '</label>' +
+        '<label class="m-score-item">对' +
+          '<input type="number" class="sc-correct" min="0" step="1" inputmode="numeric">' +
+        '</label>' +
+        '<label class="m-score-item">分/题' +
+          '<input type="number" class="sc-per" min="0" step="0.1" inputmode="decimal">' +
+        '</label>' +
+        '<span class="m-score-badge">0</span>' +
+      '</div>' +
+      '<div class="bar"><div class="bar-fill"></div></div>' +
+      '<div class="m-actions">' +
+        '<button class="btn btn-start" type="button">开始</button>' +
+        '<button class="btn btn-fill" type="button">填用时</button>' +
+        '<button class="btn btn-reset" type="button">重置</button>' +
+      '</div>' +
+      '<div class="m-fill">' +
+        '<div class="fill-row">' +
+          '<input type="number" class="fill-num fill-h" min="0" max="99" placeholder="0">' +
+          '<span class="fill-unit">时</span>' +
+          '<input type="number" class="fill-num fill-m" min="0" max="99" placeholder="0">' +
+          '<span class="fill-unit">分</span>' +
+          '<input type="number" class="fill-num fill-s" min="0" max="99" placeholder="0">' +
+          '<span class="fill-unit">秒</span>' +
+        '</div>' +
+        '<div class="fill-btns">' +
+          '<button class="btn btn-sm btn-primary fill-ok" type="button">确定</button>' +
+          '<button class="btn btn-sm fill-cancel" type="button">取消</button>' +
+        '</div>' +
+        '<div class="fill-hint">分、秒可超过 59，会自动按总秒数计算；留空按 0 处理。</div>' +
+      '</div>';
+
+    const nameInput   = root.querySelector('.m-name-input');
+    const targetInput = root.querySelector('.m-target input');
+    const scTotal     = root.querySelector('.sc-total');
+    const scCorrect   = root.querySelector('.sc-correct');
+    const scPer       = root.querySelector('.sc-per');
+    const badge       = root.querySelector('.m-score-badge');
+    const fillRow     = root.querySelector('.m-fill');
+    const fillH       = root.querySelector('.fill-h');
+    const fillM       = root.querySelector('.fill-m');
+    const fillS       = root.querySelector('.fill-s');
+    const fillBtn     = root.querySelector('.btn-fill');
+    const startBtn    = root.querySelector('.btn-start');
+    const resetBtn    = root.querySelector('.btn-reset');
+    const okBtn       = root.querySelector('.fill-ok');
+    const cancelBtn   = root.querySelector('.fill-cancel');
+
+    nameInput.value = m.name;
+    targetInput.value = m.target;
+    scTotal.value = m.totalQ;
+    scCorrect.value = m.correctQ;
+    scPer.value = m.perScore;
+
+    nameInput.addEventListener('input', () => { m.name = nameInput.value; save(); });
+    targetInput.addEventListener('input', () => {
+      const v = parseFloat(targetInput.value);
+      m.target = (isNaN(v) || v < 0) ? 0 : v;
+      save(); update();
     });
+    targetInput.addEventListener('blur', () => { targetInput.value = m.target; save(true); });
 
-    if (data.active === 'shenlun') state.active = 'shenlun';
-    restoredFromSave = true;
-    return true;
-  }
-
-  /* ============ 构建界面 ============ */
-  function buildPage(key) {
-    var cfg = state.data[key];
-    var pageEl = document.getElementById('page-' + key);
-
-    var html = '';
-    html += '<section class="overview">';
-    html +=   '<div class="ov"><div class="ov-label">总目标</div>' +
-                '<div class="ov-value" id="' + key + 'TotalTarget">00:00</div>' +
-                '<div class="ov-sub" id="' + key + 'TotalTargetSub">未设置</div></div>';
-    html +=   '<div class="ov"><div class="ov-label">总用时</div>' +
-                '<div class="ov-value" id="' + key + 'TotalActual">00:00</div>' +
-                '<div class="ov-sub" id="' + key + 'TotalActualSub">0 分钟</div></div>';
-    html +=   '<div class="ov"><div class="ov-label">预估得分</div>' +
-                '<div class="ov-value score" id="' + key + 'TotalScore">0</div>' +
-                '<div class="ov-sub" id="' + key + 'TotalScoreSub">满分 0</div></div>';
-    html +=   '<div class="ov"><div class="ov-label">差值</div>' +
-                '<div class="ov-value" id="' + key + 'TotalDiff">--</div>' +
-                '<div class="ov-sub" id="' + key + 'TotalDiffSub">&nbsp;</div></div>';
-    html += '</section>';
-    html += '<div class="total-bar"><div class="total-fill" id="' + key + 'TotalFill"></div></div>';
-    html += '<div class="section-head">' +
-              '<h2>' + DEFAULT_DATA[key].label + '</h2>' +
-              '<button class="btn btn-ghost" data-reset-all="' + key + '">全部重置</button>' +
-            '</div>';
-    html += '<section class="modules" id="' + key + 'Modules"></section>';
-    html += '<div id="' + key + 'Advice"></div>';
-
-    pageEl.innerHTML = html;
-
-    var box = document.getElementById(key + 'Modules');
-    els[key] = {};
-
-    cfg.modules.forEach(function (m) {
-      var root = document.createElement('div');
-      root.className = 'module';
-      root.innerHTML =
-        '<div class="m-head">' +
-          '<input class="m-name-input" type="text" value="" spellcheck="false">' +
-          '<label class="m-target">' +
-            '<span>目标</span>' +
-            '<input type="number" min="0" step="1" inputmode="decimal">' +
-            '<span>分</span>' +
-          '</label>' +
-        '</div>' +
-        '<div class="m-time">00:00</div>' +
-        '<div class="m-diff">--</div>' +
-        '<div class="m-score-row">' +
-          '<label class="m-score-item">题数' +
-            '<input type="number" class="sc-total" min="0" step="1" inputmode="numeric">' +
-          '</label>' +
-          '<label class="m-score-item">对' +
-            '<input type="number" class="sc-correct" min="0" step="1" inputmode="numeric">' +
-          '</label>' +
-          '<label class="m-score-item">分/题' +
-            '<input type="number" class="sc-per" min="0" step="0.1" inputmode="decimal">' +
-          '</label>' +
-          '<span class="m-score-badge">0</span>' +
-        '</div>' +
-        '<div class="bar"><div class="bar-fill"></div></div>' +
-        '<div class="m-actions">' +
-          '<button class="btn btn-start" type="button">开始</button>' +
-          '<button class="btn btn-fill" type="button">填用时</button>' +
-          '<button class="btn btn-reset" type="button">重置</button>' +
-        '</div>' +
-        '<div class="m-fill">' +
-          '<div class="fill-row">' +
-            '<input type="number" class="fill-num fill-h" min="0" max="99" placeholder="0">' +
-            '<span class="fill-unit">时</span>' +
-            '<input type="number" class="fill-num fill-m" min="0" max="99" placeholder="0">' +
-            '<span class="fill-unit">分</span>' +
-            '<input type="number" class="fill-num fill-s" min="0" max="99" placeholder="0">' +
-            '<span class="fill-unit">秒</span>' +
-          '</div>' +
-          '<div class="fill-btns">' +
-            '<button class="btn btn-sm btn-primary fill-ok" type="button">确定</button>' +
-            '<button class="btn btn-sm fill-cancel" type="button">取消</button>' +
-          '</div>' +
-          '<div class="fill-hint">分、秒可超过 59，会自动按总秒数计算；留空按 0 处理。</div>' +
-        '</div>';
-
-      var nameInput   = root.querySelector('.m-name-input');
-      var targetInput = root.querySelector('.m-target input');
-      var scTotal     = root.querySelector('.sc-total');
-      var scCorrect   = root.querySelector('.sc-correct');
-      var scPer       = root.querySelector('.sc-per');
-      var badge       = root.querySelector('.m-score-badge');
-      var fillRow     = root.querySelector('.m-fill');
-      var fillH       = root.querySelector('.fill-h');
-      var fillM       = root.querySelector('.fill-m');
-      var fillS       = root.querySelector('.fill-s');
-      var fillBtn     = root.querySelector('.btn-fill');
-      var startBtn    = root.querySelector('.btn-start');
-      var resetBtn    = root.querySelector('.btn-reset');
-      var okBtn       = root.querySelector('.fill-ok');
-      var cancelBtn   = root.querySelector('.fill-cancel');
-
-      nameInput.value = m.name;
-      targetInput.value = m.target;
-      scTotal.value = m.totalQ;
+    scTotal.addEventListener('input', () => {
+      const v = parseInt(scTotal.value, 10);
+      m.totalQ = (isNaN(v) || v < 0) ? 0 : v;
+      if (m.correctQ > m.totalQ) m.correctQ = m.totalQ;
       scCorrect.value = m.correctQ;
-      scPer.value = m.perScore;
+      save(); update();
+    });
+    scTotal.addEventListener('blur', () => { scTotal.value = m.totalQ; save(true); });
 
-      nameInput.addEventListener('input', function () { m.name = nameInput.value; save(); });
+    scCorrect.addEventListener('input', () => {
+      let v = parseInt(scCorrect.value, 10);
+      if (isNaN(v) || v < 0) v = 0;
+      if (v > m.totalQ) v = m.totalQ;
+      m.correctQ = v;
+      scCorrect.value = v;
+      save(); update();
+    });
+    scCorrect.addEventListener('blur', () => { scCorrect.value = m.correctQ; save(true); });
 
-      targetInput.addEventListener('input', function () {
-        var v = parseFloat(targetInput.value);
-        m.target = (isNaN(v) || v < 0) ? 0 : v;
-        save(); update();
-      });
-      targetInput.addEventListener('blur', function () { targetInput.value = m.target; save(true); });
+    scPer.addEventListener('input', () => {
+      const v = parseFloat(scPer.value);
+      m.perScore = (isNaN(v) || v < 0) ? 0 : v;
+      save(); update();
+    });
+    scPer.addEventListener('blur', () => { scPer.value = m.perScore; save(true); });
 
-      scTotal.addEventListener('input', function () {
-        var v = parseInt(scTotal.value, 10);
-        m.totalQ = (isNaN(v) || v < 0) ? 0 : v;
-        if (m.correctQ > m.totalQ) m.correctQ = m.totalQ;
-        scCorrect.value = m.correctQ;
-        save(); update();
-      });
-      scTotal.addEventListener('blur', function () { scTotal.value = m.totalQ; save(true); });
+    startBtn.addEventListener('click', () => toggle(key, m.id));
+    resetBtn.addEventListener('click', () => resetOne(key, m.id));
 
-      scCorrect.addEventListener('input', function () {
-        var v = parseInt(scCorrect.value, 10);
-        if (isNaN(v) || v < 0) v = 0;
-        if (v > m.totalQ) v = m.totalQ;
-        m.correctQ = v;
-        scCorrect.value = v;
-        save(); update();
-      });
-      scCorrect.addEventListener('blur', function () { scCorrect.value = m.correctQ; save(true); });
+    fillBtn.addEventListener('click', () => {
+      if (fillRow.classList.contains('show')) { fillRow.classList.remove('show'); return; }
+      const running = timer.key === key && timer.id === m.id;
+      const cur = m.actual + (running ? Date.now() - timer.startTs : 0);
+      const t = Math.max(0, Math.round(cur / 1000));
+      fillH.value = Math.floor(t / 3600);
+      fillM.value = Math.floor((t % 3600) / 60);
+      fillS.value = t % 60;
+      fillRow.classList.add('show');
+      fillH.focus(); fillH.select();
+    });
+    cancelBtn.addEventListener('click', () => fillRow.classList.remove('show'));
 
-      scPer.addEventListener('input', function () {
-        var v = parseFloat(scPer.value);
-        m.perScore = (isNaN(v) || v < 0) ? 0 : v;
-        save(); update();
-      });
-      scPer.addEventListener('blur', function () { scPer.value = m.perScore; save(true); });
+    function autoJump(cur, next) {
+      cur.addEventListener('input', () => { if (cur.value.length >= 2) next.focus(); });
+    }
+    autoJump(fillH, fillM);
+    autoJump(fillM, fillS);
 
-      startBtn.addEventListener('click', function () { toggle(key, m.id); });
-      resetBtn.addEventListener('click', function () { resetOne(key, m.id); });
-
-      fillBtn.addEventListener('click', function () {
-        if (fillRow.classList.contains('show')) { fillRow.classList.remove('show'); return; }
-        var running = timer.key === key && timer.id === m.id;
-        var cur = m.actual + (running ? Date.now() - timer.startTs : 0);
-        var t = Math.max(0, Math.round(cur / 1000));
-        fillH.value = Math.floor(t / 3600);
-        fillM.value = Math.floor((t % 3600) / 60);
-        fillS.value = t % 60;
-        fillRow.classList.add('show');
-        fillH.focus(); fillH.select();
-      });
-      cancelBtn.addEventListener('click', function () { fillRow.classList.remove('show'); });
-
-      function autoJump(cur, next) {
-        cur.addEventListener('input', function () { if (cur.value.length >= 2) next.focus(); });
+    function applyFill() {
+      const h = parseInt(fillH.value, 10) || 0;
+      const mi = parseInt(fillM.value, 10) || 0;
+      const se = parseInt(fillS.value, 10) || 0;
+      if (h < 0 || mi < 0 || se < 0) { alert('时间不能为负数。'); return; }
+      const ms = (h * 3600 + mi * 60 + se) * 1000;
+      if (timer.key === key && timer.id === m.id) {
+        timer.key = null; timer.id = null; timer.startTs = 0;
       }
-      autoJump(fillH, fillM);
-      autoJump(fillM, fillS);
-
-      function applyFill() {
-        var h = parseInt(fillH.value, 10) || 0;
-        var mi = parseInt(fillM.value, 10) || 0;
-        var se = parseInt(fillS.value, 10) || 0;
-        if (h < 0 || mi < 0 || se < 0) { alert('时间不能为负数。'); return; }
-        var ms = (h * 3600 + mi * 60 + se) * 1000;
-        if (timer.key === key && timer.id === m.id) {
-          timer.key = null; timer.id = null; timer.startTs = 0;
-        }
-        m.actual = ms;
-        save(true); update();
-        fillRow.classList.remove('show');
-      }
-      okBtn.addEventListener('click', applyFill);
-      [fillH, fillM, fillS].forEach(function (inp) {
-        inp.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter') { e.preventDefault(); applyFill(); }
-          if (e.key === 'Escape') { fillRow.classList.remove('show'); }
-        });
+      m.actual = ms;
+      save(true); update();
+      fillRow.classList.remove('show');
+    }
+    okBtn.addEventListener('click', applyFill);
+    [fillH, fillM, fillS].forEach(inp => {
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); applyFill(); }
+        if (e.key === 'Escape') { fillRow.classList.remove('show'); }
       });
-
-      els[key][m.id] = {
-        root: root, time: root.querySelector('.m-time'), diff: root.querySelector('.m-diff'),
-        fill: root.querySelector('.bar-fill'), btn: startBtn, badge: badge
-      };
-
-      box.appendChild(root);
     });
 
-    pageEl.querySelector('[data-reset-all]').addEventListener('click', function () { resetAll(key); });
-  }
+    els[key][m.id] = {
+      root, time: root.querySelector('.m-time'), diff: root.querySelector('.m-diff'),
+      fill: root.querySelector('.bar-fill'), btn: startBtn, badge
+    };
+    box.appendChild(root);
+  });
 
-  /* ============ 计时控制 ============ */
-  function settle() {
-    if (timer.key && timer.id) {
-      var m = findModule(timer.key, timer.id);
-      if (m) m.actual += Date.now() - timer.startTs;
+  /* 绑定按钮 */
+  pageEl.querySelector('[data-reset-targets]').addEventListener('click', () => resetTargetsToDefault(key));
+  pageEl.querySelector('[data-reset-skip]').addEventListener('click', () => resetWithoutSave(key));
+  pageEl.querySelector('[data-reset-save]').addEventListener('click', () => resetWithSave(key));
+  pageEl.querySelector('[data-clear-history]').addEventListener('click', () => clearExamHistory(key));
+
+  renderExamHistory(key);
+}
+
+/* ============================================================
+   恢复默认目标时间
+   ============================================================ */
+function resetTargetsToDefault(key) {
+  const label = key === 'shenlun' ? '申论' : '行测';
+  const defaults = DEFAULT_DATA[key].modules;
+  if (!confirm('确定把「' + label + '」所有模块的目标时间恢复为默认值吗？\n\n' +
+    defaults.map(m => m.name + ' ' + m.target + ' 分钟').join('\n'))) return;
+
+  defaults.forEach(dm => {
+    const m = findModule(key, dm.id);
+    if (m) m.target = dm.target;
+  });
+
+  save(true);
+  rebuildAllPages();
+  showToast('✓ 已恢复默认目标时间');
+}
+
+/* ============================================================
+   重置逻辑
+   ============================================================ */
+function resetWithoutSave(key) {
+  const hasData = state.data[key].modules.some(m => m.actual > 0 || m.correctQ > 0);
+  if (!hasData) {
+    doResetNow(key);
+    showToast('✓ 已重置（无数据）');
+    return;
+  }
+  const label = key === 'shenlun' ? '申论' : '行测';
+  if (!confirm('确定清空当前' + label + '数据吗？\n此操作无法恢复。')) return;
+  doResetNow(key);
+  showToast('✓ 已清空');
+}
+
+function resetWithSave(key) {
+  const hasData = state.data[key].modules.some(m => m.actual > 0 || m.correctQ > 0);
+  if (!hasData) {
+    doResetNow(key);
+    showToast('✓ 当前无数据，已重置');
+    return;
+  }
+  saveResetPending = key;
+  const label = key === 'shenlun' ? '申论' : '行测';
+  document.getElementById('saveResetModalTitle').textContent = '保存并重置 · ' + label;
+  document.getElementById('saveResetSourceInput').value = '';
+  document.getElementById('saveResetModal').classList.add('show');
+  setTimeout(() => document.getElementById('saveResetSourceInput').focus(), 100);
+}
+
+function doResetNow(key) {
+  if (timer.key === key) { timer.key = null; timer.id = null; timer.startTs = 0; }
+  state.data[key].modules.forEach(m => { m.actual = 0; m.correctQ = 0; });
+  save(true);
+  update();
+  renderExamHistory(key);
+}
+
+/* ============================================================
+   单模块练习页面
+   ============================================================ */
+function buildPracticePage() {
+  const pageEl = document.getElementById('page-practice');
+
+  let options = '<optgroup label="行测">';
+  DEFAULT_DATA.xingce.modules.forEach(m => {
+    options += '<option value="' + m.id + '">' + escapeHtml(m.name) + '</option>';
+  });
+  options += '</optgroup><optgroup label="申论">';
+  DEFAULT_DATA.shenlun.modules.forEach(m => {
+    options += '<option value="' + m.id + '">' + escapeHtml(m.name) + '</option>';
+  });
+  options += '</optgroup>';
+
+  pageEl.innerHTML =
+    '<div class="practice-card">' +
+      '<div class="practice-select-row">' +
+        '<label for="practiceModuleSelect">选择模块</label>' +
+        '<select id="practiceModuleSelect">' + options + '</select>' +
+      '</div>' +
+      '<div class="practice-timer" id="practiceTimer">00:00</div>' +
+      '<div class="m-actions">' +
+        '<button class="btn btn-start" id="practiceStartBtn" type="button">开始</button>' +
+        '<button class="btn btn-fill" id="practiceFillBtn" type="button">填用时</button>' +
+        '<button class="btn btn-reset" id="practiceResetBtn" type="button">重置</button>' +
+      '</div>' +
+      '<div class="m-fill" id="practiceFillRow">' +
+        '<div class="fill-row">' +
+          '<input type="number" class="fill-num" id="pfH" min="0" placeholder="0">' +
+          '<span class="fill-unit">时</span>' +
+          '<input type="number" class="fill-num" id="pfM" min="0" placeholder="0">' +
+          '<span class="fill-unit">分</span>' +
+          '<input type="number" class="fill-num" id="pfS" min="0" placeholder="0">' +
+          '<span class="fill-unit">秒</span>' +
+        '</div>' +
+        '<div class="fill-btns">' +
+          '<button class="btn btn-sm btn-primary" id="pfOk" type="button">确定</button>' +
+          '<button class="btn btn-sm" id="pfCancel" type="button">取消</button>' +
+        '</div>' +
+        '<div class="fill-hint">分、秒可超过 59，会自动按总秒数计算；留空按 0 处理。</div>' +
+      '</div>' +
+      '<div class="practice-form">' +
+        '<label>本次题量<input type="number" id="practiceTotalQ" min="0" step="1" inputmode="numeric"></label>' +
+        '<label>本次答对<input type="number" id="practiceCorrectQ" min="0" step="1" inputmode="numeric"></label>' +
+        '<label>每题分值<input type="number" id="practicePerScore" min="0" step="0.1" inputmode="decimal"></label>' +
+        '<label class="full-width">题目出处<input type="text" id="practiceSource" placeholder="如：某机构模拟题第 3 套 · 第 21-40 题" spellcheck="false"></label>' +
+      '</div>' +
+      '<button class="btn btn-primary" id="practiceSaveBtn" type="button">💾 保存本次记录</button>' +
+    '</div>' +
+    '<div class="section-head" style="margin-top:28px;">' +
+      '<h2>单模块练习历史</h2>' +
+      '<button class="btn btn-ghost" id="clearPracticeHistory" type="button">清空历史</button>' +
+    '</div>' +
+    '<div id="practiceHistoryList"></div>';
+
+  const selectEl = document.getElementById('practiceModuleSelect');
+  const startBtn = document.getElementById('practiceStartBtn');
+  const fillBtn  = document.getElementById('practiceFillBtn');
+  const resetBtn = document.getElementById('practiceResetBtn');
+  const fillRow  = document.getElementById('practiceFillRow');
+  const pfH      = document.getElementById('pfH');
+  const pfM      = document.getElementById('pfM');
+  const pfS      = document.getElementById('pfS');
+  const pfOk     = document.getElementById('pfOk');
+  const pfCancel = document.getElementById('pfCancel');
+  const totalQEl = document.getElementById('practiceTotalQ');
+  const correctQEl = document.getElementById('practiceCorrectQ');
+  const perScoreEl = document.getElementById('practicePerScore');
+  const sourceEl = document.getElementById('practiceSource');
+  const saveBtn  = document.getElementById('practiceSaveBtn');
+
+  selectEl.value = state.practice.currentId;
+  totalQEl.value = state.practice.totalQ || '';
+  correctQEl.value = state.practice.correctQ || '';
+  perScoreEl.value = state.practice.perScore || '';
+  sourceEl.value = state.practice.source || '';
+
+  selectEl.addEventListener('change', () => {
+    if (practiceTimer.running) {
+      state.practice.actual += Date.now() - practiceTimer.startTs;
+      practiceTimer.running = false;
+      practiceTimer.startTs = 0;
     }
-    timer.key = null; timer.id = null; timer.startTs = 0;
-  }
+    state.practice.currentId = selectEl.value;
+    state.practice.actual = 0;
+    state.practice.totalQ = 0;
+    state.practice.correctQ = 0;
+    state.practice.source = '';
+    const allMods = [...state.data.xingce.modules, ...state.data.shenlun.modules];
+    const mod = allMods.find(m => m.id === selectEl.value);
+    state.practice.perScore = mod ? mod.perScore : 0;
+    totalQEl.value = '';
+    correctQEl.value = '';
+    perScoreEl.value = state.practice.perScore;
+    sourceEl.value = '';
+    save();
+    updatePracticeTimerUI();
+  });
 
-  function toggle(key, id) {
-    var now = Date.now();
-    if (timer.key === key && timer.id === id) { settle(); }
-    else {
-      settle();
-      timer.key = key; timer.id = id; timer.startTs = now;
+  startBtn.addEventListener('click', () => {
+    if (practiceTimer.running) {
+      state.practice.actual += Date.now() - practiceTimer.startTs;
+      practiceTimer.running = false;
+      practiceTimer.startTs = 0;
+    } else {
+      practiceTimer.running = true;
+      practiceTimer.startTs = Date.now();
     }
-    save(true); update();
+    save();
+    updatePracticeTimerUI();
+  });
+
+  resetBtn.addEventListener('click', () => {
+    if (!confirm('确定重置当前单模块练习计时和数据吗？')) return;
+    practiceTimer.running = false;
+    practiceTimer.startTs = 0;
+    state.practice.actual = 0;
+    state.practice.totalQ = 0;
+    state.practice.correctQ = 0;
+    state.practice.source = '';
+    totalQEl.value = '';
+    correctQEl.value = '';
+    sourceEl.value = '';
+    save(true);
+    updatePracticeTimerUI();
+  });
+
+  fillBtn.addEventListener('click', () => {
+    if (fillRow.classList.contains('show')) { fillRow.classList.remove('show'); return; }
+    const cur = state.practice.actual + (practiceTimer.running ? Date.now() - practiceTimer.startTs : 0);
+    const t = Math.max(0, Math.round(cur / 1000));
+    pfH.value = Math.floor(t / 3600);
+    pfM.value = Math.floor((t % 3600) / 60);
+    pfS.value = t % 60;
+    fillRow.classList.add('show');
+    pfH.focus(); pfH.select();
+  });
+  pfCancel.addEventListener('click', () => fillRow.classList.remove('show'));
+
+  function applyFill() {
+    const h = parseInt(pfH.value, 10) || 0;
+    const mi = parseInt(pfM.value, 10) || 0;
+    const se = parseInt(pfS.value, 10) || 0;
+    if (h < 0 || mi < 0 || se < 0) { alert('时间不能为负数。'); return; }
+    practiceTimer.running = false;
+    practiceTimer.startTs = 0;
+    state.practice.actual = (h * 3600 + mi * 60 + se) * 1000;
+    save(true);
+    updatePracticeTimerUI();
+    fillRow.classList.remove('show');
+  }
+  pfOk.addEventListener('click', applyFill);
+  [pfH, pfM, pfS].forEach(inp => {
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); applyFill(); }
+      if (e.key === 'Escape') { fillRow.classList.remove('show'); }
+    });
+  });
+
+  totalQEl.addEventListener('input', () => {
+    const v = parseInt(totalQEl.value, 10);
+    state.practice.totalQ = (isNaN(v) || v < 0) ? 0 : v;
+    if (state.practice.correctQ > state.practice.totalQ) {
+      state.practice.correctQ = state.practice.totalQ;
+      correctQEl.value = state.practice.correctQ;
+    }
+    save();
+  });
+  correctQEl.addEventListener('input', () => {
+    let v = parseInt(correctQEl.value, 10);
+    if (isNaN(v) || v < 0) v = 0;
+    if (v > state.practice.totalQ) v = state.practice.totalQ;
+    state.practice.correctQ = v;
+    correctQEl.value = v;
+    save();
+  });
+  perScoreEl.addEventListener('input', () => {
+    const v = parseFloat(perScoreEl.value);
+    state.practice.perScore = (isNaN(v) || v < 0) ? 0 : v;
+    save();
+  });
+  sourceEl.addEventListener('input', () => {
+    state.practice.source = sourceEl.value;
+    save();
+  });
+
+  saveBtn.addEventListener('click', savePracticeRecord);
+
+  document.getElementById('clearPracticeHistory').addEventListener('click', () => {
+    if (!state.practiceHistory.length) return;
+    if (!confirm('确定清空所有单模块练习历史吗？此操作无法恢复。')) return;
+    state.practiceHistory = [];
+    save(true);
+    renderPracticeHistory();
+    showToast('✓ 已清空单模块历史');
+  });
+
+  renderPracticeHistory();
+}
+
+/* ============================================================
+   单模块练习逻辑
+   ============================================================ */
+function updatePracticeTimerUI() {
+  const el = document.getElementById('practiceTimer');
+  if (!el) return;
+  const actual = state.practice.actual + (practiceTimer.running ? Date.now() - practiceTimer.startTs : 0);
+  el.textContent = fmt(actual);
+  el.classList.toggle('running', practiceTimer.running);
+
+  const btn = document.getElementById('practiceStartBtn');
+  if (btn) btn.textContent = practiceTimer.running ? '暂停' : (state.practice.actual >= 1000 ? '继续' : '开始');
+}
+
+function savePracticeRecord() {
+  const actual = state.practice.actual + (practiceTimer.running ? Date.now() - practiceTimer.startTs : 0);
+  if (actual <= 0) {
+    alert('请先计时或填写用时，再保存记录。');
+    return;
   }
 
-  function resetOne(key, id) {
-    var m = findModule(key, id);
+  const allMods = [...state.data.xingce.modules, ...state.data.shenlun.modules];
+  const mod = allMods.find(m => m.id === state.practice.currentId);
+  const moduleName = mod ? mod.name : '未命名';
+
+  state.practiceHistory.unshift({
+    id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    date: Date.now(),
+    moduleId: state.practice.currentId,
+    moduleName,
+    actual,
+    totalQ: state.practice.totalQ || 0,
+    correctQ: state.practice.correctQ || 0,
+    perScore: state.practice.perScore || 0,
+    source: (state.practice.source || '').trim()
+  });
+
+  if (state.practiceHistory.length > 200) {
+    state.practiceHistory = state.practiceHistory.slice(0, 200);
+  }
+
+  save(true);
+  renderPracticeHistory();
+  showToast('✓ 已保存本次记录');
+}
+
+function renderPracticeHistory() {
+  const box = document.getElementById('practiceHistoryList');
+  if (!box) return;
+  if (!state.practiceHistory.length) {
+    box.innerHTML = '<div class="advice-empty" style="padding:18px;background:#fff;border-radius:14px;border:1px solid #e6e9f0;">还没有单模块练习记录。每次练习后点"保存本次记录"就会出现在这里。</div>';
+    return;
+  }
+
+  let html = '';
+  state.practiceHistory.forEach(h => {
+    const score = h.correctQ * h.perScore;
+    const full = h.totalQ * h.perScore;
+    const acc = h.totalQ > 0 ? (h.correctQ / h.totalQ * 100).toFixed(0) + '%' : '—';
+    const dateStr = formatDate(h.date);
+    const scoreStr = full > 0 ? score.toFixed(1) + '/' + full.toFixed(1) : '—';
+
+    html += '<div class="history-item">' +
+      '<div class="history-top">' +
+        '<span class="history-name">' + escapeHtml(h.moduleName) + '</span>' +
+        '<span class="history-date">' + dateStr + '</span>' +
+      '</div>' +
+      '<div class="history-detail">用时 ' + fmt(h.actual) + ' · 题量 ' + h.totalQ + ' · 答对 ' + h.correctQ + ' · 正确率 ' + acc + ' · 得分 ' + scoreStr + '</div>' +
+      (h.source ? '<div class="history-source">📝 ' + escapeHtml(h.source) + '</div>' : '') +
+      '<div class="history-actions">' +
+        '<button class="btn" onclick="window.restorePracticeHistory(\'' + h.id + '\')">继续此记录</button>' +
+        '<button class="btn" onclick="window.deletePracticeHistory(\'' + h.id + '\')">删除</button>' +
+      '</div>' +
+    '</div>';
+  });
+  box.innerHTML = html;
+}
+
+window.restorePracticeHistory = function(id) {
+  const h = state.practiceHistory.find(x => x.id === id);
+  if (!h) return;
+  if (!confirm('把这条记录载入当前练习吗？\n\n当前练习的计时会被替换。')) return;
+
+  practiceTimer.running = false;
+  practiceTimer.startTs = 0;
+  state.practice.currentId = h.moduleId;
+  state.practice.actual = h.actual;
+  state.practice.totalQ = h.totalQ;
+  state.practice.correctQ = h.correctQ;
+  state.practice.perScore = h.perScore;
+  state.practice.source = h.source;
+
+  const selectEl = document.getElementById('practiceModuleSelect');
+  if (selectEl) selectEl.value = h.moduleId;
+  document.getElementById('practiceTotalQ').value = h.totalQ || '';
+  document.getElementById('practiceCorrectQ').value = h.correctQ || '';
+  document.getElementById('practicePerScore').value = h.perScore || '';
+  document.getElementById('practiceSource').value = h.source || '';
+
+  save(true);
+  updatePracticeTimerUI();
+  showToast('✓ 已载入记录');
+};
+
+window.deletePracticeHistory = function(id) {
+  if (!confirm('确定删除这条记录吗？')) return;
+  state.practiceHistory = state.practiceHistory.filter(x => x.id !== id);
+  save(true);
+  renderPracticeHistory();
+};
+
+/* ============================================================
+   套卷历史逻辑
+   ============================================================ */
+function saveExamSnapshot(type, source) {
+  const cfg = state.data[type];
+  const modules = cfg.modules.map(m => ({
+    id: m.id, name: m.name, target: m.target,
+    actual: m.actual, totalQ: m.totalQ,
+    perScore: m.perScore, correctQ: m.correctQ
+  }));
+  const totalTime = modules.reduce((s, m) => s + m.actual, 0);
+  const totalScore = modules.reduce((s, m) => s + calcScore(m), 0);
+  const totalFull = modules.reduce((s, m) => s + calcFullScore(m), 0);
+
+  state.examHistory.unshift({
+    id: 'h_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    date: Date.now(),
+    type,
+    source: (source || '').trim(),
+    modules,
+    totalTime,
+    totalScore,
+    totalFull
+  });
+
+  if (state.examHistory.length > 100) {
+    state.examHistory = state.examHistory.slice(0, 100);
+  }
+}
+
+function renderExamHistory(type) {
+  const box = document.getElementById(type + 'HistoryList');
+  if (!box) return;
+  const list = state.examHistory.filter(h => h.type === type);
+  if (!list.length) {
+    box.innerHTML = '<div class="advice-empty" style="padding:16px;background:#fff;border-radius:14px;border:1px solid #e6e9f0;">还没有历史记录。重置时选"保存并重置"就会出现在这里。</div>';
+    return;
+  }
+
+  let html = '';
+  list.forEach(h => {
+    const dateStr = formatDate(h.date);
+    const score = h.totalScore.toFixed(1);
+    const full = h.totalFull.toFixed(1);
+    const time = fmt(h.totalTime);
+    const acc = h.totalFull > 0 ? (h.totalScore / h.totalFull * 100).toFixed(0) + '%' : '—';
+
+    let rows = '';
+    h.modules.forEach(m => {
+      const sc = m.correctQ * m.perScore;
+      const fsc = m.totalQ * m.perScore;
+      const macc = m.totalQ > 0 ? (m.correctQ / m.totalQ * 100).toFixed(0) + '%' : '—';
+      const scoreCell = fsc > 0 ? sc.toFixed(1) : '—';
+      rows += '<tr>' +
+        '<td>' + escapeHtml(m.name) + '</td>' +
+        '<td>' + fmt(m.actual) + '</td>' +
+        '<td>' + m.correctQ + '/' + m.totalQ + ' (' + macc + ')</td>' +
+        '<td>' + scoreCell + '</td>' +
+      '</tr>';
+    });
+
+    html += '<div class="history-item">' +
+      '<div class="history-top">' +
+        '<span class="history-name">' + (h.type === 'shenlun' ? '申论' : '行测') + ' · ' + dateStr + '</span>' +
+        '<span class="history-date">用时 ' + time + ' · 得分 ' + score + '/' + full + '（' + acc + '）</span>' +
+      '</div>' +
+      (h.source ? '<div class="history-source">📝 ' + escapeHtml(h.source) + '</div>' : '') +
+      '<table class="history-table">' +
+        '<thead><tr><th>模块</th><th>用时</th><th>对/总（正确率）</th><th>得分</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table>' +
+      '<div class="history-actions">' +
+        '<button class="btn" onclick="window.restoreExamHistory(\'' + h.id + '\')">调用此记录继续</button>' +
+        '<button class="btn" onclick="window.deleteExamHistory(\'' + h.id + '\')">删除</button>' +
+      '</div>' +
+    '</div>';
+  });
+  box.innerHTML = html;
+}
+
+window.restoreExamHistory = function(id) {
+  const h = state.examHistory.find(x => x.id === id);
+  if (!h) return;
+  const label = h.type === 'shenlun' ? '申论' : '行测';
+  if (!confirm('把这条' + label + '记录载入当前数据吗？\n\n当前' + label + '的数据会被替换。')) return;
+
+  if (timer.key === h.type) settle();
+
+  h.modules.forEach(sm => {
+    const m = findModule(h.type, sm.id);
     if (!m) return;
-    if (timer.key === key && timer.id === id) { timer.key = null; timer.id = null; timer.startTs = 0; }
-    m.actual = 0;
-    m.correctQ = 0;
-    save(true); update();
+    if (typeof sm.name === 'string' && sm.name) m.name = sm.name;
+    if (typeof sm.target === 'number') m.target = sm.target;
+    if (typeof sm.actual === 'number') m.actual = sm.actual;
+    if (typeof sm.totalQ === 'number') m.totalQ = sm.totalQ;
+    if (typeof sm.perScore === 'number') m.perScore = sm.perScore;
+    if (typeof sm.correctQ === 'number') m.correctQ = sm.correctQ;
+  });
+
+  state.active = h.type;
+  save(true);
+  rebuildAllPages();
+  showToast('✓ 已载入' + label + '记录');
+};
+
+window.deleteExamHistory = function(id) {
+  if (!confirm('确定删除这条记录吗？')) return;
+  const h = state.examHistory.find(x => x.id === id);
+  const type = h ? h.type : null;
+  state.examHistory = state.examHistory.filter(x => x.id !== id);
+  save(true);
+  if (type) renderExamHistory(type);
+};
+
+function clearExamHistory(type) {
+  const list = state.examHistory.filter(h => h.type === type);
+  if (!list.length) return;
+  const label = type === 'shenlun' ? '申论' : '行测';
+  if (!confirm('确定清空所有' + label + '历史记录吗？此操作无法恢复。')) return;
+  state.examHistory = state.examHistory.filter(h => h.type !== type);
+  save(true);
+  renderExamHistory(type);
+  showToast('✓ 已清空' + label + '历史');
+}
+
+/* ============================================================
+   页面重建
+   ============================================================ */
+function rebuildAllPages() {
+  els.xingce = {};
+  els.shenlun = {};
+  buildPage('xingce');
+  buildPage('shenlun');
+  buildPracticePage();
+  document.querySelectorAll('.tab').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-tab') === state.active);
+  });
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.toggle('active', p.id === 'page-' + state.active);
+  });
+  updatePracticeTimerUI();
+  update();
+}
+
+/* ============================================================
+   计时控制
+   ============================================================ */
+function settle() {
+  if (timer.key && timer.id) {
+    const m = findModule(timer.key, timer.id);
+    if (m) m.actual += Date.now() - timer.startTs;
   }
-
-  function resetAll(key) {
-    var label = key === 'shenlun' ? '申论' : '行测';
-    if (!confirm('确定要清空「' + label + '」所有模块的用时和答对数吗？（目标、题量、分值会保留）')) return;
-    if (timer.key === key) { timer.key = null; timer.id = null; timer.startTs = 0; }
-    state.data[key].modules.forEach(function (m) { m.actual = 0; m.correctQ = 0; });
-    save(true); update();
+  timer.key = null; timer.id = null; timer.startTs = 0;
+}
+function toggle(key, id) {
+  const now = Date.now();
+  if (timer.key === key && timer.id === id) settle();
+  else {
+    settle();
+    timer.key = key; timer.id = id; timer.startTs = now;
   }
+  save(true); update();
+}
+function resetOne(key, id) {
+  const m = findModule(key, id);
+  if (!m) return;
+  if (timer.key === key && timer.id === id) { timer.key = null; timer.id = null; timer.startTs = 0; }
+  m.actual = 0; m.correctQ = 0;
+  save(true); update();
+}
 
-  /* ============ 刷新显示 ============ */
-  function update() {
-    var now = Date.now();
-    ['xingce', 'shenlun'].forEach(function (key) { updatePage(key, now); });
-    updateTabs();
-  }
+/* ============================================================
+   刷新显示
+   ============================================================ */
+function update() {
+  const now = Date.now();
+  ['xingce','shenlun'].forEach(key => updatePage(key, now));
+  updateTabs();
+}
 
-  function updatePage(key, now) {
-    var tTarget = 0, tActual = 0, tScore = 0, tFull = 0;
-
-    state.data[key].modules.forEach(function (m) {
-      var el = els[key][m.id];
-      if (!el) return;
-
-      var running = (timer.key === key && timer.id === m.id);
-      var actual = m.actual + (running ? now - timer.startTs : 0);
-      var targetMs = m.target * 60000;
-      var fullScore = calcFullScore(m);
-      var score = calcScore(m);
-
-      tTarget += targetMs;
-      tActual += actual;
-      tScore += score;
-      tFull += fullScore;
-
-      el.time.textContent = fmt(actual);
-
-      var over = targetMs > 0 && actual > targetMs;
-      el.root.classList.toggle('active', running);
-      el.root.classList.toggle('over', over);
-
-      if (targetMs > 0) {
-        var d = targetMs - actual;
-        if (d >= 0) { el.diff.textContent = '剩余 ' + fmt(d); el.diff.className = 'm-diff ok'; }
-        else { el.diff.textContent = '超时 ' + fmt(-d); el.diff.className = 'm-diff bad'; }
-        el.fill.style.width = Math.min(actual / targetMs, 1) * 100 + '%';
-      } else {
-        el.diff.textContent = '未设置目标'; el.diff.className = 'm-diff';
-        el.fill.style.width = actual > 0 ? '100%' : '0%';
-      }
-
-      if (fullScore > 0) {
-        var pct = score / fullScore;
-        el.badge.textContent = score.toFixed(1) + ' / ' + fullScore.toFixed(1);
-        el.badge.className = 'm-score-badge' + (pct >= 0.8 ? ' good' : pct < 0.5 ? ' bad' : '');
-      } else {
-        el.badge.textContent = '0';
-        el.badge.className = 'm-score-badge';
-      }
-
-      el.btn.textContent = running ? '暂停' : (actual >= 1000 ? '继续' : '开始');
-    });
-
-    var totalTargetEl  = document.getElementById(key + 'TotalTarget');
-    var totalTargetSub = document.getElementById(key + 'TotalTargetSub');
-    var totalActualEl  = document.getElementById(key + 'TotalActual');
-    var totalActualSub = document.getElementById(key + 'TotalActualSub');
-    var totalScoreEl   = document.getElementById(key + 'TotalScore');
-    var totalScoreSub  = document.getElementById(key + 'TotalScoreSub');
-    var totalDiffEl    = document.getElementById(key + 'TotalDiff');
-    var totalDiffSub   = document.getElementById(key + 'TotalDiffSub');
-    var totalFillEl    = document.getElementById(key + 'TotalFill');
-
-    totalTargetEl.textContent = fmt(tTarget);
-    totalTargetSub.textContent = tTarget > 0 ? '共 ' + (tTarget / 60000).toFixed(1) + ' 分钟' : '未设置目标';
-
-    totalActualEl.textContent = fmt(tActual);
-    totalActualSub.textContent = '共 ' + (tActual / 60000).toFixed(1) + ' 分钟';
-
-    totalScoreEl.textContent = tScore.toFixed(1);
-    totalScoreSub.textContent = '满分 ' + tFull.toFixed(1);
-
-    if (tTarget > 0) {
-      var diff = tTarget - tActual;
-      if (diff >= 0) {
-        totalDiffEl.textContent = '节省 ' + fmt(diff);
-        totalDiffEl.className = 'ov-value ok';
-        totalDiffSub.textContent = '剩余 ' + (diff / 60000).toFixed(1) + ' 分钟';
-      } else {
-        totalDiffEl.textContent = '超出 ' + fmt(-diff);
-        totalDiffEl.className = 'ov-value bad';
-        totalDiffSub.textContent = '多用了 ' + (-diff / 60000).toFixed(1) + ' 分钟';
-      }
-      totalFillEl.style.width = Math.min(tActual / tTarget, 1) * 100 + '%';
-      totalFillEl.classList.toggle('over', tActual > tTarget);
+function updateTabs() {
+  document.querySelectorAll('.tab').forEach(btn => {
+    const key = btn.getAttribute('data-tab');
+    btn.classList.toggle('active', key === state.active);
+    if (key === 'practice') {
+      btn.classList.toggle('timing', practiceTimer.running);
     } else {
-      totalDiffEl.textContent = '--';
-      totalDiffEl.className = 'ov-value';
-      totalDiffSub.innerHTML = '&nbsp;';
-      totalFillEl.style.width = '0%';
-      totalFillEl.classList.remove('over');
-    }
-
-    renderAdvice(key, tScore, tFull);
-  }
-
-  function updateTabs() {
-    document.querySelectorAll('.tab').forEach(function (btn) {
-      var key = btn.getAttribute('data-tab');
-      btn.classList.toggle('active', key === state.active);
       btn.classList.toggle('timing', timer.key === key);
-    });
+    }
+  });
+}
+
+function updatePage(key, now) {
+  if (state.data[key].modules.some(m => !els[key][m.id])) return;
+
+  let tTarget = 0, tActual = 0, tScore = 0, tFull = 0;
+  let totalOverdueMs = 0;
+
+  state.data[key].modules.forEach(m => {
+    const el = els[key][m.id];
+    if (!el) return;
+    const running = (timer.key === key && timer.id === m.id);
+    const actual = m.actual + (running ? now - timer.startTs : 0);
+    const targetMs = m.target * 60000;
+    const fullScore = calcFullScore(m);
+    const score = calcScore(m);
+
+    tTarget += targetMs;
+    tActual += actual;
+    tScore += score;
+    tFull += fullScore;
+
+    if (targetMs > 0 && actual > targetMs) {
+      totalOverdueMs += actual - targetMs;
+    }
+
+    el.time.textContent = fmt(actual);
+
+    const over = targetMs > 0 && actual > targetMs;
+    el.root.classList.toggle('active', running);
+    el.root.classList.toggle('over', over);
+
+    if (targetMs > 0) {
+      const d = targetMs - actual;
+      if (d >= 0) { el.diff.textContent = '剩余 ' + fmt(d); el.diff.className = 'm-diff ok'; }
+      else { el.diff.textContent = '超时 ' + fmt(-d); el.diff.className = 'm-diff bad'; }
+      el.fill.style.width = Math.min(actual / targetMs, 1) * 100 + '%';
+    } else {
+      el.diff.textContent = '未设置目标'; el.diff.className = 'm-diff';
+      el.fill.style.width = actual > 0 ? '100%' : '0%';
+    }
+
+    if (fullScore > 0) {
+      const pct = score / fullScore;
+      el.badge.textContent = score.toFixed(1) + ' / ' + fullScore.toFixed(1);
+      el.badge.className = 'm-score-badge' + (pct >= 0.8 ? ' good' : pct < 0.5 ? ' bad' : '');
+    } else {
+      el.badge.textContent = '0';
+      el.badge.className = 'm-score-badge';
+    }
+    el.btn.textContent = running ? '暂停' : (actual >= 1000 ? '继续' : '开始');
+  });
+
+  /* 涂卡时间 */
+  const examTotalMs = (state.examTotal[key] || 0) * 60000;
+  const theoreticalBufferMs = examTotalMs - tTarget;
+  const actualBufferMs = theoreticalBufferMs - totalOverdueMs;
+  const isOvertime = examTotalMs > 0 && tActual > examTotalMs;
+
+  const bufferEl = document.getElementById(key + 'BufferTime');
+  const bufferSubEl = document.getElementById(key + 'BufferTimeSub');
+  const totalTargetMinEl = document.getElementById(key + 'TotalTargetMinutes');
+  const totalTargetMinSubEl = document.getElementById(key + 'TotalTargetMinutesSub');
+  const overtimeBannerEl = document.getElementById(key + 'OvertimeBanner');
+  const overtimeAmountEl = document.getElementById(key + 'OvertimeAmount');
+
+  if (totalTargetMinEl) {
+    totalTargetMinEl.textContent = Math.round(tTarget / 60000) + ' 分钟';
+    totalTargetMinSubEl.textContent = '目标合计';
   }
 
-  /* ============ 智能建议（含得分分析） ============ */
-  function renderAdvice(key, totalScore, totalFull) {
-    var container = document.getElementById(key + 'Advice');
-    var modules = state.data[key].modules;
-    if (!modules.length) { container.innerHTML = ''; return; }
-
-    var filled = modules.filter(function (m) { return m.actual > 0; }).length;
-
-    if (filled < modules.length) {
-      var k0 = 'inc:' + filled + '/' + modules.length;
-      if (k0 === adviceCache[key]) return;
-      adviceCache[key] = k0;
-      container.innerHTML =
-        '<div class="advice">' +
-          '<div class="advice-title">📊 智能分析</div>' +
-          '<div class="advice-empty">还有 <b>' + (modules.length - filled) + '</b> 个模块没有填写用时。<br>' +
-          '把全部用时填好后，这里会自动生成针对性的节奏分析建议。</div>' +
-        '</div>';
-      return;
-    }
-
-    var cacheKey = modules.map(function (m) {
-      return m.id + '|' + m.name + '|' + m.target + '|' + Math.floor(m.actual / 1000) + '|' + m.correctQ + '|' + m.totalQ;
-    }).join(';') + '|' + totalScore.toFixed(1);
-    if (cacheKey === adviceCache[key]) return;
-    adviceCache[key] = cacheKey;
-
-    var stats = modules.map(function (m) {
-      var targetMs = m.target * 60000;
-      var fullScore = calcFullScore(m);
-      var score = calcScore(m);
-      return {
-        name: m.name || '未命名模块',
-        targetMs: targetMs,
-        actualMs: m.actual,
-        targetMin: m.target,
-        actualMin: m.actual / 60000,
-        hasTarget: m.target > 0,
-        diffMs: m.target > 0 ? m.actual - targetMs : 0,
-        ratio: m.target > 0 ? m.actual / targetMs : 0,
-        totalQ: m.totalQ,
-        correctQ: m.correctQ,
-        perScore: m.perScore,
-        fullScore: fullScore,
-        score: score,
-        accuracy: m.totalQ > 0 ? m.correctQ / m.totalQ : 0
-      };
-    });
-
-    var totalTargetMs = stats.reduce(function (a, s) { return a + s.targetMs; }, 0);
-    var totalActualMs = stats.reduce(function (a, s) { return a + s.actualMs; }, 0);
-    var allHaveTarget = stats.every(function (s) { return s.hasTarget; });
-    var totalDiffMs = totalActualMs - totalTargetMs;
-
-    var list = [];
-    var mentioned = {};
-    function add(type, text, k) {
-      if (k) { if (mentioned[k]) return; mentioned[k] = true; }
-      list.push({ type: type, text: text });
-    }
-
-    var summary, summaryCls;
-    if (allHaveTarget && totalTargetMs > 0) {
-      var timePart = totalDiffMs > 0
-        ? '总用时 <b>' + fmt(totalActualMs) + '</b>，比总目标多用了 <b>' + fmt(totalDiffMs) + '</b>，节奏偏慢。'
-        : '总用时 <b>' + fmt(totalActualMs) + '</b>，比总目标节省了 <b>' + fmt(-totalDiffMs) + '</b>，节奏控制得不错。';
-      var scorePart = totalFull > 0
-        ? '预估得分 <b>' + totalScore.toFixed(1) + '</b> / ' + totalFull.toFixed(1) + '（' + (totalScore / totalFull * 100).toFixed(1) + '%）。'
-        : '';
-      summary = timePart + scorePart;
-      summaryCls = totalDiffMs > 0 ? 'bad' : 'ok';
+  if (bufferEl) {
+    if (examTotalMs === 0) {
+      bufferEl.textContent = '--:--';
+      bufferEl.className = 'val';
+      bufferSubEl.textContent = '请填写考试总时间';
+    } else if (actualBufferMs >= 0) {
+      bufferEl.textContent = fmt(actualBufferMs);
+      bufferEl.className = 'val ok';
+      if (totalOverdueMs > 0) {
+        bufferSubEl.textContent = '已扣除超时 ' + fmt(totalOverdueMs);
+      } else {
+        bufferSubEl.textContent = '理论 ' + fmt(theoreticalBufferMs);
+      }
     } else {
-      summary = '总用时 <b>' + fmt(totalActualMs) + '</b>。部分模块没有设置目标时间，以下是分析。';
-      summaryCls = 'neutral';
+      bufferEl.textContent = '-' + fmt(-actualBufferMs);
+      bufferEl.className = 'val bad';
+      bufferSubEl.textContent = '涂卡时间已用完';
     }
+  }
 
-    var overs = stats.filter(function (s) { return s.hasTarget && s.diffMs > 0; })
-                     .sort(function (a, b) { return b.diffMs - a.diffMs; });
-    overs.slice(0, 2).forEach(function (s) {
-      var pct = Math.round((s.ratio - 1) * 100);
-      var st = matchStrategy(s.name);
-      var extra = st ? ' ' + st.tip : '';
-      add('warn', '「' + s.name + '」超时 <b>' + fmt(s.diffMs) + '</b>，实际用了 ' + fmt(s.actualMs) + '（目标 ' + s.targetMin + ' 分钟，多用约 ' + pct + '%）。' + extra, s.name);
-    });
-
-    var lowAcc = stats.filter(function (s) {
-      return s.totalQ > 0 && s.accuracy < 0.5 && !mentioned[s.name];
-    }).sort(function (a, b) { return a.accuracy - b.accuracy; });
-    lowAcc.slice(0, 2).forEach(function (s) {
-      add('warn', '「' + s.name + '」正确率仅 <b>' + (s.accuracy * 100).toFixed(0) + '%</b>（' + s.correctQ + '/' + s.totalQ + '），是得分短板，建议针对性加强。', s.name);
-    });
-
-    var highScore = stats.filter(function (s) {
-      return s.fullScore > 0 && s.score / s.fullScore >= 0.8 && !mentioned[s.name];
-    }).sort(function (a, b) { return b.score - a.score; });
-    highScore.slice(0, 1).forEach(function (s) {
-      add('ok', '「' + s.name + '」得分率 <b>' + (s.score / s.fullScore * 100).toFixed(0) + '%</b>（' + s.score.toFixed(1) + '/' + s.fullScore.toFixed(1) + '），是优势模块，继续保持。', s.name);
-    });
-
-    var near = stats.filter(function (s) {
-      return s.hasTarget && s.diffMs <= 0 && s.ratio >= 0.9 && !mentioned[s.name];
-    }).sort(function (a, b) { return b.ratio - a.ratio; });
-    near.slice(0, 1).forEach(function (s) {
-      add('tip', '「' + s.name + '」用时 ' + fmt(s.actualMs) + '，接近目标 ' + s.targetMin + ' 分钟，考场上要预留检查时间。', s.name);
-    });
-
-    var saves = stats.filter(function (s) { return s.hasTarget && s.diffMs < -60000; })
-                     .sort(function (a, b) { return a.diffMs - b.diffMs; });
-    if (saves.length) {
-      var s0 = saves[0];
-      add('ok', '「' + s0.name + '」比目标节省了 <b>' + fmt(-s0.diffMs) + '</b>，可补给吃紧的模块。', s0.name);
+  if (overtimeBannerEl) {
+    if (isOvertime) {
+      overtimeBannerEl.classList.add('show');
+      overtimeAmountEl.textContent = fmt(tActual - examTotalMs);
+    } else {
+      overtimeBannerEl.classList.remove('show');
     }
+  }
 
-    if (allHaveTarget && totalDiffMs > 0) {
-      var totalSaved = stats.reduce(function (a, s) { return a + (s.diffMs < 0 ? -s.diffMs : 0); }, 0);
-      if (totalSaved > 0) {
-        list.push({ type: 'tip', text: '各模块节省的时间合计 <b>' + fmt(totalSaved) + '</b>，全部补给超时模块后，总超时可压缩到 <b>' + fmt(Math.max(0, totalDiffMs - totalSaved)) + '</b>。' });
-      } else {
-        list.push({ type: 'tip', text: '没有任何模块节省出时间，建议从超时最多的模块下手，先砍掉 10%–15% 的用时。' });
-      }
+  /* 总览卡片 */
+  const totalTargetEl  = document.getElementById(key + 'TotalTarget');
+  const totalTargetSub = document.getElementById(key + 'TotalTargetSub');
+  const totalActualEl  = document.getElementById(key + 'TotalActual');
+  const totalActualSub = document.getElementById(key + 'TotalActualSub');
+  const totalScoreEl   = document.getElementById(key + 'TotalScore');
+  const totalScoreSub  = document.getElementById(key + 'TotalScoreSub');
+  const totalDiffEl    = document.getElementById(key + 'TotalDiff');
+  const totalDiffSub   = document.getElementById(key + 'TotalDiffSub');
+  const totalFillEl    = document.getElementById(key + 'TotalFill');
+
+  if (!totalTargetEl) return;
+
+  totalTargetEl.textContent = fmt(tTarget);
+  totalTargetSub.textContent = tTarget > 0 ? '共 ' + (tTarget / 60000).toFixed(1) + ' 分钟' : '未设置目标';
+  totalActualEl.textContent = fmt(tActual);
+  totalActualSub.textContent = '共 ' + (tActual / 60000).toFixed(1) + ' 分钟';
+  totalScoreEl.textContent = tScore.toFixed(1);
+  totalScoreSub.textContent = '满分 ' + tFull.toFixed(1);
+
+  if (tTarget > 0) {
+    const diff = tTarget - tActual;
+    if (diff >= 0) {
+      totalDiffEl.textContent = '节省 ' + fmt(diff);
+      totalDiffEl.className = 'ov-value ok';
+      totalDiffSub.textContent = '剩余 ' + (diff / 60000).toFixed(1) + ' 分钟';
+    } else {
+      totalDiffEl.textContent = '超出 ' + fmt(-diff);
+      totalDiffEl.className = 'ov-value bad';
+      totalDiffSub.textContent = '多用了 ' + (-diff / 60000).toFixed(1) + ' 分钟';
     }
+    totalFillEl.style.width = Math.min(tActual / tTarget, 1) * 100 + '%';
+    totalFillEl.classList.toggle('over', tActual > tTarget);
+  } else {
+    totalDiffEl.textContent = '--';
+    totalDiffEl.className = 'ov-value';
+    totalDiffSub.innerHTML = '&nbsp;';
+    totalFillEl.style.width = '0%';
+    totalFillEl.classList.remove('over');
+  }
 
-    stats.forEach(function (s) {
-      if (mentioned[s.name]) return;
-      var st = matchStrategy(s.name);
-      if (!st) return;
-      if (s.actualMin > st.ideal[1] + 2) {
-        add('warn', '「' + s.name + '」用了 ' + s.actualMin.toFixed(1) + ' 分钟，超出常见区间 ' + st.ideal[0] + '–' + st.ideal[1] + ' 分钟。' + st.tip, s.name);
-      } else if (s.actualMin > 0 && s.actualMin < st.ideal[0] - 2) {
-        add('tip', '「' + s.name + '」只用了 ' + s.actualMin.toFixed(1) + ' 分钟，比常见区间 ' + st.ideal[0] + '–' + st.ideal[1] + ' 分钟偏少，注意别牺牲正确率。', s.name);
-      }
-    });
+  renderAdvice(key, tScore, tFull);
+}
 
-    if (!list.length) add('ok', '各模块用时和得分都在合理范围内，保持这个节奏。');
+/* ============================================================
+   智能建议
+   ============================================================ */
+function renderAdvice(key, totalScore, totalFull) {
+  const container = document.getElementById(key + 'Advice');
+  if (!container) return;
+  const modules = state.data[key].modules;
+  if (!modules.length) { container.innerHTML = ''; return; }
 
-    if (list.length < 6) {
-      if (key === 'shenlun') {
-        list.push({ type: 'tip', text: '申论估分建议：小题按踩点给分，大作文按四类文估算（一类 30+，二类 24–30，三类 16–23，四类 0–15）。' });
-      } else {
-        list.push({ type: 'tip', text: '行测估分建议：国考不公布精确分值，以上分值按近年常见标准预设，可根据实际考试微调「分/题」。' });
-      }
+  const filled = modules.filter(m => m.actual > 0).length;
+  if (filled < modules.length) {
+    const k0 = 'inc:' + filled + '/' + modules.length;
+    if (k0 === adviceCache[key]) return;
+    adviceCache[key] = k0;
+    container.innerHTML =
+      '<div class="advice">' +
+        '<div class="advice-title">📊 智能分析</div>' +
+        '<div class="advice-empty">还有 <b>' + (modules.length - filled) + '</b> 个模块没有填写用时。<br>' +
+        '把全部用时填好后，这里会自动生成针对性的节奏分析建议。</div>' +
+      '</div>';
+    return;
+  }
+
+  const cacheKey = modules.map(m =>
+    m.id + '|' + m.name + '|' + m.target + '|' + Math.floor(m.actual / 1000) + '|' + m.correctQ + '|' + m.totalQ
+  ).join(';') + '|' + totalScore.toFixed(1);
+  if (cacheKey === adviceCache[key]) return;
+  adviceCache[key] = cacheKey;
+
+  const stats = modules.map(m => {
+    const targetMs = m.target * 60000;
+    const fullScore = calcFullScore(m);
+    const score = calcScore(m);
+    return {
+      name: m.name || '未命名模块',
+      targetMs, actualMs: m.actual, targetMin: m.target,
+      actualMin: m.actual / 60000,
+      hasTarget: m.target > 0,
+      diffMs: m.target > 0 ? m.actual - targetMs : 0,
+      ratio: m.target > 0 ? m.actual / targetMs : 0,
+      totalQ: m.totalQ, correctQ: m.correctQ, perScore: m.perScore,
+      fullScore, score,
+      accuracy: m.totalQ > 0 ? m.correctQ / m.totalQ : 0
+    };
+  });
+
+  const totalTargetMs = stats.reduce((a,s) => a + s.targetMs, 0);
+  const totalActualMs = stats.reduce((a,s) => a + s.actualMs, 0);
+  const allHaveTarget = stats.every(s => s.hasTarget);
+  const totalDiffMs = totalActualMs - totalTargetMs;
+
+  const list = [];
+  const mentioned = {};
+  function add(type, text, k) {
+    if (k) { if (mentioned[k]) return; mentioned[k] = true; }
+    list.push({ type, text });
+  }
+
+  let summary, summaryCls;
+  if (allHaveTarget && totalTargetMs > 0) {
+    const timePart = totalDiffMs > 0
+      ? '总用时 <b>' + fmt(totalActualMs) + '</b>，比总目标多用了 <b>' + fmt(totalDiffMs) + '</b>，节奏偏慢。'
+      : '总用时 <b>' + fmt(totalActualMs) + '</b>，比总目标节省了 <b>' + fmt(-totalDiffMs) + '</b>，节奏控制得不错。';
+    const scorePart = totalFull > 0
+      ? '预估得分 <b>' + totalScore.toFixed(1) + '</b> / ' + totalFull.toFixed(1) +
+        '（' + (totalScore / totalFull * 100).toFixed(1) + '%）。'
+      : '';
+    summary = timePart + scorePart;
+    summaryCls = totalDiffMs > 0 ? 'bad' : 'ok';
+  } else {
+    summary = '总用时 <b>' + fmt(totalActualMs) + '</b>。部分模块没有设置目标时间，以下是分析。';
+    summaryCls = 'neutral';
+  }
+
+  stats.filter(s => s.hasTarget && s.diffMs > 0)
+       .sort((a,b) => b.diffMs - a.diffMs)
+       .slice(0,2).forEach(s => {
+    const pct = Math.round((s.ratio - 1) * 100);
+    const st = matchStrategy(s.name);
+    add('warn', '「' + s.name + '」超时 <b>' + fmt(s.diffMs) + '</b>，实际用了 ' + fmt(s.actualMs) +
+      '（目标 ' + s.targetMin + ' 分钟，多用约 ' + pct + '%）。' + (st ? ' ' + st.tip : ''), s.name);
+  });
+
+  stats.filter(s => s.totalQ > 0 && s.accuracy < 0.5 && !mentioned[s.name])
+       .sort((a,b) => a.accuracy - b.accuracy)
+       .slice(0,2).forEach(s => {
+    add('warn', '「' + s.name + '」正确率仅 <b>' + (s.accuracy * 100).toFixed(0) + '%</b>（' +
+      s.correctQ + '/' + s.totalQ + '），是得分短板，建议针对性加强。', s.name);
+  });
+
+  stats.filter(s => s.fullScore > 0 && s.score / s.fullScore >= 0.8 && !mentioned[s.name])
+       .sort((a,b) => b.score - a.score)
+       .slice(0,1).forEach(s => {
+    add('ok', '「' + s.name + '」得分率 <b>' + (s.score / s.fullScore * 100).toFixed(0) + '%</b>（' +
+      s.score.toFixed(1) + '/' + s.fullScore.toFixed(1) + '），是优势模块，继续保持。', s.name);
+  });
+
+  stats.filter(s => s.hasTarget && s.diffMs <= 0 && s.ratio >= 0.9 && !mentioned[s.name])
+       .sort((a,b) => b.ratio - a.ratio)
+       .slice(0,1).forEach(s => {
+    add('tip', '「' + s.name + '」用时 ' + fmt(s.actualMs) + '，接近目标 ' + s.targetMin +
+      ' 分钟，考场上要预留检查时间。', s.name);
+  });
+
+  const saves = stats.filter(s => s.hasTarget && s.diffMs < -60000).sort((a,b) => a.diffMs - b.diffMs);
+  if (saves.length) {
+    add('ok', '「' + saves[0].name + '」比目标节省了 <b>' + fmt(-saves[0].diffMs) + '</b>，可补给吃紧的模块。', saves[0].name);
+  }
+
+  if (allHaveTarget && totalDiffMs > 0) {
+    const totalSaved = stats.reduce((a,s) => a + (s.diffMs < 0 ? -s.diffMs : 0), 0);
+    if (totalSaved > 0) {
+      list.push({ type: 'tip', text: '各模块节省的时间合计 <b>' + fmt(totalSaved) + '</b>，全部补给超时模块后，总超时可压缩到 <b>' + fmt(Math.max(0, totalDiffMs - totalSaved)) + '</b>。' });
+    } else {
+      list.push({ type: 'tip', text: '没有任何模块节省出时间，建议从超时最多的模块下手，先砍掉 10%–15% 的用时。' });
     }
+  }
 
-    var html = '<div class="advice">' +
+  stats.forEach(s => {
+    if (mentioned[s.name]) return;
+    const st = matchStrategy(s.name);
+    if (!st) return;
+    if (s.actualMin > st.ideal[1] + 2) {
+      add('warn', '「' + s.name + '」用了 ' + s.actualMin.toFixed(1) + ' 分钟，超出常见区间 ' +
+        st.ideal[0] + '–' + st.ideal[1] + ' 分钟。' + st.tip, s.name);
+    } else if (s.actualMin > 0 && s.actualMin < st.ideal[0] - 2) {
+      add('tip', '「' + s.name + '」只用了 ' + s.actualMin.toFixed(1) + ' 分钟，比常见区间 ' +
+        st.ideal[0] + '–' + st.ideal[1] + ' 分钟偏少，注意别牺牲正确率。', s.name);
+    }
+  });
+
+  if (!list.length) add('ok', '各模块用时和得分都在合理范围内，保持这个节奏。');
+
+  if (list.length < 6) {
+    if (key === 'shenlun') {
+      list.push({ type: 'tip', text: '申论估分建议：小题按踩点给分，大作文按四类文估算（一类 30+，二类 24–30，三类 16–23，四类 0–15）。' });
+    } else {
+      list.push({ type: 'tip', text: '行测估分建议：国考不公布精确分值，以上分值按近年常见标准预设，可根据实际考试微调「分/题」。' });
+    }
+  }
+
+  container.innerHTML =
+    '<div class="advice">' +
       '<div class="advice-title">📊 智能分析</div>' +
       '<div class="advice-summary ' + summaryCls + '">' + summary + '</div>' +
       '<ul class="advice-list">' +
-        list.slice(0, 7).map(function (it) {
-          return '<li class="' + it.type + '">' + it.text + '</li>';
-        }).join('') +
+        list.slice(0, 7).map(it => '<li class="' + it.type + '">' + it.text + '</li>').join('') +
       '</ul>' +
     '</div>';
+}
 
-    container.innerHTML = html;
+/* ============================================================
+   标签切换 & 启动
+   ============================================================ */
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.getAttribute('data-tab');
+    if (state.active === key) return;
+    state.active = key;
+    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === key));
+    document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + key));
+    save();
+    update();
+  });
+});
+
+async function init() {
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS user_data_v2 (
+        user_id TEXT PRIMARY KEY,
+        password_hash TEXT NOT NULL,
+        data TEXT NOT NULL,
+        updated_at BIGINT NOT NULL
+      )
+    `;
+    neonReady = true;
+    console.log('✓ 数据库连接成功，表已就绪');
+  } catch (err) {
+    console.error('建表失败，详情：', err);
+    neonReady = false;
+    alert(
+      '云端连接失败\n\n' +
+      '错误信息：' + (err && err.message ? err.message : String(err)) + '\n\n' +
+      '常见原因：\n' +
+      '1. DATABASE_URL 不正确或密码已重置\n' +
+      '2. Neon 项目被暂停\n' +
+      '3. 网络问题\n\n' +
+      '仍可继续离线使用。'
+    );
   }
 
-  /* ============ 标签切换 ============ */
-  function bindTabs() {
-    document.querySelectorAll('.tab').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var key = btn.getAttribute('data-tab');
-        if (state.active === key) return;
-        state.active = key;
-        document.querySelectorAll('.tab').forEach(function (b) {
-          b.classList.toggle('active', b.getAttribute('data-tab') === key);
-        });
-        document.querySelectorAll('.page').forEach(function (p) {
-          p.classList.toggle('active', p.id === 'page-' + key);
-        });
-        save(); update();
-      });
-    });
+  loadFromLocal();
+
+  if (authUser && authPwdHash && neonReady) {
+    const got = await loadFromCloud();
+    if (got) {
+      save.__quiet = true;
+      save(true);
+      save.__quiet = false;
+      setTimeout(() => showToast('✓ 已自动登录并恢复数据'), 300);
+    } else {
+      authUser = null;
+      authPwdHash = null;
+      localStorage.removeItem('gongkao-auth');
+    }
   }
 
-  /* ============ 启动 ============ */
-  load();
   buildPage('xingce');
   buildPage('shenlun');
+  buildPracticePage();
+  updateAuthBar();
 
-  document.querySelectorAll('.tab').forEach(function (b) {
+  document.querySelectorAll('.tab').forEach(b => {
     b.classList.toggle('active', b.getAttribute('data-tab') === state.active);
   });
-  document.querySelectorAll('.page').forEach(function (p) {
+  document.querySelectorAll('.page').forEach(p => {
     p.classList.toggle('active', p.id === 'page-' + state.active);
   });
 
-  bindTabs();
+  updatePracticeTimerUI();
   update();
+}
 
-  if (restoredFromSave) {
-    setTimeout(function () { showToast('✓ 已恢复上次数据'); }, 300);
+init();
+
+setInterval(() => {
+  if (state.active === 'practice' || practiceTimer.running) {
+    updatePracticeTimerUI();
   }
+  update();
+}, 200);
 
-  if (!storage.anyAvailable) {
-    document.getElementById('storageWarn').classList.add('show');
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    save.__quiet = true; save(true); save.__quiet = false;
   }
-
-  setInterval(update, 100);
-
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'hidden') {
-      save.__quiet = true; save(true); save.__quiet = false;
-    }
-  });
-
-  window.addEventListener('beforeunload', function () {
-    settle(); save.__quiet = true; save(true);
-  });
-})();
+});
+window.addEventListener('beforeunload', () => {
+  settle();
+  if (practiceTimer.running) {
+    state.practice.actual += Date.now() - practiceTimer.startTs;
+  }
+  save.__quiet = true; save(true);
+});
 </script>
 </body>
 </html>
