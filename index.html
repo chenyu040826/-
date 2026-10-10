@@ -9,9 +9,9 @@
   :root{--bg:#f4f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e6e9f0;--primary:#3b82f6;--ok:#10b981;--warn:#f59e0b;--danger:#ef4444;}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:26px 16px 64px;}
   .app{max-width:960px;margin:0 auto;position:relative;}
-  .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:#10b981;color:#fff;padding:10px 22px;border-radius:999px;font-size:13px;font-weight:600;z-index:999;box-shadow:0 6px 20px rgba(16,185,129,.3);transition:transform .35s cubic-bezier(.18,.89,.32,1.28);pointer-events:none;white-space:nowrap;}
+  .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:#10b981;color:#fff;padding:10px 22px;border-radius:999px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 6px 20px rgba(16,185,129,.3);transition:transform .35s cubic-bezier(.18,.89,.32,1.28);pointer-events:none;white-space:nowrap;}
   .toast.show{transform:translateX(-50%) translateY(0);}
-  .toast.warn{background:#f59e0b;box-shadow:0 6px 20px rgba(245,158,11,.3);}
+  .toast.warn{background:#f59e0b;}
   header{text-align:center;margin-bottom:16px;}
   header h1{font-size:22px;font-weight:700;letter-spacing:.5px;}
   header p{color:var(--muted);font-size:13px;margin-top:6px;}
@@ -22,18 +22,21 @@
   .auth-bar .auth-text .name{color:#1d4ed8;font-weight:700;}
   .auth-bar .auth-btn{background:#fff;border:1px solid currentColor;color:inherit;padding:6px 14px;border-radius:9px;font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:600;}
   .quick-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
-  .quick-bar .btn{flex:1;min-width:110px;}
+  .quick-bar .btn{flex:1;min-width:100px;}
   .tip-bar{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;border-radius:12px;padding:10px 14px;font-size:12.5px;line-height:1.7;margin-bottom:18px;display:flex;align-items:flex-start;gap:8px;}
   .tip-bar b{color:#1d4ed8;}
   .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px;}
   .modal-overlay.show{display:flex;}
-  .modal-box{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+  .modal-box{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.25);}
   .modal-title{font-size:19px;font-weight:700;margin-bottom:6px;}
   .modal-desc{font-size:12.5px;color:var(--muted);margin-bottom:18px;line-height:1.6;}
   .modal-field{display:block;margin-bottom:14px;}
   .modal-field span{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:600;}
-  .modal-field input{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;}
-  .modal-field input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
+  .modal-field input,
+  .modal-field textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;resize:vertical;}
+  .modal-field textarea{min-height:90px;line-height:1.6;}
+  .modal-field input:focus,
+  .modal-field textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
   .modal-error{color:var(--danger);font-size:12.5px;margin-bottom:12px;min-height:18px;}
   .modal-actions{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
   .modal-actions .btn{flex:1;min-width:90px;}
@@ -86,7 +89,7 @@
   .m-target input{width:48px;padding:4px 5px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;text-align:center;font-family:inherit;color:var(--text);background:#fff;-moz-appearance:textfield;}
   .m-target input::-webkit-outer-spin-button,
   .m-target input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
-  .m-time{font-size:34px;font-weight:700;line-height:1.1;letter-spacing:.5px;}
+  .m-time{font-size:34px;font-weight:700;line-height:1.1;}
   .module.active .m-time{color:var(--primary);}
   .module.over .m-time{color:var(--danger);}
   .m-diff{font-size:12px;color:var(--muted);}
@@ -114,7 +117,7 @@
   .fill-btns{display:flex;gap:6px;}
   .fill-btns .btn{flex:1;}
   .fill-hint{font-size:11px;color:var(--muted);line-height:1.6;}
-  .btn{border:1px solid var(--line);background:#fff;color:var(--text);border-radius:10px;padding:9px 14px;font-size:13.5px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .btn{border:1px solid var(--line);background:#fff;color:var(--text);border-radius:10px;padding:9px 14px;font-size:13.5px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.15s;}
   .btn:active{transform:scale(.97);}
   .btn-start{flex:1;background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
   .module.active .btn-start{background:var(--warn);border-color:var(--warn);}
@@ -122,6 +125,7 @@
   .btn-sm{padding:7px 12px;font-size:13px;border-radius:9px;}
   .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
   .btn-ghost{padding:6px 14px;font-size:13px;color:var(--muted);border-radius:9px;}
+  .btn-xs{padding:5px 10px;font-size:12px;border-radius:8px;}
   .advice{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-top:22px;}
   .advice-title{font-size:15px;font-weight:700;margin-bottom:12px;}
   .advice-summary{font-size:14px;line-height:1.75;padding:11px 13px;border-radius:11px;margin-bottom:13px;}
@@ -136,8 +140,9 @@
   .advice-list li.tip::before{content:'💡';}
   .advice-list b{color:var(--danger);}
   .advice-list li.ok b{color:var(--ok);}
-  .advice-empty{font-size:13.5px;color:var(--muted);line-height:1.7;}
+  .advice-empty{font-size:13.5px;color:var(--muted);line-height:1.7;padding:16px;background:#fff;border-radius:14px;border:1px solid #e6e9f0;}
   .advice-empty b{color:var(--primary);}
+  /* 练习卡片 */
   .practice-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px;}
   .practice-select-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .practice-select-row label{font-size:13px;font-weight:600;color:var(--muted);}
@@ -148,12 +153,27 @@
   .practice-form label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted);font-weight:600;}
   .practice-form input{padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;}
   .practice-form label.full-width{grid-column:1 / -1;}
+  /* 历史筛选栏 */
+  .filter-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid var(--line);border-radius:12px;margin-bottom:12px;}
+  .filter-bar .filter-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);}
+  .filter-bar select,
+  .filter-bar input[type="date"]{padding:6px 9px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;font-family:inherit;color:var(--text);background:#fff;}
+  .filter-bar select:focus,
+  .filter-bar input[type="date"]:focus{outline:none;border-color:var(--primary);}
+  .filter-bar .filter-count{margin-left:auto;font-size:12px;color:var(--primary);font-weight:600;}
+  .filter-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+  .chip{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;transition:.15s;font-family:inherit;}
+  .chip.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+  .chip:hover:not(.active){background:#f3f4f6;}
+  /* 历史记录 */
   .history-item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:10px;}
   .history-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
   .history-name{font-size:14px;font-weight:700;}
   .history-date{font-size:12px;color:var(--muted);}
   .history-detail{font-size:12.5px;color:var(--muted);line-height:1.6;}
   .history-source{font-size:12.5px;color:#1e40af;background:#eff6ff;padding:6px 10px;border-radius:8px;margin-top:8px;line-height:1.5;word-break:break-all;}
+  .history-note{font-size:12.5px;color:#7c2d12;background:#fff7ed;border:1px dashed #fdba74;padding:8px 10px;border-radius:8px;margin-top:8px;line-height:1.6;white-space:pre-wrap;word-break:break-word;}
+  .history-note .note-label{font-weight:700;color:#9a3412;}
   .history-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
   .history-actions .btn{font-size:12.5px;padding:6px 12px;}
   .history-table{width:100%;margin-top:10px;border-collapse:collapse;font-size:12.5px;}
@@ -166,6 +186,7 @@
   .history-table th:nth-child(2),
   .history-table th:nth-child(3),
   .history-table th:nth-child(4){text-align:right;}
+  .history-group-title{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin:16px 0 8px;padding-left:6px;border-left:3px solid var(--primary);}
   @media (max-width:420px){
     body{padding:18px 12px 50px;}
     .m-time{font-size:28px;}
@@ -176,6 +197,7 @@
     .tab{font-size:12px;padding:10px 4px;}
     .history-table th,
     .history-table td{padding:5px 4px;}
+    .filter-bar .filter-item{font-size:11.5px;}
   }
 </style>
 </head>
@@ -210,6 +232,22 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="noteModal">
+    <div class="modal-box">
+      <div class="modal-title">复盘备注</div>
+      <div class="modal-desc" id="noteModalDesc"></div>
+      <label class="modal-field">
+        <span>备注内容</span>
+        <textarea id="noteTextarea" placeholder="记录错题原因、薄弱知识点、下次改进方向……"></textarea>
+      </label>
+      <div class="modal-actions" style="margin-top:10px;">
+        <button class="btn" id="noteCancelBtn" type="button">取消</button>
+        <button class="btn" id="noteClearBtn" type="button">清空备注</button>
+        <button class="btn btn-primary" id="noteSaveBtn" type="button">保存备注</button>
+      </div>
+    </div>
+  </div>
+
   <header>
     <h1>公考模块计时器 · 云端版</h1>
     <p>离线可用 · 登录后数据自动同步到云端</p>
@@ -228,7 +266,7 @@
 
   <div class="tip-bar">
     <span>💾</span>
-    <span><b>未登录</b>：数据保存在本浏览器。<b>登录后</b>：自动同步到云端。历史记录会立即写入，不会再丢。</span>
+    <span><b>未登录</b>：数据保存在本浏览器。<b>登录后</b>：自动同步到云端。历史记录不设条数上限。</span>
   </div>
 
   <div class="tabs" id="tabs">
@@ -263,11 +301,10 @@ try {
 const GUEST_KEY = 'gongkao-timer-guest';
 const getLocalKey = () => authUser ? ('gongkao-timer-user:' + authUser) : GUEST_KEY;
 
-const storage = (() => {
-  const setItem = (k, v) => { try { localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v)); return true; } catch(e){ return false; } };
-  const getItem = (k) => { try { return localStorage.getItem(k); } catch(e){ return null; } };
-  return { setItem, getItem };
-})();
+const storage = {
+  setItem: (k, v) => { try { localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v)); return true; } catch(e){ return false; } },
+  getItem: (k) => { try { return localStorage.getItem(k); } catch(e){ return null; } }
+};
 
 const DEFAULT_DATA = {
   xingce: {
@@ -325,12 +362,17 @@ let state = {
   practice: buildDefaultPractice()
 };
 
+/* 历史筛选状态 */
+const examFilter = { xingce: { time: 'all', start: '', end: '' }, shenlun: { time: 'all', start: '', end: '' } };
+const practiceFilter = { time: 'all', start: '', end: '', module: 'all' };
+
 const timer = { key: null, id: null, startTs: 0 };
 const practiceTimer = { running: false, startTs: 0 };
 const els = { xingce: {}, shenlun: {} };
 const adviceCache = { xingce: '', shenlun: '' };
 let saveTimer = null;
 let saveResetPending = null;
+let noteEditing = null; // { kind: 'exam'|'practice', id: 'xxx' }
 
 function fmt(ms) {
   ms = Math.max(0, ms || 0);
@@ -344,6 +386,10 @@ function fmt(ms) {
 function formatDate(ts) {
   const d = new Date(ts), pad = n => (n < 10 ? '0' + n : '' + n);
   return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+function dateKey(ts) {
+  const d = new Date(ts), pad = n => (n < 10 ? '0' + n : '' + n);
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
 }
 const findModule = (key, id) => state.data[key].modules.find(m => m.id === id);
 const calcScore = (m) => (m.totalQ > 0 && m.perScore > 0) ? Math.min(m.correctQ, m.totalQ) * m.perScore : 0;
@@ -364,6 +410,21 @@ async function hashPassword(str) {
 }
 const escapeHtml = (str) => String(str || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
+/* 时间筛选 */
+function matchTimeFilter(ts, filter) {
+  const now = Date.now();
+  if (filter.time === 'all') return true;
+  if (filter.time === 'today') return dateKey(ts) === dateKey(now);
+  if (filter.time === 'week') return ts >= now - 7 * 24 * 3600 * 1000;
+  if (filter.time === 'month') return ts >= now - 30 * 24 * 3600 * 1000;
+  if (filter.time === 'custom') {
+    const s = filter.start ? new Date(filter.start + 'T00:00:00').getTime() : 0;
+    const e = filter.end ? new Date(filter.end + 'T23:59:59').getTime() : Infinity;
+    return ts >= s && ts <= e;
+  }
+  return true;
+}
+
 function updateAuthBar() {
   const bar = document.getElementById('authBar'), text = document.getElementById('authText'), btn = document.getElementById('authActionBtn');
   if (authUser) {
@@ -377,55 +438,32 @@ function updateAuthBar() {
   }
 }
 
-/* ============ 保存核心：必须包含所有字段 ============ */
+/* ============ 保存 / 加载 ============ */
 function buildPayload() {
   return {
-    v: 3,
-    active: state.active,
-    data: state.data,
-    examTotal: state.examTotal,
-    examHistory: state.examHistory,
-    practiceHistory: state.practiceHistory,
-    practice: state.practice,
-    savedAt: Date.now()
+    v: 3, active: state.active, data: state.data, examTotal: state.examTotal,
+    examHistory: state.examHistory, practiceHistory: state.practiceHistory,
+    practice: state.practice, savedAt: Date.now()
   };
 }
-
-function writeLocalNow() {
-  return storage.setItem(getLocalKey(), buildPayload());
-}
-
+function writeLocalNow() { return storage.setItem(getLocalKey(), buildPayload()); }
 async function writeCloudNow() {
   if (!authUser || !authPwdHash || !neonReady) return;
   try {
     const json = JSON.stringify(buildPayload());
     const now = Date.now();
     await sql`UPDATE user_data_v2 SET data = ${json}, updated_at = ${now} WHERE user_id = ${authUser} AND password_hash = ${authPwdHash}`;
-  } catch (err) {
-    console.warn('云端保存失败（本地已保存）', err);
-  }
+  } catch (err) { console.warn('云端保存失败', err); }
 }
-
-/* 普通保存：300ms 防抖 */
 function save(immediate) {
   if (saveTimer) clearTimeout(saveTimer);
-  function doSave() {
-    const ok = writeLocalNow();
-    writeCloudNow();
-    if (ok && !save.__quiet) showToast('✓ 已保存');
-  }
-  if (immediate) doSave();
-  else saveTimer = setTimeout(doSave, 300);
+  function doSave() { const ok = writeLocalNow(); writeCloudNow(); if (ok && !save.__quiet) showToast('✓ 已保存'); }
+  if (immediate) doSave(); else saveTimer = setTimeout(doSave, 300);
 }
-
-/* 关键保存：立即写，不防抖 */
 function saveCritical() {
   if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
-  const ok = writeLocalNow();
-  writeCloudNow();
-  if (ok) showToast('✓ 已保存');
+  const ok = writeLocalNow(); writeCloudNow(); if (ok) showToast('✓ 已保存');
 }
-
 function applyData(data) {
   ['xingce','shenlun'].forEach(key => {
     if (!data[key] || !Array.isArray(data[key].modules)) return;
@@ -441,21 +479,18 @@ function applyData(data) {
     });
   });
 }
-
-/* 兼容所有历史格式；返回 savedAt 用于比较 */
 function readPayload(d) {
   if (!d || typeof d !== 'object') return null;
-  const result = { savedAt: d.savedAt || 0 };
-  if (d.data && (d.data.xingce || d.data.shenlun)) result.data = d.data;
-  else if (d.xingce || d.shenlun) result.data = d;
-  if (d.examTotal) result.examTotal = d.examTotal;
-  if (Array.isArray(d.examHistory)) result.examHistory = d.examHistory;
-  if (Array.isArray(d.practiceHistory)) result.practiceHistory = d.practiceHistory;
-  if (d.practice) result.practice = d.practice;
-  if (d.active) result.active = d.active;
-  return result;
+  const r = { savedAt: d.savedAt || 0 };
+  if (d.data && (d.data.xingce || d.data.shenlun)) r.data = d.data;
+  else if (d.xingce || d.shenlun) r.data = d;
+  if (d.examTotal) r.examTotal = d.examTotal;
+  if (Array.isArray(d.examHistory)) r.examHistory = d.examHistory;
+  if (Array.isArray(d.practiceHistory)) r.practiceHistory = d.practiceHistory;
+  if (d.practice) r.practice = d.practice;
+  if (d.active) r.active = d.active;
+  return r;
 }
-
 function mergePayload(p) {
   if (!p) return false;
   let got = false;
@@ -464,40 +499,29 @@ function mergePayload(p) {
     if (typeof p.examTotal.xingce === 'number') state.examTotal.xingce = p.examTotal.xingce;
     if (typeof p.examTotal.shenlun === 'number') state.examTotal.shenlun = p.examTotal.shenlun;
   }
-  /* 历史取更长的（更全） */
-  if (Array.isArray(p.examHistory) && p.examHistory.length >= state.examHistory.length) {
-    state.examHistory = p.examHistory;
-    got = true;
-  }
-  if (Array.isArray(p.practiceHistory) && p.practiceHistory.length >= state.practiceHistory.length) {
-    state.practiceHistory = p.practiceHistory;
-    got = true;
-  }
+  if (Array.isArray(p.examHistory) && p.examHistory.length >= state.examHistory.length) { state.examHistory = p.examHistory; got = true; }
+  if (Array.isArray(p.practiceHistory) && p.practiceHistory.length >= state.practiceHistory.length) { state.practiceHistory = p.practiceHistory; got = true; }
   if (p.practice) state.practice = p.practice;
   if (p.active) state.active = p.active;
   return got;
 }
-
 function loadFromLocal() {
   const raw = storage.getItem(getLocalKey());
   if (!raw) return false;
   try { return mergePayload(readPayload(JSON.parse(raw))); } catch(e){ return false; }
 }
-
 async function loadFromCloud() {
   if (!authUser || !authPwdHash || !neonReady) return false;
   try {
     const rows = await sql`SELECT data FROM user_data_v2 WHERE user_id = ${authUser} AND password_hash = ${authPwdHash}`;
-    if (rows && rows.length > 0 && rows[0].data) {
-      return mergePayload(readPayload(JSON.parse(rows[0].data)));
-    }
+    if (rows && rows.length > 0 && rows[0].data) return mergePayload(readPayload(JSON.parse(rows[0].data)));
   } catch (err) { console.warn('云端读取失败', err); }
   return false;
 }
 
-/* ============ 登录 / 注册 / 退出 ============ */
+/* ============ 登录 / 退出 ============ */
 async function doLogin(username, password) {
-  if (!neonReady) return { ok: false, error: '云端未连接，请稍后再试' };
+  if (!neonReady) return { ok: false, error: '云端未连接' };
   if (!username) return { ok: false, error: '请输入用户名' };
   if (!password || password.length < 4) return { ok: false, error: '密码至少 4 位' };
   const pwdHash = await hashPassword(username + ':' + password);
@@ -513,54 +537,31 @@ async function doLogin(username, password) {
     return { ok: true, isNew: false, pwdHash };
   } catch (err) { return { ok: false, error: '网络错误：' + (err.message || '未知') }; }
 }
-
 async function onLoginSuccess(username, pwdHash, isNew) {
-  /* 关键：切换 key 之前，先把当前数据（可能来自 guest）写入新 key */
   const backup = JSON.parse(JSON.stringify({
-    data: state.data,
-    examTotal: state.examTotal,
-    examHistory: state.examHistory,
-    practiceHistory: state.practiceHistory,
-    practice: state.practice,
-    savedAt: Date.now()
+    data: state.data, examTotal: state.examTotal,
+    examHistory: state.examHistory, practiceHistory: state.practiceHistory,
+    practice: state.practice
   }));
-
-  authUser = username;
-  authPwdHash = pwdHash;
+  authUser = username; authPwdHash = pwdHash;
   localStorage.setItem('gongkao-auth', JSON.stringify({ user: username, hash: pwdHash }));
-
-  if (isNew) {
-    /* 新用户：把本地数据上传 */
-    writeLocalNow();
-    writeCloudNow();
-    showToast('✓ 注册成功');
-  } else {
-    /* 老用户：先合并云端，保留更全的历史 */
-    state.examHistory = backup.examHistory;
-    state.practiceHistory = backup.practiceHistory;
+  if (isNew) { writeLocalNow(); writeCloudNow(); showToast('✓ 注册成功'); }
+  else {
+    state.examHistory = backup.examHistory; state.practiceHistory = backup.practiceHistory;
     await loadFromCloud();
-    /* 如果本地历史比云端多，恢复本地 */
     if (backup.examHistory.length > state.examHistory.length) state.examHistory = backup.examHistory;
     if (backup.practiceHistory.length > state.practiceHistory.length) state.practiceHistory = backup.practiceHistory;
-    saveCritical();
-    showToast('✓ 已同步');
+    saveCritical(); showToast('✓ 已同步');
   }
-
-  rebuildAllPages();
-  updateAuthBar();
+  rebuildAllPages(); updateAuthBar();
 }
-
 function onLogout() {
-  if (!confirm('确定退出登录？\n数据会保留在本地 guest 里，云端数据不会丢。')) return;
-  /* 退出前先把当前数据写到 guest */
+  if (!confirm('确定退出登录？\n数据会保留在本地 guest 里。')) return;
   const current = buildPayload();
-  authUser = null;
-  authPwdHash = null;
+  authUser = null; authPwdHash = null;
   localStorage.removeItem('gongkao-auth');
   storage.setItem(GUEST_KEY, current);
-  rebuildAllPages();
-  updateAuthBar();
-  showToast('已退出登录');
+  rebuildAllPages(); updateAuthBar(); showToast('已退出登录');
 }
 
 /* ============ 模态框 ============ */
@@ -576,16 +577,15 @@ document.getElementById('authActionBtn').addEventListener('click', () => { if (a
 document.getElementById('loginCancelBtn').addEventListener('click', () => loginModal.classList.remove('show'));
 loginModal.addEventListener('click', e => { if (e.target.id === 'loginModal') loginModal.classList.remove('show'); });
 document.getElementById('loginSubmitBtn').addEventListener('click', async () => {
-  const username = document.getElementById('loginUsername').value.trim();
-  const password = document.getElementById('loginPassword').value;
+  const u = document.getElementById('loginUsername').value.trim();
+  const p = document.getElementById('loginPassword').value;
   const errEl = document.getElementById('loginError'), btn = document.getElementById('loginSubmitBtn');
-  errEl.textContent = '';
-  btn.disabled = true; btn.textContent = '处理中…';
-  const r = await doLogin(username, password);
+  errEl.textContent = ''; btn.disabled = true; btn.textContent = '处理中…';
+  const r = await doLogin(u, p);
   btn.disabled = false; btn.textContent = '登录 / 注册';
   if (!r.ok) { errEl.textContent = r.error; return; }
   loginModal.classList.remove('show');
-  await onLoginSuccess(username, r.pwdHash, r.isNew);
+  await onLoginSuccess(u, r.pwdHash, r.isNew);
 });
 document.getElementById('loginUsername').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPassword').focus(); });
 document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginSubmitBtn').click(); });
@@ -600,9 +600,46 @@ document.getElementById('saveResetConfirmBtn').addEventListener('click', () => {
   saveResetModal.classList.remove('show');
   saveResetPending = null;
   doResetNow(key);
-  showToast('✓ 已保存到历史并重置');
+  showToast('✓ 已保存并重置');
 });
 document.getElementById('saveResetSourceInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('saveResetConfirmBtn').click(); });
+
+/* 备注模态框 */
+const noteModal = document.getElementById('noteModal');
+function openNoteModal(kind, id) {
+  noteEditing = { kind, id };
+  const rec = kind === 'exam' ? state.examHistory.find(x => x.id === id) : state.practiceHistory.find(x => x.id === id);
+  if (!rec) return;
+  const label = kind === 'exam'
+    ? ((rec.type === 'shenlun' ? '申论' : '行测') + ' · ' + formatDate(rec.date) + (rec.source ? ' · ' + rec.source : ''))
+    : (rec.moduleName + ' · ' + formatDate(rec.date) + (rec.source ? ' · ' + rec.source : ''));
+  document.getElementById('noteModalDesc').textContent = label;
+  document.getElementById('noteTextarea').value = rec.note || '';
+  noteModal.classList.add('show');
+  setTimeout(() => document.getElementById('noteTextarea').focus(), 100);
+}
+document.getElementById('noteCancelBtn').addEventListener('click', () => { noteModal.classList.remove('show'); noteEditing = null; });
+document.getElementById('noteClearBtn').addEventListener('click', () => {
+  document.getElementById('noteTextarea').value = '';
+});
+document.getElementById('noteSaveBtn').addEventListener('click', () => {
+  if (!noteEditing) return;
+  const text = document.getElementById('noteTextarea').value.trim();
+  if (noteEditing.kind === 'exam') {
+    const h = state.examHistory.find(x => x.id === noteEditing.id);
+    if (h) h.note = text;
+  } else {
+    const h = state.practiceHistory.find(x => x.id === noteEditing.id);
+    if (h) h.note = text;
+  }
+  noteModal.classList.remove('show');
+  noteEditing = null;
+  saveCritical();
+  /* 重新渲染对应历史 */
+  renderExamHistory('xingce'); renderExamHistory('shenlun'); renderPracticeHistory();
+  showToast('✓ 备注已保存');
+});
+noteModal.addEventListener('click', e => { if (e.target.id === 'noteModal') { noteModal.classList.remove('show'); noteEditing = null; } });
 
 /* ============ 手动读取 / 导出 / 导入 ============ */
 document.getElementById('manualLoadBtn').addEventListener('click', async () => {
@@ -613,10 +650,8 @@ document.getElementById('manualLoadBtn').addEventListener('click', async () => {
   if (authUser && authPwdHash && neonReady) cloudOk = await loadFromCloud();
   btn.disabled = false; btn.textContent = old;
   rebuildAllPages();
-  if (localOk || cloudOk) showToast('✓ 已读取');
-  else showToast('⚠️ 没有可读取的数据', 'warn');
+  if (localOk || cloudOk) showToast('✓ 已读取'); else showToast('⚠️ 没有可读取的数据', 'warn');
 });
-
 document.getElementById('exportBtn').addEventListener('click', () => {
   const p = buildPayload(); p.exportedAt = Date.now();
   const blob = new Blob([JSON.stringify(p, null, 2)], { type: 'application/json' });
@@ -625,11 +660,9 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   a.href = url;
   const now = new Date(), pad = n => (n < 10 ? '0' + n : '' + n);
   a.download = 'gongkao-backup-' + now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) + '-' + pad(now.getHours()) + pad(now.getMinutes()) + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
+  a.click(); URL.revokeObjectURL(url);
   showToast('✓ 已导出');
 });
-
 document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFileInput').click());
 document.getElementById('importFileInput').addEventListener('change', e => {
   const file = e.target.files && e.target.files[0];
@@ -640,9 +673,7 @@ document.getElementById('importFileInput').addEventListener('change', e => {
       const d = JSON.parse(ev.target.result);
       if (!confirm('确定用这个备份覆盖当前数据吗？')) return;
       mergePayload(readPayload(d));
-      saveCritical();
-      rebuildAllPages();
-      showToast('✓ 已导入');
+      saveCritical(); rebuildAllPages(); showToast('✓ 已导入');
     } catch (err) { alert('导入失败：' + err.message); }
     e.target.value = '';
   };
@@ -653,6 +684,7 @@ document.getElementById('importFileInput').addEventListener('change', e => {
 function buildPage(key) {
   const cfg = state.data[key];
   const pageEl = document.getElementById('page-' + key);
+  const flt = examFilter[key];
 
   let html = '';
   html += '<section class="exam-bar">' +
@@ -676,18 +708,47 @@ function buildPage(key) {
     '</div></div>';
   html += '<section class="modules" id="' + key + 'Modules"></section>';
   html += '<div id="' + key + 'Advice"></div>';
-  html += '<div class="section-head" style="margin-top:28px;"><h2>' + (key === 'shenlun' ? '申论' : '行测') + '历史记录</h2><button class="btn btn-ghost" data-clear-history="' + key + '">清空历史</button></div>';
+
+  /* 历史记录区标题 */
+  html += '<div class="section-head" style="margin-top:28px;"><h2>' + (key === 'shenlun' ? '申论' : '行测') + '历史记录</h2>' +
+    '<button class="btn btn-ghost" data-clear-history="' + key + '">清空历史</button></div>';
+
+  /* 筛选栏 */
+  html += '<div class="filter-bar">' +
+    '<div class="filter-item"><span>时间：</span>' +
+      '<select data-exam-time="' + key + '">' +
+        '<option value="all"' + (flt.time === 'all' ? ' selected' : '') + '>全部</option>' +
+        '<option value="today"' + (flt.time === 'today' ? ' selected' : '') + '>今天</option>' +
+        '<option value="week"' + (flt.time === 'week' ? ' selected' : '') + '>最近 7 天</option>' +
+        '<option value="month"' + (flt.time === 'month' ? ' selected' : '') + '>最近 30 天</option>' +
+        '<option value="custom"' + (flt.time === 'custom' ? ' selected' : '') + '>自定义</option>' +
+      '</select>' +
+    '</div>' +
+    '<div class="filter-item exam-custom-' + key + '" style="display:' + (flt.time === 'custom' ? 'flex' : 'none') + '">' +
+      '<input type="date" data-exam-start="' + key + '" value="' + (flt.start || '') + '"><span>~</span>' +
+      '<input type="date" data-exam-end="' + key + '" value="' + (flt.end || '') + '">' +
+    '</div>' +
+    '<div class="filter-count" id="' + key + 'HistoryCount"></div>' +
+  '</div>';
+
   html += '<div id="' + key + 'HistoryList"></div>';
 
   pageEl.innerHTML = html;
 
   const examTotalInput = document.getElementById(key + 'ExamTotal');
-  examTotalInput.addEventListener('input', () => {
-    const v = parseInt(examTotalInput.value, 10);
-    state.examTotal[key] = (isNaN(v) || v < 0) ? 0 : v;
-    save(); update();
-  });
+  examTotalInput.addEventListener('input', () => { const v = parseInt(examTotalInput.value, 10); state.examTotal[key] = (isNaN(v) || v < 0) ? 0 : v; save(); update(); });
   examTotalInput.addEventListener('blur', () => { examTotalInput.value = state.examTotal[key] || 0; save(true); });
+
+  /* 筛选栏事件 */
+  pageEl.querySelector('[data-exam-time="' + key + '"]').addEventListener('change', e => {
+    flt.time = e.target.value;
+    const customDiv = pageEl.querySelector('.exam-custom-' + key);
+    customDiv.style.display = flt.time === 'custom' ? 'flex' : 'none';
+    renderExamHistory(key);
+    save();
+  });
+  pageEl.querySelector('[data-exam-start="' + key + '"]').addEventListener('change', e => { flt.start = e.target.value; renderExamHistory(key); save(); });
+  pageEl.querySelector('[data-exam-end="' + key + '"]').addEventListener('change', e => { flt.end = e.target.value; renderExamHistory(key); save(); });
 
   const box = document.getElementById(key + 'Modules');
   els[key] = {};
@@ -786,20 +847,15 @@ function resetTargetsToDefault(key) {
   const defaults = DEFAULT_DATA[key].modules;
   if (!confirm('确定恢复「' + label + '」默认目标时间吗？\n\n' + defaults.map(m => m.name + ' ' + m.target + ' 分钟').join('\n'))) return;
   defaults.forEach(dm => { const m = findModule(key, dm.id); if (m) m.target = dm.target; });
-  saveCritical();
-  rebuildAllPages();
-  showToast('✓ 已恢复默认');
+  saveCritical(); rebuildAllPages(); showToast('✓ 已恢复默认');
 }
-
 function resetWithoutSave(key) {
   const hasData = state.data[key].modules.some(m => m.actual > 0 || m.correctQ > 0);
   if (!hasData) { doResetNow(key); showToast('✓ 已重置'); return; }
   const label = key === 'shenlun' ? '申论' : '行测';
   if (!confirm('确定清空当前' + label + '数据吗？无法恢复。')) return;
-  doResetNow(key);
-  showToast('✓ 已清空');
+  doResetNow(key); showToast('✓ 已清空');
 }
-
 function resetWithSave(key) {
   const hasData = state.data[key].modules.some(m => m.actual > 0 || m.correctQ > 0);
   if (!hasData) { doResetNow(key); showToast('✓ 无数据，已重置'); return; }
@@ -810,18 +866,23 @@ function resetWithSave(key) {
   saveResetModal.classList.add('show');
   setTimeout(() => document.getElementById('saveResetSourceInput').focus(), 100);
 }
-
 function doResetNow(key) {
   if (timer.key === key) { timer.key = null; timer.id = null; timer.startTs = 0; }
   state.data[key].modules.forEach(m => { m.actual = 0; m.correctQ = 0; });
-  saveCritical();
-  update();
-  renderExamHistory(key);
+  saveCritical(); update(); renderExamHistory(key);
 }
 
 /* ============ 单模块练习 ============ */
 function buildPracticePage() {
   const pageEl = document.getElementById('page-practice');
+  const flt = practiceFilter;
+
+  /* 生成模块分类 chips */
+  let chips = '<button class="chip' + (flt.module === 'all' ? ' active' : '') + '" data-practice-module="all">全部模块</button>';
+  [...DEFAULT_DATA.xingce.modules, ...DEFAULT_DATA.shenlun.modules].forEach(m => {
+    chips += '<button class="chip' + (flt.module === m.id ? ' active' : '') + '" data-practice-module="' + m.id + '">' + escapeHtml(m.name) + '</button>';
+  });
+
   let options = '<optgroup label="行测">';
   DEFAULT_DATA.xingce.modules.forEach(m => options += '<option value="' + m.id + '">' + escapeHtml(m.name) + '</option>');
   options += '</optgroup><optgroup label="申论">';
@@ -846,7 +907,26 @@ function buildPracticePage() {
         '<label class="full-width">题目出处<input type="text" id="practiceSource" placeholder="如：某机构模拟题第 3 套 · 第 21-40 题"></label>' +
       '</div>' +
       '<button class="btn btn-primary" id="practiceSaveBtn">💾 保存本次记录</button></div>' +
-    '<div class="section-head" style="margin-top:28px;"><h2>单模块练习历史</h2><button class="btn btn-ghost" id="clearPracticeHistory">清空历史</button></div>' +
+    '<div class="section-head" style="margin-top:28px;"><h2>单模块练习历史</h2>' +
+      '<button class="btn btn-ghost" id="clearPracticeHistory">清空历史</button></div>' +
+    /* 模块分类 chips */
+    '<div class="filter-chips" id="practiceChips">' + chips + '</div>' +
+    /* 时间筛选 */
+    '<div class="filter-bar">' +
+      '<div class="filter-item"><span>时间：</span>' +
+        '<select id="practiceTimeFilter">' +
+          '<option value="all"' + (flt.time === 'all' ? ' selected' : '') + '>全部</option>' +
+          '<option value="today"' + (flt.time === 'today' ? ' selected' : '') + '>今天</option>' +
+          '<option value="week"' + (flt.time === 'week' ? ' selected' : '') + '>最近 7 天</option>' +
+          '<option value="month"' + (flt.time === 'month' ? ' selected' : '') + '>最近 30 天</option>' +
+          '<option value="custom"' + (flt.time === 'custom' ? ' selected' : '') + '>自定义</option>' +
+        '</select></div>' +
+      '<div class="filter-item practice-custom-range" style="display:' + (flt.time === 'custom' ? 'flex' : 'none') + '">' +
+        '<input type="date" id="practiceStart" value="' + (flt.start || '') + '"><span>~</span>' +
+        '<input type="date" id="practiceEnd" value="' + (flt.end || '') + '">' +
+      '</div>' +
+      '<div class="filter-count" id="practiceHistoryCount"></div>' +
+    '</div>' +
     '<div id="practiceHistoryList"></div>';
 
   const selectEl = document.getElementById('practiceModuleSelect');
@@ -912,12 +992,29 @@ function buildPracticePage() {
   document.getElementById('practiceSaveBtn').addEventListener('click', savePracticeRecord);
   document.getElementById('clearPracticeHistory').addEventListener('click', () => {
     if (!state.practiceHistory.length) return;
-    if (!confirm('确定清空所有单模块历史吗？')) return;
+    if (!confirm('确定清空所有单模块历史吗？此操作无法恢复。')) return;
     state.practiceHistory = [];
-    saveCritical();
-    renderPracticeHistory();
-    showToast('✓ 已清空');
+    saveCritical(); renderPracticeHistory(); showToast('✓ 已清空');
   });
+
+  /* 模块分类 chips 事件 */
+  pageEl.querySelectorAll('[data-practice-module]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      practiceFilter.module = btn.getAttribute('data-practice-module');
+      pageEl.querySelectorAll('[data-practice-module]').forEach(b => b.classList.toggle('active', b === btn));
+      renderPracticeHistory();
+      save();
+    });
+  });
+
+  /* 时间筛选事件 */
+  document.getElementById('practiceTimeFilter').addEventListener('change', e => {
+    flt.time = e.target.value;
+    document.querySelector('.practice-custom-range').style.display = flt.time === 'custom' ? 'flex' : 'none';
+    renderPracticeHistory(); save();
+  });
+  document.getElementById('practiceStart').addEventListener('change', e => { flt.start = e.target.value; renderPracticeHistory(); save(); });
+  document.getElementById('practiceEnd').addEventListener('change', e => { flt.end = e.target.value; renderPracticeHistory(); save(); });
 
   renderPracticeHistory();
 }
@@ -946,9 +1043,10 @@ function savePracticeRecord() {
     totalQ: state.practice.totalQ || 0,
     correctQ: state.practice.correctQ || 0,
     perScore: state.practice.perScore || 0,
-    source: (state.practice.source || '').trim()
+    source: (state.practice.source || '').trim(),
+    note: ''
   });
-  if (state.practiceHistory.length > 200) state.practiceHistory = state.practiceHistory.slice(0, 200);
+  /* 不设上限 */
   saveCritical();
   renderPracticeHistory();
   showToast('✓ 已保存');
@@ -956,39 +1054,70 @@ function savePracticeRecord() {
 
 function renderPracticeHistory() {
   const box = document.getElementById('practiceHistoryList');
+  const countEl = document.getElementById('practiceHistoryCount');
   if (!box) return;
+
+  const flt = practiceFilter;
+  const list = state.practiceHistory.filter(h => {
+    if (flt.module !== 'all' && h.moduleId !== flt.module) return false;
+    if (!matchTimeFilter(h.date, flt)) return false;
+    return true;
+  });
+
+  if (countEl) countEl.textContent = '共 ' + list.length + ' 条';
+
   if (!state.practiceHistory.length) {
-    box.innerHTML = '<div class="advice-empty" style="padding:18px;background:#fff;border-radius:14px;border:1px solid #e6e9f0;">还没有记录。</div>';
+    box.innerHTML = '<div class="advice-empty">还没有单模块练习记录。每次练习后点"保存本次记录"就会出现在这里。</div>';
     return;
   }
+  if (!list.length) {
+    box.innerHTML = '<div class="advice-empty">当前筛选条件下没有记录。可以切换模块分类或调整时间范围。</div>';
+    return;
+  }
+
+  /* 按模块分组 */
+  const grouped = {};
+  list.forEach(h => {
+    if (!grouped[h.moduleName]) grouped[h.moduleName] = [];
+    grouped[h.moduleName].push(h);
+  });
+
   let html = '';
-  state.practiceHistory.forEach(h => {
-    const sc = h.correctQ * h.perScore;
-    const fs = h.totalQ * h.perScore;
-    const acc = h.totalQ > 0 ? (h.correctQ / h.totalQ * 100).toFixed(0) + '%' : '—';
-    html += '<div class="history-item">' +
-      '<div class="history-top"><span class="history-name">' + escapeHtml(h.moduleName) + '</span><span class="history-date">' + formatDate(h.date) + '</span></div>' +
-      '<div class="history-detail">用时 ' + fmt(h.actual) + ' · 题量 ' + h.totalQ + ' · 答对 ' + h.correctQ + ' · 正确率 ' + acc + ' · 得分 ' + (fs > 0 ? sc.toFixed(1) + '/' + fs.toFixed(1) : '—') + '</div>' +
-      (h.source ? '<div class="history-source">📝 ' + escapeHtml(h.source) + '</div>' : '') +
-      '<div class="history-actions"><button class="btn" onclick="window.restorePracticeHistory(\'' + h.id + '\')">继续此记录</button><button class="btn" onclick="window.deletePracticeHistory(\'' + h.id + '\')">删除</button></div></div>';
+  Object.keys(grouped).forEach(modName => {
+    html += '<div class="history-group-title">' + escapeHtml(modName) + ' · ' + grouped[modName].length + ' 条</div>';
+    grouped[modName].forEach(h => {
+      const sc = h.correctQ * h.perScore;
+      const fs = h.totalQ * h.perScore;
+      const acc = h.totalQ > 0 ? (h.correctQ / h.totalQ * 100).toFixed(0) + '%' : '—';
+      html += '<div class="history-item">' +
+        '<div class="history-top"><span class="history-name">' + escapeHtml(h.moduleName) + '</span><span class="history-date">' + formatDate(h.date) + '</span></div>' +
+        '<div class="history-detail">用时 ' + fmt(h.actual) + ' · 题量 ' + h.totalQ + ' · 答对 ' + h.correctQ + ' · 正确率 ' + acc + ' · 得分 ' + (fs > 0 ? sc.toFixed(1) + '/' + fs.toFixed(1) : '—') + '</div>' +
+        (h.source ? '<div class="history-source">📝 ' + escapeHtml(h.source) + '</div>' : '') +
+        (h.note ? '<div class="history-note"><span class="note-label">💭 复盘：</span>' + escapeHtml(h.note) + '</div>' : '') +
+        '<div class="history-actions">' +
+          '<button class="btn btn-xs" onclick="window.restorePracticeHistory(\'' + h.id + '\')">继续此记录</button>' +
+          '<button class="btn btn-xs" onclick="window.openPracticeNote(\'' + h.id + '\')">' + (h.note ? '编辑备注' : '加备注') + '</button>' +
+          '<button class="btn btn-xs" onclick="window.deletePracticeHistory(\'' + h.id + '\')">删除</button>' +
+        '</div></div>';
+    });
   });
   box.innerHTML = html;
 }
+
 window.restorePracticeHistory = function(id) {
   const h = state.practiceHistory.find(x => x.id === id);
   if (!h) return;
   if (!confirm('载入此记录？')) return;
   practiceTimer.running = false; practiceTimer.startTs = 0;
   state.practice = { currentId: h.moduleId, actual: h.actual, totalQ: h.totalQ, correctQ: h.correctQ, perScore: h.perScore, source: h.source };
-  rebuildAllPages();
-  showToast('✓ 已载入');
+  rebuildAllPages(); showToast('✓ 已载入');
 };
 window.deletePracticeHistory = function(id) {
   if (!confirm('确定删除？')) return;
   state.practiceHistory = state.practiceHistory.filter(x => x.id !== id);
-  saveCritical();
-  renderPracticeHistory();
+  saveCritical(); renderPracticeHistory();
 };
+window.openPracticeNote = function(id) { openNoteModal('practice', id); };
 
 /* ============ 套卷历史 ============ */
 function saveExamSnapshot(type, source) {
@@ -1000,21 +1129,32 @@ function saveExamSnapshot(type, source) {
   state.examHistory.unshift({
     id: 'h_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
     date: Date.now(), type, source: (source || '').trim(),
-    modules, totalTime, totalScore, totalFull
+    modules, totalTime, totalScore, totalFull, note: ''
   });
-  if (state.examHistory.length > 100) state.examHistory = state.examHistory.slice(0, 100);
-  /* 立即写本地，绝不等防抖 */
+  /* 不设上限 */
   saveCritical();
 }
 
 function renderExamHistory(type) {
   const box = document.getElementById(type + 'HistoryList');
+  const countEl = document.getElementById(type + 'HistoryCount');
   if (!box) return;
-  const list = state.examHistory.filter(h => h.type === type);
-  if (!list.length) {
-    box.innerHTML = '<div class="advice-empty" style="padding:16px;background:#fff;border-radius:14px;border:1px solid #e6e9f0;">还没有历史记录。重置时选"保存并重置"就会出现在这里。</div>';
+
+  const flt = examFilter[type];
+  const allList = state.examHistory.filter(h => h.type === type);
+  const list = allList.filter(h => matchTimeFilter(h.date, flt));
+
+  if (countEl) countEl.textContent = '共 ' + list.length + ' 条';
+
+  if (!allList.length) {
+    box.innerHTML = '<div class="advice-empty">还没有历史记录。重置时选"保存并重置"就会出现在这里。</div>';
     return;
   }
+  if (!list.length) {
+    box.innerHTML = '<div class="advice-empty">当前时间筛选条件下没有记录。</div>';
+    return;
+  }
+
   let html = '';
   list.forEach(h => {
     const acc = h.totalFull > 0 ? (h.totalScore / h.totalFull * 100).toFixed(0) + '%' : '—';
@@ -1029,11 +1169,17 @@ function renderExamHistory(type) {
       '<div class="history-top"><span class="history-name">' + (h.type === 'shenlun' ? '申论' : '行测') + ' · ' + formatDate(h.date) + '</span>' +
       '<span class="history-date">用时 ' + fmt(h.totalTime) + ' · 得分 ' + h.totalScore.toFixed(1) + '/' + h.totalFull.toFixed(1) + '（' + acc + '）</span></div>' +
       (h.source ? '<div class="history-source">📝 ' + escapeHtml(h.source) + '</div>' : '') +
+      (h.note ? '<div class="history-note"><span class="note-label">💭 复盘：</span>' + escapeHtml(h.note) + '</div>' : '') +
       '<table class="history-table"><thead><tr><th>模块</th><th>用时</th><th>对/总</th><th>得分</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-      '<div class="history-actions"><button class="btn" onclick="window.restoreExamHistory(\'' + h.id + '\')">调用此记录继续</button><button class="btn" onclick="window.deleteExamHistory(\'' + h.id + '\')">删除</button></div></div>';
+      '<div class="history-actions">' +
+        '<button class="btn btn-xs" onclick="window.restoreExamHistory(\'' + h.id + '\')">调用此记录继续</button>' +
+        '<button class="btn btn-xs" onclick="window.openExamNote(\'' + h.id + '\')">' + (h.note ? '编辑备注' : '加备注') + '</button>' +
+        '<button class="btn btn-xs" onclick="window.deleteExamHistory(\'' + h.id + '\')">删除</button>' +
+      '</div></div>';
   });
   box.innerHTML = html;
 }
+
 window.restoreExamHistory = function(id) {
   const h = state.examHistory.find(x => x.id === id);
   if (!h) return;
@@ -1050,9 +1196,7 @@ window.restoreExamHistory = function(id) {
     if (typeof sm.correctQ === 'number') m.correctQ = sm.correctQ;
   });
   state.active = h.type;
-  saveCritical();
-  rebuildAllPages();
-  showToast('✓ 已载入');
+  saveCritical(); rebuildAllPages(); showToast('✓ 已载入');
 };
 window.deleteExamHistory = function(id) {
   if (!confirm('确定删除？')) return;
@@ -1062,30 +1206,26 @@ window.deleteExamHistory = function(id) {
   saveCritical();
   if (type) renderExamHistory(type);
 };
+window.openExamNote = function(id) { openNoteModal('exam', id); };
 function clearExamHistory(type) {
   const list = state.examHistory.filter(h => h.type === type);
   if (!list.length) return;
   const label = type === 'shenlun' ? '申论' : '行测';
-  if (!confirm('确定清空所有' + label + '历史？')) return;
+  if (!confirm('确定清空所有' + label + '历史？此操作无法恢复。')) return;
   state.examHistory = state.examHistory.filter(h => h.type !== type);
-  saveCritical();
-  renderExamHistory(type);
-  showToast('✓ 已清空');
+  saveCritical(); renderExamHistory(type); showToast('✓ 已清空');
 }
 
 /* ============ 页面重建 ============ */
 function rebuildAllPages() {
   els.xingce = {}; els.shenlun = {};
-  buildPage('xingce');
-  buildPage('shenlun');
-  buildPracticePage();
+  buildPage('xingce'); buildPage('shenlun'); buildPracticePage();
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === state.active));
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + state.active));
-  updatePracticeTimerUI();
-  update();
+  updatePracticeTimerUI(); update();
 }
 
-/* ============ 计时控制 ============ */
+/* ============ 计时 ============ */
 function settle() {
   if (timer.key && timer.id) {
     const m = findModule(timer.key, timer.id);
@@ -1120,7 +1260,6 @@ function updateTabs() {
     btn.classList.toggle('timing', key === 'practice' ? practiceTimer.running : timer.key === key);
   });
 }
-
 function updatePage(key, now) {
   if (state.data[key].modules.some(m => !els[key][m.id])) return;
   let tTarget = 0, tActual = 0, tScore = 0, tFull = 0, totalOverdueMs = 0;
@@ -1154,25 +1293,21 @@ function updatePage(key, now) {
     } else { el.badge.textContent = '0'; el.badge.className = 'm-score-badge'; }
     el.btn.textContent = running ? '暂停' : (actual >= 1000 ? '继续' : '开始');
   });
-
   const examTotalMs = (state.examTotal[key] || 0) * 60000;
   const theoretical = examTotalMs - tTarget;
   const actualBuffer = theoretical - totalOverdueMs;
   const isOvertime = examTotalMs > 0 && tActual > examTotalMs;
   const bufferEl = document.getElementById(key + 'BufferTime');
-  const bufferSubEl = document.getElementById(key + 'BufferTimeSub');
   const ttEl = document.getElementById(key + 'TotalTargetMinutes');
   if (ttEl) ttEl.textContent = Math.round(tTarget / 60000) + ' 分钟';
   if (bufferEl) {
-    if (examTotalMs === 0) { bufferEl.textContent = '--:--'; bufferEl.className = 'val'; bufferSubEl.textContent = '请填写总时间'; }
+    if (examTotalMs === 0) { bufferEl.textContent = '--:--'; bufferEl.className = 'val'; document.getElementById(key + 'BufferTimeSub').textContent = '请填写总时间'; }
     else if (actualBuffer >= 0) {
-      bufferEl.textContent = fmt(actualBuffer);
-      bufferEl.className = 'val ok';
-      bufferSubEl.textContent = totalOverdueMs > 0 ? '已扣除超时 ' + fmt(totalOverdueMs) : '理论 ' + fmt(theoretical);
+      bufferEl.textContent = fmt(actualBuffer); bufferEl.className = 'val ok';
+      document.getElementById(key + 'BufferTimeSub').textContent = totalOverdueMs > 0 ? '已扣除超时 ' + fmt(totalOverdueMs) : '理论 ' + fmt(theoretical);
     } else {
-      bufferEl.textContent = '-' + fmt(-actualBuffer);
-      bufferEl.className = 'val bad';
-      bufferSubEl.textContent = '已用完';
+      bufferEl.textContent = '-' + fmt(-actualBuffer); bufferEl.className = 'val bad';
+      document.getElementById(key + 'BufferTimeSub').textContent = '已用完';
     }
   }
   const obEl = document.getElementById(key + 'OvertimeBanner');
@@ -1180,7 +1315,6 @@ function updatePage(key, now) {
     if (isOvertime) { obEl.classList.add('show'); document.getElementById(key + 'OvertimeAmount').textContent = fmt(tActual - examTotalMs); }
     else obEl.classList.remove('show');
   }
-
   const el1 = document.getElementById(key + 'TotalTarget');
   if (!el1) return;
   el1.textContent = fmt(tTarget);
@@ -1221,7 +1355,6 @@ function renderAdvice(key, totalScore, totalFull) {
   const cacheKey = modules.map(m => m.id + m.target + Math.floor(m.actual/1000) + m.correctQ + m.totalQ).join('|') + '|' + totalScore.toFixed(1);
   if (cacheKey === adviceCache[key]) return;
   adviceCache[key] = cacheKey;
-
   const stats = modules.map(m => {
     const targetMs = m.target * 60000;
     return { name: m.name, targetMs, actualMs: m.actual, targetMin: m.target, actualMin: m.actual / 60000, hasTarget: m.target > 0, diffMs: m.target > 0 ? m.actual - targetMs : 0, ratio: m.target > 0 ? m.actual / targetMs : 0, totalQ: m.totalQ, correctQ: m.correctQ, fullScore: calcFullScore(m), score: calcScore(m), accuracy: m.totalQ > 0 ? m.correctQ / m.totalQ : 0 };
@@ -1232,14 +1365,12 @@ function renderAdvice(key, totalScore, totalFull) {
   const tD = tA - tT;
   const list = []; const mentioned = {};
   const add = (type, text, k) => { if (k) { if (mentioned[k]) return; mentioned[k] = true; } list.push({ type, text }); };
-
   let summary, cls;
   if (allHave && tT > 0) {
     const tp = tD > 0 ? '总用时 <b>' + fmt(tA) + '</b>，比总目标多用了 <b>' + fmt(tD) + '</b>。' : '总用时 <b>' + fmt(tA) + '</b>，比总目标节省了 <b>' + fmt(-tD) + '</b>。';
     summary = tp + '预估得分 <b>' + totalScore.toFixed(1) + '</b> / ' + totalFull.toFixed(1) + '。';
     cls = tD > 0 ? 'bad' : 'ok';
   } else { summary = '总用时 <b>' + fmt(tA) + '</b>。'; cls = 'neutral'; }
-
   stats.filter(s => s.hasTarget && s.diffMs > 0).sort((a,b) => b.diffMs - a.diffMs).slice(0,2).forEach(s => {
     const pct = Math.round((s.ratio - 1) * 100);
     const st = matchStrategy(s.name);
@@ -1256,7 +1387,6 @@ function renderAdvice(key, totalScore, totalFull) {
   });
   const saves = stats.filter(s => s.hasTarget && s.diffMs < -60000).sort((a,b) => a.diffMs - b.diffMs);
   if (saves.length) add('ok', '「' + saves[0].name + '」节省了 <b>' + fmt(-saves[0].diffMs) + '</b>，可补给吃紧的模块。', saves[0].name);
-
   if (allHave && tD > 0) {
     const totalSaved = stats.reduce((a,s) => a + (s.diffMs < 0 ? -s.diffMs : 0), 0);
     if (totalSaved > 0) list.push({ type: 'tip', text: '各模块节省合计 <b>' + fmt(totalSaved) + '</b>，全部补给超时模块后总超时可压缩到 <b>' + fmt(Math.max(0, tD - totalSaved)) + '</b>。' });
@@ -1295,21 +1425,17 @@ async function init() {
     neonReady = true;
     console.log('✓ 数据库连接成功');
   } catch (err) { console.error('建表失败：', err); neonReady = false; }
-
   loadFromLocal();
   if (authUser && authPwdHash && neonReady) {
     await loadFromCloud();
     save.__quiet = true; saveCritical(); save.__quiet = false;
     setTimeout(() => showToast('✓ 已同步'), 300);
   }
-  buildPage('xingce');
-  buildPage('shenlun');
-  buildPracticePage();
+  buildPage('xingce'); buildPage('shenlun'); buildPracticePage();
   updateAuthBar();
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === state.active));
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + state.active));
-  updatePracticeTimerUI();
-  update();
+  updatePracticeTimerUI(); update();
 }
 
 init();
@@ -1325,8 +1451,7 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('beforeunload', () => {
   settle();
   if (practiceTimer.running) state.practice.actual += Date.now() - practiceTimer.startTs;
-  save.__quiet = true;
-  writeLocalNow();
+  save.__quiet = true; writeLocalNow();
 });
 </script>
 </body>
