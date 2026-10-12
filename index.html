@@ -59,6 +59,7 @@
   .exam-bar-item .unit{font-size:12px;color:var(--muted);font-weight:600;}
   .exam-bar-item .val{font-size:18px;font-weight:700;line-height:1.2;}
   .exam-bar-item .val.ok{color:var(--ok);}
+  .exam-bar-item .val.warn{color:var(--warn);}
   .exam-bar-item .val.bad{color:var(--danger);}
   .exam-bar-item .sub{font-size:11px;color:var(--muted);}
   .overtime-banner{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:12px;padding:10px 14px;font-size:13.5px;font-weight:600;margin-bottom:12px;text-align:center;display:none;}
@@ -142,7 +143,6 @@
   .advice-list li.ok b{color:var(--ok);}
   .advice-empty{font-size:13.5px;color:var(--muted);line-height:1.7;padding:16px;background:#fff;border-radius:14px;border:1px solid #e6e9f0;}
   .advice-empty b{color:var(--primary);}
-  /* 练习卡片 */
   .practice-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px;}
   .practice-select-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .practice-select-row label{font-size:13px;font-weight:600;color:var(--muted);}
@@ -153,7 +153,6 @@
   .practice-form label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted);font-weight:600;}
   .practice-form input{padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;}
   .practice-form label.full-width{grid-column:1 / -1;}
-  /* 历史筛选栏 */
   .filter-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid var(--line);border-radius:12px;margin-bottom:12px;}
   .filter-bar .filter-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);}
   .filter-bar select,
@@ -161,11 +160,16 @@
   .filter-bar select:focus,
   .filter-bar input[type="date"]:focus{outline:none;border-color:var(--primary);}
   .filter-bar .filter-count{margin-left:auto;font-size:12px;color:var(--primary);font-weight:600;}
-  .filter-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+  /* 分类筛选：按行测/申论上下排开 */
+  .filter-chips-wrapper{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;padding:12px;background:#f8fafc;border:1px solid var(--line);border-radius:12px;}
+  .chips-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .chips-row + .chips-row{padding-top:8px;border-top:1px dashed var(--line);}
+  .chips-label{font-size:12px;color:var(--muted);font-weight:700;min-width:40px;padding-right:4px;flex-shrink:0;}
+  .chips-label.xingce{color:#1d4ed8;}
+  .chips-label.shenlun{color:#b45309;}
   .chip{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;transition:.15s;font-family:inherit;}
   .chip.active{background:var(--primary);color:#fff;border-color:var(--primary);}
   .chip:hover:not(.active){background:#f3f4f6;}
-  /* 历史记录 */
   .history-item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:10px;}
   .history-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
   .history-name{font-size:14px;font-weight:700;}
@@ -186,7 +190,25 @@
   .history-table th:nth-child(2),
   .history-table th:nth-child(3),
   .history-table th:nth-child(4){text-align:right;}
-  .history-group-title{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin:16px 0 8px;padding-left:6px;border-left:3px solid var(--primary);}
+  .history-section-title{font-size:14px;font-weight:700;color:var(--primary);margin:20px 0 10px;padding-left:10px;border-left:4px solid var(--primary);}
+  .history-group-title{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin:12px 0 8px;padding-left:6px;border-left:3px solid #cbd5e1;}
+  .timer-float{position:fixed;right:18px;bottom:18px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border-radius:16px;padding:14px 18px;box-shadow:0 10px 30px rgba(37,99,235,.4);z-index:500;display:none;min-width:170px;cursor:pointer;user-select:none;transition:transform .15s,box-shadow .2s;}
+  .timer-float:hover{box-shadow:0 14px 36px rgba(37,99,235,.55);}
+  .timer-float:active{transform:scale(.97);}
+  .timer-float.show{display:block;animation:tfIn .3s ease;}
+  @keyframes tfIn{from{transform:translateY(20px) scale(.9);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
+  .timer-float.mini{padding:10px 14px;min-width:auto;}
+  .timer-float.mini .tf-body{display:none;}
+  .tf-head{font-size:11.5px;opacity:.85;font-weight:600;letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
+  .tf-head .tf-rec{width:8px;height:8px;border-radius:50%;background:#fff;animation:pulse 1.4s infinite;}
+  .tf-total{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.5px;line-height:1.15;margin-top:2px;}
+  .tf-body{margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.25);}
+  .tf-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;line-height:1.5;font-variant-numeric:tabular-nums;}
+  .tf-row .tf-k{opacity:.8;}
+  .tf-row .tf-v{font-weight:700;}
+  .tf-buffer{margin-top:4px;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;display:flex;justify-content:space-between;gap:10px;}
+  .tf-buffer .tf-k{opacity:.8;font-weight:600;}
+  .tf-buffer.bad{color:#fecaca;}
   @media (max-width:420px){
     body{padding:18px 12px 50px;}
     .m-time{font-size:28px;}
@@ -198,6 +220,9 @@
     .history-table th,
     .history-table td{padding:5px 4px;}
     .filter-bar .filter-item{font-size:11.5px;}
+    .timer-float{right:12px;bottom:12px;padding:12px 14px;min-width:150px;}
+    .tf-total{font-size:22px;}
+    .chips-label{min-width:34px;font-size:11px;}
   }
 </style>
 </head>
@@ -278,6 +303,15 @@
   <div class="page active" id="page-xingce"></div>
   <div class="page" id="page-shenlun"></div>
   <div class="page" id="page-practice"></div>
+</div>
+
+<div class="timer-float" id="timerFloat" title="点击收起/展开">
+  <div class="tf-head"><span class="tf-rec"></span><span id="tfTab">行测</span> · 计时中</div>
+  <div class="tf-total" id="tfTotal">00:00</div>
+  <div class="tf-body">
+    <div class="tf-row"><span class="tf-k">当前模块</span><span class="tf-v" id="tfModule">--</span></div>
+    <div class="tf-buffer" id="tfBufferRow"><span class="tf-k">涂卡时间</span><span class="tf-v" id="tfBuffer">--:--</span></div>
+  </div>
 </div>
 
 <input type="file" id="importFileInput" accept="application/json" style="display:none">
@@ -362,7 +396,6 @@ let state = {
   practice: buildDefaultPractice()
 };
 
-/* 历史筛选状态 */
 const examFilter = { xingce: { time: 'all', start: '', end: '' }, shenlun: { time: 'all', start: '', end: '' } };
 const practiceFilter = { time: 'all', start: '', end: '', module: 'all' };
 
@@ -372,7 +405,7 @@ const els = { xingce: {}, shenlun: {} };
 const adviceCache = { xingce: '', shenlun: '' };
 let saveTimer = null;
 let saveResetPending = null;
-let noteEditing = null; // { kind: 'exam'|'practice', id: 'xxx' }
+let noteEditing = null;
 
 function fmt(ms) {
   ms = Math.max(0, ms || 0);
@@ -410,7 +443,6 @@ async function hashPassword(str) {
 }
 const escapeHtml = (str) => String(str || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
-/* 时间筛选 */
 function matchTimeFilter(ts, filter) {
   const now = Date.now();
   if (filter.time === 'all') return true;
@@ -438,7 +470,6 @@ function updateAuthBar() {
   }
 }
 
-/* ============ 保存 / 加载 ============ */
 function buildPayload() {
   return {
     v: 3, active: state.active, data: state.data, examTotal: state.examTotal,
@@ -519,7 +550,6 @@ async function loadFromCloud() {
   return false;
 }
 
-/* ============ 登录 / 退出 ============ */
 async function doLogin(username, password) {
   if (!neonReady) return { ok: false, error: '云端未连接' };
   if (!username) return { ok: false, error: '请输入用户名' };
@@ -564,7 +594,6 @@ function onLogout() {
   rebuildAllPages(); updateAuthBar(); showToast('已退出登录');
 }
 
-/* ============ 模态框 ============ */
 const loginModal = document.getElementById('loginModal');
 function openLoginModal() {
   loginModal.classList.add('show');
@@ -604,7 +633,6 @@ document.getElementById('saveResetConfirmBtn').addEventListener('click', () => {
 });
 document.getElementById('saveResetSourceInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('saveResetConfirmBtn').click(); });
 
-/* 备注模态框 */
 const noteModal = document.getElementById('noteModal');
 function openNoteModal(kind, id) {
   noteEditing = { kind, id };
@@ -619,9 +647,7 @@ function openNoteModal(kind, id) {
   setTimeout(() => document.getElementById('noteTextarea').focus(), 100);
 }
 document.getElementById('noteCancelBtn').addEventListener('click', () => { noteModal.classList.remove('show'); noteEditing = null; });
-document.getElementById('noteClearBtn').addEventListener('click', () => {
-  document.getElementById('noteTextarea').value = '';
-});
+document.getElementById('noteClearBtn').addEventListener('click', () => { document.getElementById('noteTextarea').value = ''; });
 document.getElementById('noteSaveBtn').addEventListener('click', () => {
   if (!noteEditing) return;
   const text = document.getElementById('noteTextarea').value.trim();
@@ -635,13 +661,11 @@ document.getElementById('noteSaveBtn').addEventListener('click', () => {
   noteModal.classList.remove('show');
   noteEditing = null;
   saveCritical();
-  /* 重新渲染对应历史 */
   renderExamHistory('xingce'); renderExamHistory('shenlun'); renderPracticeHistory();
   showToast('✓ 备注已保存');
 });
 noteModal.addEventListener('click', e => { if (e.target.id === 'noteModal') { noteModal.classList.remove('show'); noteEditing = null; } });
 
-/* ============ 手动读取 / 导出 / 导入 ============ */
 document.getElementById('manualLoadBtn').addEventListener('click', async () => {
   const btn = document.getElementById('manualLoadBtn'), old = btn.textContent;
   btn.disabled = true; btn.textContent = '读取中…';
@@ -680,6 +704,50 @@ document.getElementById('importFileInput').addEventListener('change', e => {
   reader.readAsText(file);
 });
 
+/* ============ 悬浮窗 ============ */
+function updateTimerFloat(now) {
+  const el = document.getElementById('timerFloat');
+  if (!el) return;
+  if (!timer.key || !timer.id) { el.classList.remove('show'); return; }
+  const key = timer.key;
+  const cur = findModule(key, timer.id);
+  if (!cur) { el.classList.remove('show'); return; }
+  const curModuleMs = cur.actual + (now - timer.startTs);
+  let totalMs = 0, notStartedMs = 0;
+  state.data[key].modules.forEach(m => {
+    if (m.id === timer.id) totalMs += curModuleMs;
+    else totalMs += m.actual;
+    if (m.id !== timer.id && m.actual === 0 && m.target > 0) notStartedMs += m.target * 60000;
+  });
+  const examTotalMs = (state.examTotal[key] || 0) * 60000;
+  const bufferMs = examTotalMs - totalMs - notStartedMs;
+
+  document.getElementById('tfTab').textContent = key === 'xingce' ? '行测' : '申论';
+  document.getElementById('tfTotal').textContent = fmt(totalMs);
+  document.getElementById('tfModule').textContent = cur.name + ' ' + fmt(curModuleMs);
+
+  const bufRow = document.getElementById('tfBufferRow');
+  const bufEl = document.getElementById('tfBuffer');
+  if (examTotalMs === 0) {
+    bufRow.style.display = 'none';
+  } else {
+    bufRow.style.display = 'flex';
+    if (bufferMs >= 0) {
+      bufEl.textContent = fmt(bufferMs);
+      bufEl.className = 'tf-v';
+      bufRow.className = 'tf-buffer';
+    } else {
+      bufEl.textContent = '预计超时 ' + fmt(-bufferMs);
+      bufEl.className = 'tf-v';
+      bufRow.className = 'tf-buffer bad';
+    }
+  }
+  el.classList.add('show');
+}
+document.getElementById('timerFloat').addEventListener('click', function () {
+  this.classList.toggle('mini');
+});
+
 /* ============ 套卷页面 ============ */
 function buildPage(key) {
   const cfg = state.data[key];
@@ -708,12 +776,8 @@ function buildPage(key) {
     '</div></div>';
   html += '<section class="modules" id="' + key + 'Modules"></section>';
   html += '<div id="' + key + 'Advice"></div>';
-
-  /* 历史记录区标题 */
   html += '<div class="section-head" style="margin-top:28px;"><h2>' + (key === 'shenlun' ? '申论' : '行测') + '历史记录</h2>' +
     '<button class="btn btn-ghost" data-clear-history="' + key + '">清空历史</button></div>';
-
-  /* 筛选栏 */
   html += '<div class="filter-bar">' +
     '<div class="filter-item"><span>时间：</span>' +
       '<select data-exam-time="' + key + '">' +
@@ -730,7 +794,6 @@ function buildPage(key) {
     '</div>' +
     '<div class="filter-count" id="' + key + 'HistoryCount"></div>' +
   '</div>';
-
   html += '<div id="' + key + 'HistoryList"></div>';
 
   pageEl.innerHTML = html;
@@ -739,13 +802,10 @@ function buildPage(key) {
   examTotalInput.addEventListener('input', () => { const v = parseInt(examTotalInput.value, 10); state.examTotal[key] = (isNaN(v) || v < 0) ? 0 : v; save(); update(); });
   examTotalInput.addEventListener('blur', () => { examTotalInput.value = state.examTotal[key] || 0; save(true); });
 
-  /* 筛选栏事件 */
   pageEl.querySelector('[data-exam-time="' + key + '"]').addEventListener('change', e => {
     flt.time = e.target.value;
-    const customDiv = pageEl.querySelector('.exam-custom-' + key);
-    customDiv.style.display = flt.time === 'custom' ? 'flex' : 'none';
-    renderExamHistory(key);
-    save();
+    pageEl.querySelector('.exam-custom-' + key).style.display = flt.time === 'custom' ? 'flex' : 'none';
+    renderExamHistory(key); save();
   });
   pageEl.querySelector('[data-exam-start="' + key + '"]').addEventListener('change', e => { flt.start = e.target.value; renderExamHistory(key); save(); });
   pageEl.querySelector('[data-exam-end="' + key + '"]').addEventListener('change', e => { flt.end = e.target.value; renderExamHistory(key); save(); });
@@ -870,6 +930,7 @@ function doResetNow(key) {
   if (timer.key === key) { timer.key = null; timer.id = null; timer.startTs = 0; }
   state.data[key].modules.forEach(m => { m.actual = 0; m.correctQ = 0; });
   saveCritical(); update(); renderExamHistory(key);
+  updateTimerFloat(Date.now());
 }
 
 /* ============ 单模块练习 ============ */
@@ -877,11 +938,25 @@ function buildPracticePage() {
   const pageEl = document.getElementById('page-practice');
   const flt = practiceFilter;
 
-  /* 生成模块分类 chips */
-  let chips = '<button class="chip' + (flt.module === 'all' ? ' active' : '') + '" data-practice-module="all">全部模块</button>';
-  [...DEFAULT_DATA.xingce.modules, ...DEFAULT_DATA.shenlun.modules].forEach(m => {
-    chips += '<button class="chip' + (flt.module === m.id ? ' active' : '') + '" data-practice-module="' + m.id + '">' + escapeHtml(m.name) + '</button>';
+  /* 分类筛选：按行测/申论上下排开 */
+  let chipsHtml = '<div class="filter-chips-wrapper">';
+  /* 全部 */
+  chipsHtml += '<div class="chips-row">' +
+    '<span class="chips-label">全部</span>' +
+    '<button class="chip' + (flt.module === 'all' ? ' active' : '') + '" data-practice-module="all">全部模块</button>' +
+  '</div>';
+  /* 行测 */
+  chipsHtml += '<div class="chips-row"><span class="chips-label xingce">行测</span>';
+  DEFAULT_DATA.xingce.modules.forEach(m => {
+    chipsHtml += '<button class="chip' + (flt.module === m.id ? ' active' : '') + '" data-practice-module="' + m.id + '">' + escapeHtml(m.name) + '</button>';
   });
+  chipsHtml += '</div>';
+  /* 申论 */
+  chipsHtml += '<div class="chips-row"><span class="chips-label shenlun">申论</span>';
+  DEFAULT_DATA.shenlun.modules.forEach(m => {
+    chipsHtml += '<button class="chip' + (flt.module === m.id ? ' active' : '') + '" data-practice-module="' + m.id + '">' + escapeHtml(m.name) + '</button>';
+  });
+  chipsHtml += '</div></div>';
 
   let options = '<optgroup label="行测">';
   DEFAULT_DATA.xingce.modules.forEach(m => options += '<option value="' + m.id + '">' + escapeHtml(m.name) + '</option>');
@@ -909,9 +984,7 @@ function buildPracticePage() {
       '<button class="btn btn-primary" id="practiceSaveBtn">💾 保存本次记录</button></div>' +
     '<div class="section-head" style="margin-top:28px;"><h2>单模块练习历史</h2>' +
       '<button class="btn btn-ghost" id="clearPracticeHistory">清空历史</button></div>' +
-    /* 模块分类 chips */
-    '<div class="filter-chips" id="practiceChips">' + chips + '</div>' +
-    /* 时间筛选 */
+    chipsHtml +
     '<div class="filter-bar">' +
       '<div class="filter-item"><span>时间：</span>' +
         '<select id="practiceTimeFilter">' +
@@ -997,17 +1070,14 @@ function buildPracticePage() {
     saveCritical(); renderPracticeHistory(); showToast('✓ 已清空');
   });
 
-  /* 模块分类 chips 事件 */
   pageEl.querySelectorAll('[data-practice-module]').forEach(btn => {
     btn.addEventListener('click', () => {
       practiceFilter.module = btn.getAttribute('data-practice-module');
       pageEl.querySelectorAll('[data-practice-module]').forEach(b => b.classList.toggle('active', b === btn));
-      renderPracticeHistory();
-      save();
+      renderPracticeHistory(); save();
     });
   });
 
-  /* 时间筛选事件 */
   document.getElementById('practiceTimeFilter').addEventListener('change', e => {
     flt.time = e.target.value;
     document.querySelector('.practice-custom-range').style.display = flt.time === 'custom' ? 'flex' : 'none';
@@ -1046,10 +1116,7 @@ function savePracticeRecord() {
     source: (state.practice.source || '').trim(),
     note: ''
   });
-  /* 不设上限 */
-  saveCritical();
-  renderPracticeHistory();
-  showToast('✓ 已保存');
+  saveCritical(); renderPracticeHistory(); showToast('✓ 已保存');
 }
 
 function renderPracticeHistory() {
@@ -1071,25 +1138,25 @@ function renderPracticeHistory() {
     return;
   }
   if (!list.length) {
-    box.innerHTML = '<div class="advice-empty">当前筛选条件下没有记录。可以切换模块分类或调整时间范围。</div>';
+    box.innerHTML = '<div class="advice-empty">当前筛选条件下没有记录。</div>';
     return;
   }
 
-  /* 按模块分组 */
-  const grouped = {};
+  const xingceIds = state.data.xingce.modules.map(m => m.id);
+  const grouped = { xingce: {}, shenlun: {} };
   list.forEach(h => {
-    if (!grouped[h.moduleName]) grouped[h.moduleName] = [];
-    grouped[h.moduleName].push(h);
+    const cat = xingceIds.indexOf(h.moduleId) !== -1 ? 'xingce' : 'shenlun';
+    if (!grouped[cat][h.moduleName]) grouped[cat][h.moduleName] = [];
+    grouped[cat][h.moduleName].push(h);
   });
 
-  let html = '';
-  Object.keys(grouped).forEach(modName => {
-    html += '<div class="history-group-title">' + escapeHtml(modName) + ' · ' + grouped[modName].length + ' 条</div>';
-    grouped[modName].forEach(h => {
+  function renderModuleGroup(modName, items) {
+    let inner = '<div class="history-group-title">' + escapeHtml(modName) + ' · ' + items.length + ' 条</div>';
+    items.forEach(h => {
       const sc = h.correctQ * h.perScore;
       const fs = h.totalQ * h.perScore;
       const acc = h.totalQ > 0 ? (h.correctQ / h.totalQ * 100).toFixed(0) + '%' : '—';
-      html += '<div class="history-item">' +
+      inner += '<div class="history-item">' +
         '<div class="history-top"><span class="history-name">' + escapeHtml(h.moduleName) + '</span><span class="history-date">' + formatDate(h.date) + '</span></div>' +
         '<div class="history-detail">用时 ' + fmt(h.actual) + ' · 题量 ' + h.totalQ + ' · 答对 ' + h.correctQ + ' · 正确率 ' + acc + ' · 得分 ' + (fs > 0 ? sc.toFixed(1) + '/' + fs.toFixed(1) : '—') + '</div>' +
         (h.source ? '<div class="history-source">📝 ' + escapeHtml(h.source) + '</div>' : '') +
@@ -1100,7 +1167,20 @@ function renderPracticeHistory() {
           '<button class="btn btn-xs" onclick="window.deletePracticeHistory(\'' + h.id + '\')">删除</button>' +
         '</div></div>';
     });
-  });
+    return inner;
+  }
+
+  let html = '';
+  const xingceTotal = Object.values(grouped.xingce).reduce((s, arr) => s + arr.length, 0);
+  if (xingceTotal > 0) {
+    html += '<div class="history-section-title">📘 行测 · ' + xingceTotal + ' 条</div>';
+    Object.keys(grouped.xingce).forEach(modName => { html += renderModuleGroup(modName, grouped.xingce[modName]); });
+  }
+  const shenlunTotal = Object.values(grouped.shenlun).reduce((s, arr) => s + arr.length, 0);
+  if (shenlunTotal > 0) {
+    html += '<div class="history-section-title">📕 申论 · ' + shenlunTotal + ' 条</div>';
+    Object.keys(grouped.shenlun).forEach(modName => { html += renderModuleGroup(modName, grouped.shenlun[modName]); });
+  }
   box.innerHTML = html;
 }
 
@@ -1131,7 +1211,6 @@ function saveExamSnapshot(type, source) {
     date: Date.now(), type, source: (source || '').trim(),
     modules, totalTime, totalScore, totalFull, note: ''
   });
-  /* 不设上限 */
   saveCritical();
 }
 
@@ -1252,6 +1331,7 @@ function update() {
   const now = Date.now();
   ['xingce','shenlun'].forEach(key => updatePage(key, now));
   updateTabs();
+  updateTimerFloat(now);
 }
 function updateTabs() {
   document.querySelectorAll('.tab').forEach(btn => {
@@ -1262,7 +1342,8 @@ function updateTabs() {
 }
 function updatePage(key, now) {
   if (state.data[key].modules.some(m => !els[key][m.id])) return;
-  let tTarget = 0, tActual = 0, tScore = 0, tFull = 0, totalOverdueMs = 0;
+  let tTarget = 0, tActual = 0, tScore = 0, tFull = 0;
+  let notStartedTargetMs = 0;
   state.data[key].modules.forEach(m => {
     const el = els[key][m.id];
     if (!el) return;
@@ -1272,7 +1353,7 @@ function updatePage(key, now) {
     const fullScore = calcFullScore(m);
     const score = calcScore(m);
     tTarget += targetMs; tActual += actual; tScore += score; tFull += fullScore;
-    if (targetMs > 0 && actual > targetMs) totalOverdueMs += actual - targetMs;
+    if (!running && m.actual === 0 && targetMs > 0) notStartedTargetMs += targetMs;
     el.time.textContent = fmt(actual);
     const over = targetMs > 0 && actual > targetMs;
     el.root.classList.toggle('active', running);
@@ -1293,21 +1374,27 @@ function updatePage(key, now) {
     } else { el.badge.textContent = '0'; el.badge.className = 'm-score-badge'; }
     el.btn.textContent = running ? '暂停' : (actual >= 1000 ? '继续' : '开始');
   });
+
   const examTotalMs = (state.examTotal[key] || 0) * 60000;
-  const theoretical = examTotalMs - tTarget;
-  const actualBuffer = theoretical - totalOverdueMs;
+  const bufferMs = examTotalMs - tActual - notStartedTargetMs;
   const isOvertime = examTotalMs > 0 && tActual > examTotalMs;
+
   const bufferEl = document.getElementById(key + 'BufferTime');
   const ttEl = document.getElementById(key + 'TotalTargetMinutes');
   if (ttEl) ttEl.textContent = Math.round(tTarget / 60000) + ' 分钟';
   if (bufferEl) {
-    if (examTotalMs === 0) { bufferEl.textContent = '--:--'; bufferEl.className = 'val'; document.getElementById(key + 'BufferTimeSub').textContent = '请填写总时间'; }
-    else if (actualBuffer >= 0) {
-      bufferEl.textContent = fmt(actualBuffer); bufferEl.className = 'val ok';
-      document.getElementById(key + 'BufferTimeSub').textContent = totalOverdueMs > 0 ? '已扣除超时 ' + fmt(totalOverdueMs) : '理论 ' + fmt(theoretical);
+    const subEl = document.getElementById(key + 'BufferTimeSub');
+    if (examTotalMs === 0) {
+      bufferEl.textContent = '--:--'; bufferEl.className = 'val';
+      subEl.textContent = '请填写总时间';
+    } else if (bufferMs >= 0) {
+      bufferEl.textContent = fmt(bufferMs);
+      bufferEl.className = 'val ' + (bufferMs < 5 * 60000 ? 'warn' : 'ok');
+      subEl.textContent = '剩余 ' + Math.round(bufferMs / 60000) + ' 分钟';
     } else {
-      bufferEl.textContent = '-' + fmt(-actualBuffer); bufferEl.className = 'val bad';
-      document.getElementById(key + 'BufferTimeSub').textContent = '已用完';
+      bufferEl.textContent = '-' + fmt(-bufferMs);
+      bufferEl.className = 'val bad';
+      subEl.textContent = '预计超出 ' + Math.round(-bufferMs / 60000) + ' 分钟';
     }
   }
   const obEl = document.getElementById(key + 'OvertimeBanner');
@@ -1315,6 +1402,7 @@ function updatePage(key, now) {
     if (isOvertime) { obEl.classList.add('show'); document.getElementById(key + 'OvertimeAmount').textContent = fmt(tActual - examTotalMs); }
     else obEl.classList.remove('show');
   }
+
   const el1 = document.getElementById(key + 'TotalTarget');
   if (!el1) return;
   el1.textContent = fmt(tTarget);
