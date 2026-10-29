@@ -160,7 +160,6 @@
   .filter-bar select:focus,
   .filter-bar input[type="date"]:focus{outline:none;border-color:var(--primary);}
   .filter-bar .filter-count{margin-left:auto;font-size:12px;color:var(--primary);font-weight:600;}
-  /* 分类筛选：按行测/申论上下排开 */
   .filter-chips-wrapper{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;padding:12px;background:#f8fafc;border:1px solid var(--line);border-radius:12px;}
   .chips-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
   .chips-row + .chips-row{padding-top:8px;border-top:1px dashed var(--line);}
@@ -317,11 +316,34 @@
 <input type="file" id="importFileInput" accept="application/json" style="display:none">
 
 <script type="module">
-import { neon } from 'https://esm.sh/@neondatabase/serverless@1.0.0';
-
+/* ============================================================
+   数据库连接：多 CDN 备用 + 不影响页面加载
+   ============================================================ */
 const DATABASE_URL = 'postgresql://neondb_owner:npg_zf6Tb4pyMxUN@ep-wild-shape-b515iy4n-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require';
-const sql = neon(DATABASE_URL);
+let sql = null;
 let neonReady = false;
+
+const driverPromise = (async function () {
+  const CDN_LIST = [
+    'https://esm.sh/@neondatabase/serverless@1.0.0',
+    'https://cdn.jsdelivr.net/npm/@neondatabase/serverless@1.0.0/+esm',
+    'https://unpkg.com/@neondatabase/serverless@1.0.0/index.mjs'
+  ];
+  for (const url of CDN_LIST) {
+    try {
+      const mod = await import(url);
+      if (mod && mod.neon) {
+        sql = mod.neon(DATABASE_URL);
+        console.log('✓ 数据库驱动加载成功：' + url);
+        return true;
+      }
+    } catch (e) {
+      console.warn('驱动加载失败：' + url);
+    }
+  }
+  console.warn('⚠️ 所有 CDN 均加载失败，仅离线模式');
+  return false;
+})();
 
 let authUser = null, authPwdHash = null;
 try {
@@ -479,7 +501,7 @@ function buildPayload() {
 }
 function writeLocalNow() { return storage.setItem(getLocalKey(), buildPayload()); }
 async function writeCloudNow() {
-  if (!authUser || !authPwdHash || !neonReady) return;
+  if (!authUser || !authPwdHash || !neonReady || !sql) return;
   try {
     const json = JSON.stringify(buildPayload());
     const now = Date.now();
@@ -542,7 +564,7 @@ function loadFromLocal() {
   try { return mergePayload(readPayload(JSON.parse(raw))); } catch(e){ return false; }
 }
 async function loadFromCloud() {
-  if (!authUser || !authPwdHash || !neonReady) return false;
+  if (!authUser || !authPwdHash || !neonReady || !sql) return false;
   try {
     const rows = await sql`SELECT data FROM user_data_v2 WHERE user_id = ${authUser} AND password_hash = ${authPwdHash}`;
     if (rows && rows.length > 0 && rows[0].data) return mergePayload(readPayload(JSON.parse(rows[0].data)));
@@ -551,7 +573,7 @@ async function loadFromCloud() {
 }
 
 async function doLogin(username, password) {
-  if (!neonReady) return { ok: false, error: '云端未连接' };
+  if (!neonReady || !sql) return { ok: false, error: '云端未连接，请稍后重试或使用离线模式' };
   if (!username) return { ok: false, error: '请输入用户名' };
   if (!password || password.length < 4) return { ok: false, error: '密码至少 4 位' };
   const pwdHash = await hashPassword(username + ':' + password);
@@ -938,20 +960,14 @@ function buildPracticePage() {
   const pageEl = document.getElementById('page-practice');
   const flt = practiceFilter;
 
-  /* 分类筛选：按行测/申论上下排开 */
   let chipsHtml = '<div class="filter-chips-wrapper">';
-  /* 全部 */
-  chipsHtml += '<div class="chips-row">' +
-    '<span class="chips-label">全部</span>' +
-    '<button class="chip' + (flt.module === 'all' ? ' active' : '') + '" data-practice-module="all">全部模块</button>' +
-  '</div>';
-  /* 行测 */
+  chipsHtml += '<div class="chips-row"><span class="chips-label">全部</span>' +
+    '<button class="chip' + (flt.module === 'all' ? ' active' : '') + '" data-practice-module="all">全部模块</button></div>';
   chipsHtml += '<div class="chips-row"><span class="chips-label xingce">行测</span>';
   DEFAULT_DATA.xingce.modules.forEach(m => {
     chipsHtml += '<button class="chip' + (flt.module === m.id ? ' active' : '') + '" data-practice-module="' + m.id + '">' + escapeHtml(m.name) + '</button>';
   });
   chipsHtml += '</div>';
-  /* 申论 */
   chipsHtml += '<div class="chips-row"><span class="chips-label shenlun">申论</span>';
   DEFAULT_DATA.shenlun.modules.forEach(m => {
     chipsHtml += '<button class="chip' + (flt.module === m.id ? ' active' : '') + '" data-practice-module="' + m.id + '">' + escapeHtml(m.name) + '</button>';
@@ -1495,7 +1511,7 @@ function renderAdvice(key, totalScore, totalFull) {
   container.innerHTML = '<div class="advice"><div class="advice-title">📊 智能分析</div><div class="advice-summary ' + cls + '">' + summary + '</div><ul class="advice-list">' + list.slice(0, 7).map(it => '<li class="' + it.type + '">' + it.text + '</li>').join('') + '</ul></div>';
 }
 
-/* ============ 标签切换 & 启动 ============ */
+/* ============ 标签切换 ============ */
 document.querySelectorAll('.tab').forEach(btn => {
   btn.addEventListener('click', () => {
     const key = btn.getAttribute('data-tab');
@@ -1507,23 +1523,50 @@ document.querySelectorAll('.tab').forEach(btn => {
   });
 });
 
+/* ============================================================
+   init：先渲染本地，再异步连数据库（关键修复）
+   ============================================================ */
 async function init() {
-  try {
-    await sql`CREATE TABLE IF NOT EXISTS user_data_v2 (user_id TEXT PRIMARY KEY, password_hash TEXT NOT NULL, data TEXT NOT NULL, updated_at BIGINT NOT NULL)`;
-    neonReady = true;
-    console.log('✓ 数据库连接成功');
-  } catch (err) { console.error('建表失败：', err); neonReady = false; }
+  /* ① 先加载本地数据、渲染页面 —— 不管网络如何都能用 */
   loadFromLocal();
-  if (authUser && authPwdHash && neonReady) {
-    await loadFromCloud();
-    save.__quiet = true; saveCritical(); save.__quiet = false;
-    setTimeout(() => showToast('✓ 已同步'), 300);
-  }
-  buildPage('xingce'); buildPage('shenlun'); buildPracticePage();
+  buildPage('xingce');
+  buildPage('shenlun');
+  buildPracticePage();
   updateAuthBar();
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === state.active));
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + state.active));
-  updatePracticeTimerUI(); update();
+  updatePracticeTimerUI();
+  update();
+
+  /* ② 等待驱动加载完成（多 CDN 备用） */
+  const driverOk = await driverPromise;
+  if (!driverOk || !sql) {
+    console.warn('云端不可用，仅离线模式');
+    return;
+  }
+
+  /* ③ 尝试建表，8 秒超时，失败也不影响页面 */
+  try {
+    await Promise.race([
+      sql`CREATE TABLE IF NOT EXISTS user_data_v2 (user_id TEXT PRIMARY KEY, password_hash TEXT NOT NULL, data TEXT NOT NULL, updated_at BIGINT NOT NULL)`,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('连接超时')), 8000))
+    ]);
+    neonReady = true;
+    console.log('✓ 数据库连接成功');
+  } catch (err) {
+    console.warn('数据库连接失败，使用离线模式：', err && err.message);
+    neonReady = false;
+    return;
+  }
+
+  /* ④ 尝试从云端同步 */
+  if (authUser && authPwdHash) {
+    await loadFromCloud();
+    save.__quiet = true;
+    saveCritical();
+    save.__quiet = false;
+    setTimeout(() => showToast('✓ 已同步'), 300);
+  }
 }
 
 init();
