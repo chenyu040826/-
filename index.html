@@ -8,7 +8,7 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   :root{--bg:#f4f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e6e9f0;--primary:#3b82f6;--ok:#10b981;--warn:#f59e0b;--danger:#ef4444;}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:26px 16px 64px;}
-  .app{max-width:960px;margin:0 auto;position:relative;}
+  .app{max-width:960px;margin:0 auto;position:relative;transition:padding-top .2s;}
   .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:#10b981;color:#fff;padding:10px 22px;border-radius:999px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 6px 20px rgba(16,185,129,.3);transition:transform .35s cubic-bezier(.18,.89,.32,1.28);pointer-events:none;white-space:nowrap;}
   .toast.show{transform:translateX(-50%) translateY(0);}
   .toast.warn{background:#f59e0b;}
@@ -49,6 +49,50 @@
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.75);}}
   .page{display:none;}
   .page.active{display:block;}
+
+  /* 考场时钟横幅 */
+  .exam-clock-banner{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+    background:linear-gradient(135deg,#1e3a8a,#3b82f6);color:#fff;
+    border-radius:16px;padding:16px 20px;margin-bottom:12px;
+    box-shadow:0 8px 24px rgba(30,58,138,.25);
+    transition:background .3s,box-shadow .3s,padding .2s;
+  }
+  .exam-clock-banner.idle{background:linear-gradient(135deg,#64748b,#94a3b8);box-shadow:0 8px 24px rgba(100,116,139,.2);}
+  .exam-clock-banner.over{background:linear-gradient(135deg,#991b1b,#ef4444);box-shadow:0 8px 24px rgba(153,27,27,.35);animation:clockPulse 1.6s infinite;}
+  @keyframes clockPulse{0%,100%{box-shadow:0 8px 24px rgba(153,27,27,.35);}50%{box-shadow:0 8px 32px rgba(239,68,68,.6);}}
+
+  /* 浮动状态：计时中固定到视口顶部 */
+  .exam-clock-banner.floating{
+    position:fixed;top:8px;left:50%;transform:translateX(-50%);
+    width:calc(100% - 32px);max-width:928px;
+    z-index:900;margin:0;
+    border-radius:14px;padding:10px 16px;
+    box-shadow:0 10px 32px rgba(30,58,138,.42);
+    backdrop-filter:blur(8px);
+  }
+  .exam-clock-banner.floating.over{animation:none;box-shadow:0 10px 32px rgba(239,68,68,.5);}
+  .exam-clock-banner.floating .ec-time{font-size:28px;letter-spacing:1px;}
+  .exam-clock-banner.floating .ec-label{font-size:11px;}
+  .exam-clock-banner.floating .ec-sub{font-size:11px;}
+  .exam-clock-banner.floating .ec-right{flex-direction:row;align-items:center;gap:8px;}
+  .exam-clock-banner.floating .ec-right label{display:none;}
+  .exam-clock-banner.floating .ec-right input{font-size:13px;padding:5px 8px;width:105px;}
+  .exam-clock-banner.floating .ec-right .ec-sub{display:none;}
+
+  /* 浮动时给页面内容让出空间 */
+  body.has-floating-clock .app{padding-top:76px;}
+
+  .ec-left{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .ec-label{font-size:12px;opacity:.85;font-weight:600;letter-spacing:1px;}
+  .ec-time{font-size:46px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:2px;line-height:1.05;text-shadow:0 2px 8px rgba(0,0,0,.2);}
+  .ec-right{display:flex;flex-direction:column;gap:6px;align-items:flex-end;}
+  .ec-right label{font-size:11.5px;opacity:.9;font-weight:600;}
+  .ec-right input{padding:7px 11px;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.18);color:#fff;border-radius:8px;font-size:15px;font-family:inherit;font-variant-numeric:tabular-nums;font-weight:700;backdrop-filter:blur(4px);cursor:pointer;}
+  .ec-right input::-webkit-calendar-picker-indicator{filter:invert(1);cursor:pointer;}
+  .ec-right input:focus{outline:none;border-color:#fff;background:rgba(255,255,255,.3);}
+  .ec-sub{font-size:11.5px;opacity:.8;margin-top:2px;}
+
   .exam-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px;}
   .exam-bar-item{display:flex;flex-direction:column;gap:4px;}
   .exam-bar-item .label{font-size:11px;color:var(--muted);font-weight:600;}
@@ -191,7 +235,7 @@
   .history-table th:nth-child(4){text-align:right;}
   .history-section-title{font-size:14px;font-weight:700;color:var(--primary);margin:20px 0 10px;padding-left:10px;border-left:4px solid var(--primary);}
   .history-group-title{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin:12px 0 8px;padding-left:6px;border-left:3px solid #cbd5e1;}
-  .timer-float{position:fixed;right:18px;bottom:18px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border-radius:16px;padding:14px 18px;box-shadow:0 10px 30px rgba(37,99,235,.4);z-index:500;display:none;min-width:170px;cursor:pointer;user-select:none;transition:transform .15s,box-shadow .2s;}
+  .timer-float{position:fixed;right:18px;bottom:18px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border-radius:16px;padding:14px 18px;box-shadow:0 10px 30px rgba(37,99,235,.4);z-index:500;display:none;min-width:180px;cursor:pointer;user-select:none;transition:transform .15s,box-shadow .2s;}
   .timer-float:hover{box-shadow:0 14px 36px rgba(37,99,235,.55);}
   .timer-float:active{transform:scale(.97);}
   .timer-float.show{display:block;animation:tfIn .3s ease;}
@@ -208,6 +252,9 @@
   .tf-buffer{margin-top:4px;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;display:flex;justify-content:space-between;gap:10px;}
   .tf-buffer .tf-k{opacity:.8;font-weight:600;}
   .tf-buffer.bad{color:#fecaca;}
+  .tf-clock{margin-top:4px;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;display:flex;justify-content:space-between;gap:10px;background:rgba(255,255,255,.12);padding:5px 8px;border-radius:8px;}
+  .tf-clock .tf-k{opacity:.85;font-weight:600;}
+
   @media (max-width:420px){
     body{padding:18px 12px 50px;}
     .m-time{font-size:28px;}
@@ -219,9 +266,16 @@
     .history-table th,
     .history-table td{padding:5px 4px;}
     .filter-bar .filter-item{font-size:11.5px;}
-    .timer-float{right:12px;bottom:12px;padding:12px 14px;min-width:150px;}
+    .timer-float{right:12px;bottom:12px;padding:12px 14px;min-width:160px;}
     .tf-total{font-size:22px;}
     .chips-label{min-width:34px;font-size:11px;}
+    .ec-time{font-size:36px;}
+    .exam-clock-banner{padding:12px 14px;}
+    .ec-right input{font-size:14px;padding:6px 9px;}
+    .exam-clock-banner.floating{top:6px;padding:8px 12px;}
+    .exam-clock-banner.floating .ec-time{font-size:22px;letter-spacing:.5px;}
+    .exam-clock-banner.floating .ec-right input{font-size:12px;padding:4px 6px;width:92px;}
+    body.has-floating-clock .app{padding-top:64px;}
   }
 </style>
 </head>
@@ -274,7 +328,7 @@
 
   <header>
     <h1>公考模块计时器 · 云端版</h1>
-    <p>离线可用 · 登录后数据自动同步到云端</p>
+    <p>离线可用 · 模拟考场真实时间 · 登录后数据自动同步</p>
   </header>
 
   <div class="auth-bar guest" id="authBar">
@@ -309,6 +363,7 @@
   <div class="tf-total" id="tfTotal">00:00</div>
   <div class="tf-body">
     <div class="tf-row"><span class="tf-k">当前模块</span><span class="tf-v" id="tfModule">--</span></div>
+    <div class="tf-clock"><span class="tf-k">考场时间</span><span class="tf-v" id="tfClock">--:--:--</span></div>
     <div class="tf-buffer" id="tfBufferRow"><span class="tf-k">涂卡时间</span><span class="tf-v" id="tfBuffer">--:--</span></div>
   </div>
 </div>
@@ -316,34 +371,56 @@
 <input type="file" id="importFileInput" accept="application/json" style="display:none">
 
 <script type="module">
-/* ============================================================
-   数据库连接：多 CDN 备用 + 不影响页面加载
-   ============================================================ */
 const DATABASE_URL = 'postgresql://neondb_owner:npg_zf6Tb4pyMxUN@ep-wild-shape-b515iy4n-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require';
 let sql = null;
 let neonReady = false;
 
 const driverPromise = (async function () {
   const CDN_LIST = [
+    'https://unpkg.com/@neondatabase/serverless@1.0.0/index.mjs',
     'https://esm.sh/@neondatabase/serverless@1.0.0',
-    'https://cdn.jsdelivr.net/npm/@neondatabase/serverless@1.0.0/+esm',
-    'https://unpkg.com/@neondatabase/serverless@1.0.0/index.mjs'
+    'https://cdn.jsdelivr.net/npm/@neondatabase/serverless@1.0.0/+esm'
   ];
   for (const url of CDN_LIST) {
     try {
       const mod = await import(url);
       if (mod && mod.neon) {
         sql = mod.neon(DATABASE_URL);
-        console.log('✓ 数据库驱动加载成功：' + url);
+        console.log('✓ 驱动加载成功：' + url);
         return true;
       }
     } catch (e) {
-      console.warn('驱动加载失败：' + url);
+      console.warn('驱动加载失败：' + url + '（' + (e.message || e) + '）');
     }
   }
   console.warn('⚠️ 所有 CDN 均加载失败，仅离线模式');
   return false;
 })();
+
+async function ensureCloudReady() {
+  if (neonReady && sql) return true;
+  const driverOk = await driverPromise;
+  if (!driverOk || !sql) {
+    showToast('⚠️ 驱动加载失败，请检查网络或刷新页面', 'warn');
+    return false;
+  }
+  try {
+    showToast('正在连接云端…');
+    await Promise.race([
+      sql`CREATE TABLE IF NOT EXISTS user_data_v2 (user_id TEXT PRIMARY KEY, password_hash TEXT NOT NULL, data TEXT NOT NULL, updated_at BIGINT NOT NULL)`,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('连接超时 25 秒')), 25000))
+    ]);
+    neonReady = true;
+    console.log('✓ 数据库连接成功');
+    showToast('✓ 云端已连接');
+    updateAuthBar();
+    return true;
+  } catch (err) {
+    console.error('数据库连接失败：', err);
+    showToast('⚠️ 云端连接失败：' + (err.message || '未知'), 'warn');
+    return false;
+  }
+}
 
 let authUser = null, authPwdHash = null;
 try {
@@ -386,6 +463,8 @@ const DEFAULT_DATA = {
   }
 };
 
+const DEFAULT_START = { xingce: '09:00', shenlun: '14:00' };
+
 const STRATEGIES = [
   { keys: ['常识'], ideal: [6,12], tip: '不会的快速蒙一个。' },
   { keys: ['政治'], ideal: [6,12], tip: '时政不要反复琢磨。' },
@@ -413,6 +492,7 @@ let state = {
     shenlun: { modules: DEFAULT_DATA.shenlun.modules.map(m => ({...m, actual: 0, correctQ: 0})) }
   },
   examTotal: { xingce: 120, shenlun: 180 },
+  examStartTime: { xingce: '09:00', shenlun: '14:00' },
   examHistory: [],
   practiceHistory: [],
   practice: buildDefaultPractice()
@@ -428,6 +508,7 @@ const adviceCache = { xingce: '', shenlun: '' };
 let saveTimer = null;
 let saveResetPending = null;
 let noteEditing = null;
+let lastFloatKey = null;   /* 记录上一次浮动的 key，避免重复更新 */
 
 function fmt(ms) {
   ms = Math.max(0, ms || 0);
@@ -450,6 +531,29 @@ const findModule = (key, id) => state.data[key].modules.find(m => m.id === id);
 const calcScore = (m) => (m.totalQ > 0 && m.perScore > 0) ? Math.min(m.correctQ, m.totalQ) * m.perScore : 0;
 const calcFullScore = (m) => m.totalQ * m.perScore;
 
+function getExamClock(key, now) {
+  let startStr = state.examStartTime[key] || DEFAULT_START[key];
+  if (!/^\d{1,2}:\d{2}$/.test(startStr)) startStr = DEFAULT_START[key];
+  const parts = startStr.split(':');
+  const hh = parseInt(parts[0], 10) || 0;
+  const mm = parseInt(parts[1], 10) || 0;
+  const baseMs = (hh * 60 + mm) * 60000;
+  let usedMs = 0;
+  state.data[key].modules.forEach(m => {
+    if (timer.key === key && timer.id === m.id) usedMs += m.actual + (now - timer.startTs);
+    else usedMs += m.actual;
+  });
+  return { baseMs, usedMs, totalMs: baseMs + usedMs };
+}
+function formatClock(ms) {
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600) % 24;
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  const pad = n => (n < 10 ? '0' + n : '' + n);
+  return pad(h) + ':' + pad(m) + ':' + pad(s);
+}
+
 function showToast(msg, warn) {
   const el = document.getElementById('toast');
   el.textContent = msg;
@@ -457,7 +561,7 @@ function showToast(msg, warn) {
   void el.offsetWidth;
   el.classList.add('show');
   clearTimeout(el.__tid);
-  el.__tid = setTimeout(() => el.classList.remove('show'), 1800);
+  el.__tid = setTimeout(() => el.classList.remove('show'), 2200);
 }
 async function hashPassword(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
@@ -483,11 +587,11 @@ function updateAuthBar() {
   const bar = document.getElementById('authBar'), text = document.getElementById('authText'), btn = document.getElementById('authActionBtn');
   if (authUser) {
     bar.className = 'auth-bar logged';
-    text.innerHTML = '☁️ 已登录：<span class="name">' + escapeHtml(authUser) + '</span>';
+    text.innerHTML = '☁️ 已登录：<span class="name">' + escapeHtml(authUser) + '</span>' + (neonReady ? '' : '（离线）');
     btn.textContent = '退出登录';
   } else {
     bar.className = 'auth-bar guest';
-    text.textContent = '🔓 离线模式';
+    text.textContent = '🔓 离线模式' + (neonReady ? ' · 云端已连接' : ' · 云端未连接');
     btn.textContent = '登录 / 注册';
   }
 }
@@ -495,6 +599,7 @@ function updateAuthBar() {
 function buildPayload() {
   return {
     v: 3, active: state.active, data: state.data, examTotal: state.examTotal,
+    examStartTime: state.examStartTime,
     examHistory: state.examHistory, practiceHistory: state.practiceHistory,
     practice: state.practice, savedAt: Date.now()
   };
@@ -538,6 +643,7 @@ function readPayload(d) {
   if (d.data && (d.data.xingce || d.data.shenlun)) r.data = d.data;
   else if (d.xingce || d.shenlun) r.data = d;
   if (d.examTotal) r.examTotal = d.examTotal;
+  if (d.examStartTime) r.examStartTime = d.examStartTime;
   if (Array.isArray(d.examHistory)) r.examHistory = d.examHistory;
   if (Array.isArray(d.practiceHistory)) r.practiceHistory = d.practiceHistory;
   if (d.practice) r.practice = d.practice;
@@ -551,6 +657,10 @@ function mergePayload(p) {
   if (p.examTotal) {
     if (typeof p.examTotal.xingce === 'number') state.examTotal.xingce = p.examTotal.xingce;
     if (typeof p.examTotal.shenlun === 'number') state.examTotal.shenlun = p.examTotal.shenlun;
+  }
+  if (p.examStartTime) {
+    if (typeof p.examStartTime.xingce === 'string' && p.examStartTime.xingce) state.examStartTime.xingce = p.examStartTime.xingce;
+    if (typeof p.examStartTime.shenlun === 'string' && p.examStartTime.shenlun) state.examStartTime.shenlun = p.examStartTime.shenlun;
   }
   if (Array.isArray(p.examHistory) && p.examHistory.length >= state.examHistory.length) { state.examHistory = p.examHistory; got = true; }
   if (Array.isArray(p.practiceHistory) && p.practiceHistory.length >= state.practiceHistory.length) { state.practiceHistory = p.practiceHistory; got = true; }
@@ -573,9 +683,12 @@ async function loadFromCloud() {
 }
 
 async function doLogin(username, password) {
-  if (!neonReady || !sql) return { ok: false, error: '云端未连接，请稍后重试或使用离线模式' };
   if (!username) return { ok: false, error: '请输入用户名' };
   if (!password || password.length < 4) return { ok: false, error: '密码至少 4 位' };
+  if (!neonReady || !sql) {
+    const ok = await ensureCloudReady();
+    if (!ok) return { ok: false, error: '云端连接失败，请检查网络后重试，或继续使用离线模式' };
+  }
   const pwdHash = await hashPassword(username + ':' + password);
   try {
     const rows = await sql`SELECT password_hash FROM user_data_v2 WHERE user_id = ${username}`;
@@ -591,7 +704,7 @@ async function doLogin(username, password) {
 }
 async function onLoginSuccess(username, pwdHash, isNew) {
   const backup = JSON.parse(JSON.stringify({
-    data: state.data, examTotal: state.examTotal,
+    data: state.data, examTotal: state.examTotal, examStartTime: state.examStartTime,
     examHistory: state.examHistory, practiceHistory: state.practiceHistory,
     practice: state.practice
   }));
@@ -726,7 +839,6 @@ document.getElementById('importFileInput').addEventListener('change', e => {
   reader.readAsText(file);
 });
 
-/* ============ 悬浮窗 ============ */
 function updateTimerFloat(now) {
   const el = document.getElementById('timerFloat');
   if (!el) return;
@@ -743,10 +855,12 @@ function updateTimerFloat(now) {
   });
   const examTotalMs = (state.examTotal[key] || 0) * 60000;
   const bufferMs = examTotalMs - totalMs - notStartedMs;
+  const clock = getExamClock(key, now);
 
   document.getElementById('tfTab').textContent = key === 'xingce' ? '行测' : '申论';
   document.getElementById('tfTotal').textContent = fmt(totalMs);
   document.getElementById('tfModule').textContent = cur.name + ' ' + fmt(curModuleMs);
+  document.getElementById('tfClock').textContent = formatClock(clock.totalMs);
 
   const bufRow = document.getElementById('tfBufferRow');
   const bufEl = document.getElementById('tfBuffer');
@@ -770,13 +884,28 @@ document.getElementById('timerFloat').addEventListener('click', function () {
   this.classList.toggle('mini');
 });
 
-/* ============ 套卷页面 ============ */
 function buildPage(key) {
   const cfg = state.data[key];
   const pageEl = document.getElementById('page-' + key);
   const flt = examFilter[key];
+  const defaultStart = DEFAULT_START[key] || (key === 'xingce' ? '09:00' : '14:00');
+  const currentStart = state.examStartTime[key] || defaultStart;
 
   let html = '';
+
+  html += '<div class="exam-clock-banner idle" id="' + key + 'ClockBanner">' +
+    '<div class="ec-left">' +
+      '<div class="ec-label">🕐 考场时间</div>' +
+      '<div class="ec-time" id="' + key + 'ClockTime">' + formatClock((parseInt(currentStart.split(':')[0],10)||0)*3600000 + (parseInt(currentStart.split(':')[1],10)||0)*60000) + '</div>' +
+      '<div class="ec-sub" id="' + key + 'ClockSub">尚未开始 · 开考时间 ' + currentStart + '</div>' +
+    '</div>' +
+    '<div class="ec-right">' +
+      '<label>开考时间</label>' +
+      '<input type="time" id="' + key + 'StartTime" value="' + currentStart + '">' +
+      '<div class="ec-sub">默认 ' + defaultStart + '</div>' +
+    '</div>' +
+  '</div>';
+
   html += '<section class="exam-bar">' +
     '<div class="exam-bar-item"><span class="label">考试总时间</span><div class="row"><input type="number" id="' + key + 'ExamTotal" min="0" value="' + (state.examTotal[key] || 0) + '"><span class="unit">分钟</span></div></div>' +
     '<div class="exam-bar-item"><span class="label">模块目标合计</span><span class="val" id="' + key + 'TotalTargetMinutes">0 分钟</span><span class="sub">目标合计</span></div>' +
@@ -819,6 +948,15 @@ function buildPage(key) {
   html += '<div id="' + key + 'HistoryList"></div>';
 
   pageEl.innerHTML = html;
+
+  const startTimeInput = document.getElementById(key + 'StartTime');
+  startTimeInput.addEventListener('change', () => {
+    let v = startTimeInput.value || defaultStart;
+    if (!/^\d{1,2}:\d{2}$/.test(v)) v = defaultStart;
+    state.examStartTime[key] = v;
+    startTimeInput.value = v;
+    save(); update();
+  });
 
   const examTotalInput = document.getElementById(key + 'ExamTotal');
   examTotalInput.addEventListener('input', () => { const v = parseInt(examTotalInput.value, 10); state.examTotal[key] = (isNaN(v) || v < 0) ? 0 : v; save(); update(); });
@@ -955,7 +1093,6 @@ function doResetNow(key) {
   updateTimerFloat(Date.now());
 }
 
-/* ============ 单模块练习 ============ */
 function buildPracticePage() {
   const pageEl = document.getElementById('page-practice');
   const flt = practiceFilter;
@@ -1215,7 +1352,6 @@ window.deletePracticeHistory = function(id) {
 };
 window.openPracticeNote = function(id) { openNoteModal('practice', id); };
 
-/* ============ 套卷历史 ============ */
 function saveExamSnapshot(type, source) {
   const cfg = state.data[type];
   const modules = cfg.modules.map(m => ({ id: m.id, name: m.name, target: m.target, actual: m.actual, totalQ: m.totalQ, perScore: m.perScore, correctQ: m.correctQ }));
@@ -1311,16 +1447,33 @@ function clearExamHistory(type) {
   saveCritical(); renderExamHistory(type); showToast('✓ 已清空');
 }
 
-/* ============ 页面重建 ============ */
+/* ============================================================
+   时钟浮动状态：只让当前激活 tab 且正在计时的时钟浮动
+   ============================================================ */
+function updateClockFloatState() {
+  const shouldFloatKey = (timer.key && state.active === timer.key) ? timer.key : null;
+  if (shouldFloatKey === lastFloatKey) return;
+  lastFloatKey = shouldFloatKey;
+
+  ['xingce', 'shenlun'].forEach(key => {
+    const banner = document.getElementById(key + 'ClockBanner');
+    if (!banner) return;
+    banner.classList.toggle('floating', key === shouldFloatKey);
+  });
+
+  document.body.classList.toggle('has-floating-clock', !!shouldFloatKey);
+}
+
 function rebuildAllPages() {
   els.xingce = {}; els.shenlun = {};
   buildPage('xingce'); buildPage('shenlun'); buildPracticePage();
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === state.active));
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + state.active));
-  updatePracticeTimerUI(); update();
+  updatePracticeTimerUI();
+  lastFloatKey = '__rebuild__';  /* 强制重新评估浮动状态 */
+  update();
 }
 
-/* ============ 计时 ============ */
 function settle() {
   if (timer.key && timer.id) {
     const m = findModule(timer.key, timer.id);
@@ -1342,12 +1495,12 @@ function resetOne(key, id) {
   save(true); update();
 }
 
-/* ============ 刷新显示 ============ */
 function update() {
   const now = Date.now();
   ['xingce','shenlun'].forEach(key => updatePage(key, now));
   updateTabs();
   updateTimerFloat(now);
+  updateClockFloatState();
 }
 function updateTabs() {
   document.querySelectorAll('.tab').forEach(btn => {
@@ -1417,6 +1570,27 @@ function updatePage(key, now) {
   if (obEl) {
     if (isOvertime) { obEl.classList.add('show'); document.getElementById(key + 'OvertimeAmount').textContent = fmt(tActual - examTotalMs); }
     else obEl.classList.remove('show');
+  }
+
+  const clock = getExamClock(key, now);
+  const clockTimeEl = document.getElementById(key + 'ClockTime');
+  const clockBannerEl = document.getElementById(key + 'ClockBanner');
+  const clockSubEl = document.getElementById(key + 'ClockSub');
+  if (clockTimeEl) clockTimeEl.textContent = formatClock(clock.totalMs);
+  if (clockBannerEl) {
+    const running = timer.key === key;
+    const started = clock.usedMs > 0 || running;
+    clockBannerEl.classList.toggle('idle', !started);
+    clockBannerEl.classList.toggle('over', examTotalMs > 0 && clock.usedMs > examTotalMs);
+  }
+  if (clockSubEl) {
+    const running = timer.key === key;
+    const started = clock.usedMs > 0 || running;
+    if (!started) {
+      clockSubEl.textContent = '尚未开始 · 开考时间 ' + (state.examStartTime[key] || DEFAULT_START[key]);
+    } else {
+      clockSubEl.textContent = '已用时 ' + fmt(clock.usedMs) + (running ? ' · 计时中' : ' · 已暂停');
+    }
   }
 
   const el1 = document.getElementById(key + 'TotalTarget');
@@ -1511,7 +1685,6 @@ function renderAdvice(key, totalScore, totalFull) {
   container.innerHTML = '<div class="advice"><div class="advice-title">📊 智能分析</div><div class="advice-summary ' + cls + '">' + summary + '</div><ul class="advice-list">' + list.slice(0, 7).map(it => '<li class="' + it.type + '">' + it.text + '</li>').join('') + '</ul></div>';
 }
 
-/* ============ 标签切换 ============ */
 document.querySelectorAll('.tab').forEach(btn => {
   btn.addEventListener('click', () => {
     const key = btn.getAttribute('data-tab');
@@ -1523,11 +1696,7 @@ document.querySelectorAll('.tab').forEach(btn => {
   });
 });
 
-/* ============================================================
-   init：先渲染本地，再异步连数据库（关键修复）
-   ============================================================ */
 async function init() {
-  /* ① 先加载本地数据、渲染页面 —— 不管网络如何都能用 */
   loadFromLocal();
   buildPage('xingce');
   buildPage('shenlun');
@@ -1538,28 +1707,26 @@ async function init() {
   updatePracticeTimerUI();
   update();
 
-  /* ② 等待驱动加载完成（多 CDN 备用） */
   const driverOk = await driverPromise;
   if (!driverOk || !sql) {
     console.warn('云端不可用，仅离线模式');
     return;
   }
 
-  /* ③ 尝试建表，8 秒超时，失败也不影响页面 */
   try {
     await Promise.race([
       sql`CREATE TABLE IF NOT EXISTS user_data_v2 (user_id TEXT PRIMARY KEY, password_hash TEXT NOT NULL, data TEXT NOT NULL, updated_at BIGINT NOT NULL)`,
-      new Promise((_, reject) => setTimeout(() => reject(new Error('连接超时')), 8000))
+      new Promise((_, reject) => setTimeout(() => reject(new Error('连接超时')), 25000))
     ]);
     neonReady = true;
     console.log('✓ 数据库连接成功');
+    updateAuthBar();
   } catch (err) {
     console.warn('数据库连接失败，使用离线模式：', err && err.message);
     neonReady = false;
     return;
   }
 
-  /* ④ 尝试从云端同步 */
   if (authUser && authPwdHash) {
     await loadFromCloud();
     save.__quiet = true;
